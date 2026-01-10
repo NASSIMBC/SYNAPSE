@@ -47,7 +47,6 @@
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #CCFF00; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #ddd; border-radius: 2px; }
@@ -63,17 +62,13 @@
                 <a href="#" class="hover:text-synapse transition">Aide</a>
             </div>
             <div class="flex space-x-6 items-center">
-                <span class="flex items-center gap-2 cursor-pointer hover:text-white">
-                    <i class="fa-solid fa-mobile-screen"></i> App
-                </span>
-                <span class="flex items-center gap-2 cursor-pointer hover:text-white">
-                    DZ / DA <i class="fa-solid fa-chevron-down text-[10px]"></i>
-                </span>
+                <span class="flex items-center gap-2 cursor-pointer hover:text-white"><i class="fa-solid fa-mobile-screen"></i> App</span>
+                <span class="flex items-center gap-2 cursor-pointer hover:text-white">DZ / DA <i class="fa-solid fa-chevron-down text-[10px]"></i></span>
             </div>
         </div>
     </div>
 
-   <header class="bg-white dark:bg-dark-900 sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-dark-800 transition-colors duration-300">
+    <header class="bg-white dark:bg-dark-900 sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-dark-800 transition-colors duration-300">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-4 md:gap-8">
             <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl mr-2 text-black dark:text-white"><i class="fa-solid fa-bars"></i></button>
 
@@ -117,15 +112,9 @@
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
                         <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
                         <ul class="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1">
-                                <span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                            </li>
-                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1">
-                                <span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                            </li>
-                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1">
-                                <span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                            </li>
+                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                         </ul>
                     </div>
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
@@ -133,19 +122,6 @@
                         <div class="mb-4">
                             <input type="range" min="0" max="200000" value="50000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
                             <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0 DA</span><span>200k DA+</span></div>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="number" placeholder="Min" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 rounded text-sm border border-transparent focus:border-synapse outline-none">
-                            <input type="number" placeholder="Max" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 rounded text-sm border border-transparent focus:border-synapse outline-none">
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                        <h3 class="font-bold mb-3 text-sm text-black dark:text-white">Marques</h3>
-                        <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse"><input type="checkbox" class="accent-synapse"> Xiaomi</label>
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse"><input type="checkbox" class="accent-synapse" checked> Apple</label>
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse"><input type="checkbox" class="accent-synapse"> Samsung</label>
-                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse"><input type="checkbox" class="accent-synapse"> Sony</label>
                         </div>
                     </div>
                 </div>
@@ -194,19 +170,6 @@
                                 </div>
                             </div>
                         </div>
-                         <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
-                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
-                                <img src="https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png" class="h-full object-contain group-hover:scale-105 transition">
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Drone 4K Pro GPS 5km Range</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">95 000 DA</span></div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.8</div>
-                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -216,82 +179,20 @@
     <div id="product-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
             <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="cursor-pointer hover:text-synapse">Audio</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
             <span class="text-black dark:text-white font-bold">Sony WH-1000XM5</span>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
             <div class="col-span-12 md:col-span-6 lg:col-span-5">
                 <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 mb-4 h-[400px]">
                     <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full object-contain drop-shadow-2xl">
                 </div>
-                <div class="grid grid-cols-4 gap-4">
-                    <div class="bg-white dark:bg-dark-900 rounded-lg p-2 border-2 border-synapse cursor-pointer h-20 flex items-center justify-center">
-                        <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full">
-                    </div>
-                    <div class="bg-white dark:bg-dark-900 rounded-lg p-2 border border-gray-200 dark:border-dark-800 cursor-pointer h-20 flex items-center justify-center opacity-60 hover:opacity-100">
-                        <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full grayscale">
-                    </div>
-                </div>
             </div>
-
             <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
-                <div>
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="bg-black text-white dark:bg-synapse dark:text-black text-[10px] font-bold px-2 py-0.5 rounded">OFFICIEL SONY</span>
-                        <div class="text-yellow-400 text-xs">
-                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                        </div>
-                        <span class="text-xs text-gray-500">2340 Avis</span>
-                    </div>
-                    <h1 class="text-3xl font-black text-black dark:text-white mb-4">Sony WH-1000XM5 Wireless Noise Cancelling</h1>
-                </div>
-
+                <h1 class="text-3xl font-black text-black dark:text-white mb-4">Sony WH-1000XM5 Wireless Noise Cancelling</h1>
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <div class="flex items-end gap-3 mb-1">
-                        <span class="text-4xl font-black text-synapse-dark dark:text-synapse">58 000 DA</span>
-                        <span class="text-lg text-gray-400 line-through mb-1">65 000 DA</span>
-                        <span class="text-sm text-red-500 font-bold mb-1">-10%</span>
-                    </div>
-                    <div class="text-xs text-gray-500">Prix hors taxes. Livraison gratuite.</div>
+                    <div class="flex items-end gap-3 mb-1"><span class="text-4xl font-black text-synapse-dark dark:text-synapse">58 000 DA</span><span class="text-sm text-red-500 font-bold mb-1">-10%</span></div>
                 </div>
-
-                <div>
-                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">Couleur: <span class="text-black dark:text-white">Noir Mat</span></h3>
-                    <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-full bg-black border-2 border-synapse cursor-pointer shadow-lg"></div>
-                        <div class="w-10 h-10 rounded-full bg-gray-200 border-2 border-transparent hover:border-synapse cursor-pointer"></div>
-                        <div class="w-10 h-10 rounded-full bg-blue-900 border-2 border-transparent hover:border-synapse cursor-pointer"></div>
-                    </div>
-                </div>
-
-                <div class="flex gap-4">
-                    <div class="flex items-center border border-gray-300 dark:border-dark-700 rounded-lg px-3 gap-4">
-                        <button class="text-gray-500 hover:text-synapse"><i class="fa-solid fa-minus"></i></button>
-                        <span class="font-bold text-black dark:text-white">1</span>
-                        <button class="text-gray-500 hover:text-synapse"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                    <button onclick="addToCart()" class="flex-1 bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
-                    <button class="w-14 bg-gray-100 dark:bg-dark-800 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-500 transition"><i class="fa-regular fa-heart text-xl"></i></button>
-                </div>
-
-                <div class="grid grid-cols-3 gap-2 text-[10px] text-gray-500 text-center">
-                    <div class="flex flex-col items-center gap-1"><i class="fa-solid fa-shield-halved text-xl text-synapse"></i><span>Garantie 2 ans</span></div>
-                    <div class="flex flex-col items-center gap-1"><i class="fa-solid fa-rotate-left text-xl text-synapse"></i><span>Retour 30j</span></div>
-                    <div class="flex flex-col items-center gap-1"><i class="fa-solid fa-truck-fast text-xl text-synapse"></i><span>Livraison 48h</span></div>
-                </div>
-            </div>
-
-            <div class="col-span-12 lg:col-span-3">
-                <div class="bg-white dark:bg-dark-900 rounded-xl p-4 border border-gray-100 dark:border-dark-800 sticky top-24">
-                    <h4 class="font-bold text-sm text-gray-400 mb-3 uppercase">Vendu par</h4>
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">S</div>
-                        <div><div class="font-bold text-sm dark:text-white">Sony Official Store</div><div class="text-xs text-green-500">98% Satisfaction</div></div>
-                    </div>
-                    <button class="w-full border border-gray-300 dark:border-dark-700 text-black dark:text-white py-2 rounded-lg text-sm font-bold hover:border-synapse hover:text-synapse transition mb-2">Visiter la boutique</button>
-                    <button class="w-full bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition">Contacter</button>
-                </div>
+                <button onclick="addToCart()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
             </div>
         </div>
     </div>
@@ -301,70 +202,13 @@
             <div class="bg-gray-50 dark:bg-dark-800 p-6 text-center border-b border-gray-100 dark:border-dark-700">
                 <div class="inline-flex items-center justify-center w-12 h-12 bg-synapse rounded-lg text-black font-bold text-2xl mb-3">S</div>
                 <h2 class="text-2xl font-black text-black dark:text-white">Bienvenue</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Accédez à votre espace Synapse</p>
             </div>
-
-            <div class="flex border-b border-gray-100 dark:border-dark-700">
-                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-4 font-bold text-sm border-b-2 border-synapse text-black dark:text-white bg-white dark:bg-dark-900">Se connecter</button>
-                <button onclick="toggleAuthMode('signup')" id="tab-signup" class="flex-1 py-4 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-synapse bg-gray-50 dark:bg-dark-800">Créer un compte</button>
-            </div>
-
             <div class="p-8">
                 <form id="form-login" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Email</label>
-                        <input type="email" placeholder="exemple@email.com" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Mot de passe</label>
-                        <input type="password" placeholder="••••••••" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white transition">
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <label class="flex items-center gap-2 cursor-pointer text-gray-600 dark:text-gray-400">
-                            <input type="checkbox" class="accent-synapse"> Se souvenir de moi
-                        </label>
-                        <a href="#" class="text-synapse-dark dark:text-synapse hover:underline">Mot de passe oublié ?</a>
-                    </div>
+                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label><input type="email" placeholder="email@exemple.com" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mot de passe</label><input type="password" placeholder="••••••••" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
                     <button type="button" onclick="showDashboard()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-black hover:text-synapse transition shadow-lg mt-2">SE CONNECTER</button>
                 </form>
-
-                <form id="form-signup" class="space-y-4 hidden">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Prénom</label>
-                            <input type="text" placeholder="John" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Nom</label>
-                            <input type="text" placeholder="Doe" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white transition">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Email</label>
-                        <input type="email" placeholder="exemple@email.com" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Mot de passe</label>
-                        <input type="password" placeholder="••••••••" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white transition">
-                    </div>
-                    <button type="button" class="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-3 rounded-lg hover:bg-synapse hover:text-black transition shadow-lg mt-2">CRÉER MON COMPTE</button>
-                </form>
-
-                <div class="mt-6">
-                    <div class="relative flex py-2 items-center">
-                        <div class="flex-grow border-t border-gray-200 dark:border-dark-700"></div>
-                        <span class="flex-shrink-0 mx-4 text-gray-400 text-xs">Ou continuer avec</span>
-                        <div class="flex-grow border-t border-gray-200 dark:border-dark-700"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <button class="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-dark-700 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-800 transition">
-                            <i class="fa-brands fa-google text-red-500"></i> <span class="text-sm font-bold dark:text-white">Google</span>
-                        </button>
-                        <button class="flex items-center justify-center gap-2 py-2.5 border border-gray-200 dark:border-dark-700 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-800 transition">
-                            <i class="fa-brands fa-apple text-black dark:text-white"></i> <span class="text-sm font-bold dark:text-white">Apple</span>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -374,65 +218,69 @@
             <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
             <span class="text-black dark:text-white font-bold">Mon Tableau de Bord</span>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div class="col-span-1">
                 <div class="bg-white dark:bg-dark-900 rounded-xl p-4 border border-gray-100 dark:border-dark-800">
                     <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100 dark:border-dark-800">
                         <div class="w-12 h-12 rounded-full bg-gray-200 dark:bg-dark-700 flex items-center justify-center text-xl"><i class="fa-solid fa-user"></i></div>
-                        <div>
-                            <div class="font-bold text-black dark:text-white">John Doe</div>
-                            <div class="text-xs text-gray-500">Membre Gold</div>
-                        </div>
+                        <div><div class="font-bold text-black dark:text-white">John Doe</div><div class="text-xs text-gray-500">Membre Gold</div></div>
                     </div>
                     <ul class="space-y-2 text-sm">
                         <li class="bg-synapse/10 text-synapse-dark dark:text-synapse font-bold p-2 rounded cursor-pointer"><i class="fa-solid fa-box mr-2"></i> Mes Commandes</li>
-                        <li class="text-gray-600 dark:text-gray-400 hover:text-synapse p-2 rounded cursor-pointer"><i class="fa-regular fa-heart mr-2"></i> Liste d'envies</li>
-                        <li class="text-gray-600 dark:text-gray-400 hover:text-synapse p-2 rounded cursor-pointer"><i class="fa-solid fa-wallet mr-2"></i> Portefeuille</li>
-                        <li class="text-gray-600 dark:text-gray-400 hover:text-synapse p-2 rounded cursor-pointer"><i class="fa-solid fa-location-dot mr-2"></i> Adresses</li>
                     </ul>
                 </div>
             </div>
-
             <div class="col-span-1 md:col-span-3">
-                <div class="grid grid-cols-3 gap-4 mb-6">
-                    <div class="bg-white dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center"><i class="fa-solid fa-box-open"></i></div>
-                        <div><div class="text-2xl font-black text-black dark:text-white">2</div><div class="text-xs text-gray-500">En cours</div></div>
-                    </div>
-                    <div class="bg-white dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><i class="fa-solid fa-check"></i></div>
-                        <div><div class="text-2xl font-black text-black dark:text-white">14</div><div class="text-xs text-gray-500">Livrées</div></div>
-                    </div>
-                    <div class="bg-white dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center"><i class="fa-solid fa-undo"></i></div>
-                        <div><div class="text-2xl font-black text-black dark:text-white">0</div><div class="text-xs text-gray-500">Retours</div></div>
-                    </div>
-                </div>
-
                 <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden">
                     <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white">Dernières commandes</div>
-                    
                     <div class="p-4 flex gap-4 border-b border-gray-100 dark:border-dark-800 last:border-0">
                         <div class="w-20 h-20 bg-gray-50 dark:bg-dark-800 rounded-lg flex items-center justify-center">
                             <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-16 max-w-16 object-contain">
                         </div>
                         <div class="flex-1">
-                            <div class="flex justify-between mb-1">
-                                <h4 class="font-bold text-black dark:text-white">Sony WH-1000XM5</h4>
-                                <span class="text-orange-500 text-xs font-bold bg-orange-50 dark:bg-orange-900/20 px-2 py-0.5 rounded">Expédié</span>
-                            </div>
-                            <div class="text-sm text-gray-500 mb-2">Commande #839201 • 20 Jan 2026</div>
-                            <div class="flex items-center gap-4 text-xs">
-                                <button class="text-synapse-dark dark:text-synapse font-bold hover:underline">Suivre le colis</button>
-                                <button class="text-gray-500 hover:text-black dark:hover:text-white">Voir détails</button>
-                            </div>
+                            <h4 class="font-bold text-black dark:text-white">Sony WH-1000XM5</h4>
+                            <span class="text-orange-500 text-xs font-bold">En cours de livraison</span>
                         </div>
-                        <div class="text-right">
-                            <div class="font-bold text-black dark:text-white">58 000 DA</div>
-                            <div class="text-xs text-gray-400">Qté: 1</div>
-                        </div>
+                        <div class="text-right font-bold text-black dark:text-white">58 000 DA</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Nom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
+                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
+                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <div>
+                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
+                            <p class="text-xs text-gray-500">Payez en espèces à la réception (Yalidine/Wilaya).</p>
+                        </div>
+                        <div class="ml-auto text-synapse-dark"><i class="fa-solid fa-circle-check text-2xl"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
+                    <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
+                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-6"><span>Total</span> <span>76 500 DA</span></div>
+                    <button class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse transition uppercase tracking-wide">Confirmer la commande</button>
                 </div>
             </div>
         </div>
@@ -451,91 +299,32 @@
             <div class="col-span-1">
                 <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24">
                     <div class="flex items-center gap-3 mb-8">
-                        <div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black">
-                            <i class="fa-solid fa-store"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-white">Tech Store DZ</div>
-                            <div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div>
-                        </div>
+                        <div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black"><i class="fa-solid fa-store"></i></div>
+                        <div><div class="font-bold text-white">Tech Store DZ</div><div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div></div>
                     </div>
                     <ul class="space-y-1 text-sm font-bold text-gray-400">
-                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-synapse text-black">
-                            <i class="fa-solid fa-box-open"></i> Commandes <span class="bg-red-600 text-white text-[10px] px-1.5 rounded-full ml-auto">2</span>
-                        </li>
-                        <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3">
-                            <i class="fa-solid fa-plus-circle"></i> Ajouter Produit
-                        </li>
-                        <li class="hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3">
-                            <i class="fa-solid fa-chart-line"></i> Statistiques
-                        </li>
-                        <li class="hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3">
-                            <i class="fa-solid fa-wallet"></i> Portefeuille (120k DA)
-                        </li>
+                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-synapse text-black"><i class="fa-solid fa-box-open"></i> Commandes <span class="bg-red-600 text-white text-[10px] px-1.5 rounded-full ml-auto">2</span></li>
+                        <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
                     </ul>
                 </div>
             </div>
 
             <div class="col-span-1 lg:col-span-3 space-y-6">
-                
                 <div id="seller-tab-orders" class="seller-tab-content">
                     <h2 class="text-2xl font-black text-white mb-6">Commandes à traiter</h2>
-                    
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
                         <div class="flex flex-wrap justify-between items-start gap-4 border-b border-gray-800 pb-4 mb-4">
-                            <div>
-                                <span class="text-xs text-gray-500 uppercase font-bold">Commande #839201</span>
-                                <div class="text-sm text-gray-300 mt-1"><i class="fa-regular fa-clock"></i> Il y a 2 heures</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">58 000 DA</div>
-                                <span class="bg-orange-500/20 text-orange-500 text-xs font-bold px-2 py-1 rounded border border-orange-500/20">En Attente</span>
-                            </div>
+                            <div><span class="text-xs text-gray-500 uppercase font-bold">Commande #839201</span><div class="text-sm text-gray-300 mt-1"><i class="fa-regular fa-clock"></i> Il y a 2 heures</div></div>
+                            <div class="text-right"><div class="text-xl font-black text-white">58 000 DA</div><span class="bg-orange-500/20 text-orange-500 text-xs font-bold px-2 py-1 rounded border border-orange-500/20">En Attente</span></div>
                         </div>
-                        
                         <div class="flex gap-4 items-center mb-4">
                             <img src="https://pngimg.com/d/headphones_PNG7645.png" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
-                            <div>
-                                <h4 class="font-bold text-white">Sony WH-1000XM5 Noise Cancelling</h4>
-                                <div class="text-xs text-gray-400">Qté: 1 • Couleur: Noir</div>
-                            </div>
+                            <div><h4 class="font-bold text-white">Sony WH-1000XM5</h4><div class="text-xs text-gray-400">Qté: 1 • Couleur: Noir</div></div>
                         </div>
-
-                        <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800">
-                            <div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison à :</div>
-                            <p>Amine Benali, Cité 2000 Logements, Batiment A, Alger Centre (0555 12 34 56)</p>
-                        </div>
-
+                        <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800"><div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison à :</div><p>Amine Benali, Alger Centre (0555 12 34 56)</p></div>
                         <div class="flex gap-3">
-                            <button onclick="updateOrderStatus(this, 'Expédié')" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-[0_0_15px_rgba(204,255,0,0.3)]">
-                                <i class="fa-solid fa-check"></i> Confirmer & Expédier
-                            </button>
-                            <button class="px-4 border border-gray-700 text-gray-400 rounded-lg hover:text-white hover:border-white transition">
-                                <i class="fa-solid fa-print"></i>
-                            </button>
+                            <button onclick="updateOrderStatus(this, 'Expédié')" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition"><i class="fa-solid fa-check"></i> Confirmer & Expédier</button>
                         </div>
-                    </div>
-
-                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
-                        <div class="flex flex-wrap justify-between items-start gap-4 border-b border-gray-800 pb-4 mb-4">
-                            <div>
-                                <span class="text-xs text-gray-500 uppercase font-bold">Commande #839202</span>
-                                <div class="text-sm text-gray-300 mt-1"><i class="fa-regular fa-clock"></i> Hier</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">18 500 DA</div>
-                                <span class="bg-green-500/20 text-green-500 text-xs font-bold px-2 py-1 rounded border border-green-500/20">Expédié</span>
-                            </div>
-                        </div>
-                        
-                        <div class="flex gap-4 items-center mb-4">
-                            <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
-                            <div>
-                                <h4 class="font-bold text-white">Smart Watch Ultra Titanium</h4>
-                                <div class="text-xs text-gray-400">Qté: 1 • Couleur: Orange</div>
-                            </div>
-                        </div>
-                        <div class="text-center text-xs text-gray-500 italic">En attente de livraison par Yalidine...</div>
                     </div>
                 </div>
 
@@ -543,90 +332,14 @@
                     <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
                         <div class="space-y-4">
-                            <div class="border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center text-gray-500 hover:border-synapse hover:text-synapse cursor-pointer transition bg-black/20">
-                                <i class="fa-solid fa-camera text-3xl mb-2"></i>
-                                <span class="text-xs font-bold">Ajouter des photos</span>
-                            </div>
-
-                            <input type="text" placeholder="Titre du produit (ex: iPhone 15 Pro)" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
-                            
+                            <div class="border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center text-gray-500 hover:border-synapse hover:text-synapse cursor-pointer transition bg-black/20"><i class="fa-solid fa-camera text-3xl mb-2"></i><span class="text-xs font-bold">Ajouter des photos</span></div>
+                            <input type="text" placeholder="Titre du produit" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
                             <div class="grid grid-cols-2 gap-4">
                                 <input type="number" placeholder="Prix (DA)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
-                                <input type="number" placeholder="Stock (Qté)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                                <input type="number" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
                             </div>
-
-                            <select class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400 focus:border-synapse outline-none">
-                                <option>Choisir une catégorie...</option>
-                                <option>Téléphonie</option>
-                                <option>Informatique</option>
-                                <option>Accessoires</option>
-                            </select>
-
-                            <textarea placeholder="Description détaillée..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none"></textarea>
-
-                            <button class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">
-                                Publier l'annonce
-                            </button>
+                            <button class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">Publier l'annonce</button>
                         </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span onclick="toggleCart()" class="cursor-pointer hover:text-synapse">Panier</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Nom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Adresse" class="col-span-2 p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Commune" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
-                    
-                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
-                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl">
-                            <i class="fa-solid fa-hand-holding-dollar"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
-                            <p class="text-xs text-gray-500">Payez en espèces à la réception de votre colis (Yalidine/Wilaya).</p>
-                        </div>
-                        <div class="ml-auto text-synapse-dark">
-                            <i class="fa-solid fa-circle-check text-2xl"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
-                    <h3 class="font-bold text-black dark:text-white mb-4">Résumé de la commande</h3>
-                    <div class="space-y-3 mb-4">
-                        <div class="flex justify-between text-sm text-gray-500"><span>Sous-total</span> <span>76 500 DA</span></div>
-                        <div class="flex justify-between text-sm text-gray-500"><span>Livraison</span> <span class="text-synapse-dark dark:text-synapse">Gratuit</span></div>
-                    </div>
-                    <div class="border-t border-gray-100 dark:border-dark-800 pt-4 mb-6">
-                        <div class="flex justify-between text-xl font-black text-black dark:text-white"><span>Total</span> <span>76 500 DA</span></div>
-                    </div>
-                    <button class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse hover:shadow-lg transition uppercase tracking-wide">
-                        Confirmer la commande
-                    </button>
-                    <div class="mt-4 flex items-center justify-center gap-2 text-gray-400 text-xs">
-                        <i class="fa-solid fa-truck-fast"></i> Livraison disponible 58 Wilayas
                     </div>
                 </div>
             </div>
@@ -646,13 +359,8 @@
                         <img src="https://pngimg.com/d/headphones_PNG7645.png" class="w-16 h-16 object-contain bg-white rounded-md">
                         <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Sony WH-1000XM5</h4><div class="text-xs text-gray-500 mb-1">Noir Mat</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">58 000 DA</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
                     </div>
-                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
-                        <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="w-16 h-16 object-contain bg-white rounded-md">
-                        <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Smart Watch Ultra</h4><div class="text-xs text-gray-500 mb-1">Titane</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">18 500 DA</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
-                    </div>
                 </div>
                 <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4">
-                    <div class="flex justify-between text-sm mb-2 text-gray-500"><span>Sous-total</span><span>76 500 DA</span></div>
                     <div class="flex justify-between text-xl font-black text-black dark:text-white mb-4"><span>Total</span><span>76 500 DA</span></div>
                     <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
                 </div>
@@ -669,9 +377,8 @@
             </div>
             <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
                 <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Accueil</li>
-                <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Mon Compte</li> <li class="cursor-pointer hover:text-synapse">Mes Commandes</li>
-                <li class="cursor-pointer hover:text-synapse">Liste d'envies</li>
-                <li class="pt-6 border-t border-gray-200 dark:border-dark-800"><a href="#" class="text-sm font-normal text-gray-500">Se déconnecter</a></li>
+                <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Mon Compte</li>
+                <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse text-red-500">Espace Vendeur</li>
             </ul>
         </div>
     </div>
@@ -684,8 +391,6 @@
     </div>
 
     <script>
-      <script>
-        // --- 1. DARK MODE ---
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -700,7 +405,6 @@
             }
         }
 
-        // --- 2. NAVIGATION ---
         function hideAllViews() {
             const views = ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'];
             views.forEach(id => {
@@ -709,101 +413,48 @@
             });
         }
 
-        function goHome() {
-            hideAllViews();
-            document.getElementById('home-view').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
+        function goHome() { hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        function showProduct() { hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        function showAuth() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        function showDashboard() { hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        function showSellerDashboard() { hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        function showCheckout() { hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); window.scrollTo(0, 0); }
 
-        function showProduct() {
-            hideAllViews();
-            document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0, 0); 
-        }
-
-        function showAuth() {
-            hideAllViews();
-            document.getElementById('auth-view').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        function showDashboard() {
-            hideAllViews();
-            // Ici, logiquement, on vérifie si l'user est vendeur ou acheteur via Supabase
-            // Pour l'instant, on montre le dashboard acheteur par défaut
-            document.getElementById('dashboard-view').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        // FONCTION POUR ACCÉDER AU DASHBOARD VENDEUR (Pour le test)
-        // Vous pouvez appeler cette fonction depuis la console ou créer un bouton secret
-        function showSellerDashboard() {
-            hideAllViews();
-            document.getElementById('seller-dashboard-view').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        function showCheckout() {
-            hideAllViews();
-            document.getElementById('checkout-view').classList.remove('hidden');
-            window.scrollTo(0, 0);
-        }
-
-        // --- 3. LOGIQUE VENDEUR ---
-        
-        // Changer d'onglet dans le dashboard vendeur
         function switchSellerTab(tabName) {
-            // Cacher tous les contenus
             document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
-            // Afficher le bon
             document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
-            
-            // Reset styles boutons (simple simulation visuelle)
             document.querySelectorAll('.seller-tab-btn').forEach(btn => {
                 btn.classList.remove('bg-synapse', 'text-black');
                 btn.classList.add('text-gray-400');
             });
-            // Activer le style du bouton cliqué (on triche un peu ici pour la demo)
             event.currentTarget.classList.add('bg-synapse', 'text-black');
             event.currentTarget.classList.remove('text-gray-400');
         }
 
-        // Simuler la confirmation d'une commande
         function updateOrderStatus(btn, status) {
-            // Changer le texte et le style du bouton pour montrer que c'est fait
             btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${status}`;
             btn.classList.remove('bg-synapse', 'text-black', 'hover:bg-white');
             btn.classList.add('bg-green-600', 'text-white', 'cursor-default');
-            btn.removeAttribute('onclick'); // Empêcher de recliquer
-            
-            // Notification
+            btn.removeAttribute('onclick');
             const toast = document.getElementById('toast');
             toast.querySelector('span').innerText = "Commande confirmée et expédiée !";
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
         }
 
-        // --- 4. AUTH & CART ---
         function toggleAuthMode(mode) {
             const loginForm = document.getElementById('form-login');
             const signupForm = document.getElementById('form-signup');
             const tabLogin = document.getElementById('tab-login');
             const tabSignup = document.getElementById('tab-signup');
-
             if (mode === 'login') {
-                loginForm.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-                tabLogin.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900');
-                tabLogin.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-                tabSignup.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900');
-                tabSignup.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+                loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
+                tabLogin.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+                tabSignup.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
             } else {
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
-                tabSignup.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900');
-                tabSignup.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-                tabLogin.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900');
-                tabLogin.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+                loginForm.classList.add('hidden'); signupForm.classList.remove('hidden');
+                tabSignup.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+                tabLogin.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
             }
         }
 
@@ -833,12 +484,11 @@
 
         function addToCart() {
             const toast = document.getElementById('toast');
-            toast.querySelector('span').innerText = "Produit ajouté au panier !"; // Reset text
+            toast.querySelector('span').innerText = "Produit ajouté au panier !";
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
             setTimeout(() => { toggleCart(); }, 500);
         }
-    </script>
     </script>
 </body>
 </html>
