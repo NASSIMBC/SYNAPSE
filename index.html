@@ -553,6 +553,7 @@
     </div>
 
     <script>
+      <script>
         // --- 1. DARK MODE ---
         function toggleTheme() {
             const html = document.documentElement;
@@ -570,17 +571,11 @@
 
         // --- 2. NAVIGATION ---
         function hideAllViews() {
-            document.getElementById('home-view').classList.add('hidden');
-            document.getElementById('product-view').classList.add('hidden');
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('dashboard-view').classList.add('hidden'); // Ajout
-            document.getElementById('checkout-view').classList.add('hidden'); // Ajout
-        }
-
-        function showProduct() {
-            hideAllViews();
-            document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0, 0); 
+            const views = ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'];
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
+            });
         }
 
         function goHome() {
@@ -589,27 +584,75 @@
             window.scrollTo(0, 0);
         }
 
+        function showProduct() {
+            hideAllViews();
+            document.getElementById('product-view').classList.remove('hidden');
+            window.scrollTo(0, 0); 
+        }
+
         function showAuth() {
             hideAllViews();
             document.getElementById('auth-view').classList.remove('hidden');
             window.scrollTo(0, 0);
         }
 
-        // Ajout: Show Dashboard
         function showDashboard() {
             hideAllViews();
+            // Ici, logiquement, on vérifie si l'user est vendeur ou acheteur via Supabase
+            // Pour l'instant, on montre le dashboard acheteur par défaut
             document.getElementById('dashboard-view').classList.remove('hidden');
             window.scrollTo(0, 0);
         }
 
-        // Ajout: Show Checkout
+        // FONCTION POUR ACCÉDER AU DASHBOARD VENDEUR (Pour le test)
+        // Vous pouvez appeler cette fonction depuis la console ou créer un bouton secret
+        function showSellerDashboard() {
+            hideAllViews();
+            document.getElementById('seller-dashboard-view').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
         function showCheckout() {
             hideAllViews();
             document.getElementById('checkout-view').classList.remove('hidden');
             window.scrollTo(0, 0);
         }
 
-        // Toggle Login/Signup
+        // --- 3. LOGIQUE VENDEUR ---
+        
+        // Changer d'onglet dans le dashboard vendeur
+        function switchSellerTab(tabName) {
+            // Cacher tous les contenus
+            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
+            // Afficher le bon
+            document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
+            
+            // Reset styles boutons (simple simulation visuelle)
+            document.querySelectorAll('.seller-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-synapse', 'text-black');
+                btn.classList.add('text-gray-400');
+            });
+            // Activer le style du bouton cliqué (on triche un peu ici pour la demo)
+            event.currentTarget.classList.add('bg-synapse', 'text-black');
+            event.currentTarget.classList.remove('text-gray-400');
+        }
+
+        // Simuler la confirmation d'une commande
+        function updateOrderStatus(btn, status) {
+            // Changer le texte et le style du bouton pour montrer que c'est fait
+            btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${status}`;
+            btn.classList.remove('bg-synapse', 'text-black', 'hover:bg-white');
+            btn.classList.add('bg-green-600', 'text-white', 'cursor-default');
+            btn.removeAttribute('onclick'); // Empêcher de recliquer
+            
+            // Notification
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').innerText = "Commande confirmée et expédiée !";
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        // --- 4. AUTH & CART ---
         function toggleAuthMode(mode) {
             const loginForm = document.getElementById('form-login');
             const signupForm = document.getElementById('form-signup');
@@ -633,11 +676,9 @@
             }
         }
 
-        // --- 3. PANIER (DRAWER) ---
         function toggleCart() {
             const drawer = document.getElementById('cart-drawer');
             const content = document.getElementById('cart-content');
-            
             if (drawer.classList.contains('hidden')) {
                 drawer.classList.remove('hidden');
                 setTimeout(() => { content.classList.remove('translate-x-full'); }, 10);
@@ -647,11 +688,9 @@
             }
         }
 
-        // --- 4. MENU MOBILE ---
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             const content = document.getElementById('mobile-menu-content');
-
             if (menu.classList.contains('hidden')) {
                 menu.classList.remove('hidden');
                 setTimeout(() => { content.classList.remove('-translate-x-full'); }, 10);
@@ -661,13 +700,14 @@
             }
         }
 
-        // --- 5. NOTIFICATION TOAST ---
         function addToCart() {
             const toast = document.getElementById('toast');
+            toast.querySelector('span').innerText = "Produit ajouté au panier !"; // Reset text
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
             setTimeout(() => { toggleCart(); }, 500);
         }
+    </script>
     </script>
 </body>
 </html>
