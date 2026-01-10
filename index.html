@@ -87,6 +87,10 @@
     <header class="bg-white dark:bg-dark-900 sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-dark-800 transition-colors duration-300">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-4 md:gap-8">
             
+            <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl mr-2 text-black dark:text-white">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
             <a href="#" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
                 <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-black font-bold text-xl">S</div>
                 <span class="text-2xl font-black tracking-tighter text-black dark:text-white group-hover:text-synapse transition">SYNAPSE</span>
@@ -113,7 +117,8 @@
                         <div class="text-sm font-bold text-black dark:text-white">Compte</div>
                     </div>
                 </div>
-                <div class="relative cursor-pointer group">
+                
+                <div onclick="toggleCart()" class="relative cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse transition"><i class="fa-solid fa-cart-shopping"></i></div>
                     <span class="absolute -top-2 -right-2 bg-synapse text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white dark:border-dark-900">2</span>
                 </div>
@@ -234,7 +239,7 @@
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1">
                                         <i class="fa-solid fa-star text-synapse"></i> 4.9
                                     </div>
-                                    <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
                                         <i class="fa-solid fa-plus"></i>
                                     </button>
                                 </div>
@@ -255,7 +260,7 @@
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1">
                                         <i class="fa-solid fa-star text-synapse"></i> 4.5
                                     </div>
-                                    <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
                                         <i class="fa-solid fa-plus"></i>
                                     </button>
                                 </div>
@@ -275,7 +280,7 @@
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1">
                                         <i class="fa-solid fa-star text-synapse"></i> 4.8
                                     </div>
-                                    <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
                                         <i class="fa-solid fa-plus"></i>
                                     </button>
                                 </div>
@@ -345,7 +350,7 @@
                         <span class="font-bold text-black dark:text-white">1</span>
                         <button class="text-gray-500 hover:text-synapse"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <button class="flex-1 bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">
+                    <button onclick="addToCart()" class="flex-1 bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">
                         Ajouter au panier
                     </button>
                     <button class="w-14 bg-gray-100 dark:bg-dark-800 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-500 transition">
@@ -409,8 +414,85 @@
         </div>
     </div>
 
+    <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
+        <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute right-0 top-0 h-full w-[400px] max-w-[85vw] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full" id="cart-content">
+            <div class="p-5 h-full flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-black text-black dark:text-white">Mon Panier (2)</h2>
+                    <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto space-y-4">
+                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
+                        <img src="https://pngimg.com/d/headphones_PNG7645.png" class="w-16 h-16 object-contain bg-white rounded-md">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Sony WH-1000XM5</h4>
+                            <div class="text-xs text-gray-500 mb-1">Noir Mat</div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-synapse-dark dark:text-synapse">$299.00</span>
+                                <div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
+                        <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="w-16 h-16 object-contain bg-white rounded-md">
+                        <div class="flex-1">
+                            <h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Smart Watch Ultra</h4>
+                            <div class="text-xs text-gray-500 mb-1">Titane</div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-synapse-dark dark:text-synapse">$85.00</span>
+                                <div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4">
+                    <div class="flex justify-between text-sm mb-2 text-gray-500">
+                        <span>Sous-total</span>
+                        <span>$384.00</span>
+                    </div>
+                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-4">
+                        <span>Total</span>
+                        <span>$384.00</span>
+                    </div>
+                    <button class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">
+                        Payer Maintenant
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
+        <div onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full" id="mobile-menu-content">
+            <div class="flex items-center justify-between mb-8">
+                <span class="text-xl font-black dark:text-white">MENU</span>
+                <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-xl dark:text-white"></i></button>
+            </div>
+            <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
+                <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Accueil</li>
+                <li class="cursor-pointer hover:text-synapse">Mes Commandes</li>
+                <li class="cursor-pointer hover:text-synapse">Liste d'envies</li>
+                <li class="cursor-pointer hover:text-synapse">Paramètres</li>
+                <li class="pt-6 border-t border-gray-200 dark:border-dark-800">
+                    <a href="#" class="text-sm font-normal text-gray-500">Se déconnecter</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300">
+        <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-check-circle text-synapse dark:text-green-600"></i>
+            <span class="font-bold text-sm">Produit ajouté au panier !</span>
+        </div>
+    </div>
+
     <script>
-        // 1. GESTION DU MODE SOMBRE
+        // --- 1. DARK MODE ---
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -426,17 +508,67 @@
             }
         }
 
-        // 2. NAVIGATION (Simulation Single Page App)
+        // --- 2. NAVIGATION ---
         function showProduct() {
             document.getElementById('home-view').classList.add('hidden');
             document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0, 0); // Remonter en haut de page
+            window.scrollTo(0, 0); 
         }
 
         function goHome() {
             document.getElementById('product-view').classList.add('hidden');
             document.getElementById('home-view').classList.remove('hidden');
             window.scrollTo(0, 0);
+        }
+
+        // --- 3. PANIER (DRAWER) ---
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const content = document.getElementById('cart-content');
+            
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('translate-x-full');
+                }, 10);
+            } else {
+                content.classList.add('translate-x-full');
+                setTimeout(() => {
+                    drawer.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // --- 4. MENU MOBILE ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const content = document.getElementById('mobile-menu-content');
+
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('-translate-x-full');
+                }, 10);
+            } else {
+                content.classList.add('-translate-x-full');
+                setTimeout(() => {
+                    menu.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // --- 5. NOTIFICATION TOAST ---
+        function addToCart() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+            
+            setTimeout(() => {
+                toggleCart();
+            }, 500);
         }
     </script>
 </body>
