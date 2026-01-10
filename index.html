@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,18 +10,21 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class', // Active le mode sombre manuel
             theme: {
                 extend: {
                     colors: {
                         synapse: {
-                            DEFAULT: '#CCFF00', /* Le vert lime de votre image */
+                            DEFAULT: '#CCFF00', // Vert Lime Signature
                             dark: '#A3CC00',
+                            dim: '#b3e600',
                             light: '#E5FF80'
                         },
                         dark: {
-                            900: '#050505',
-                            800: '#121212',
-                            700: '#1E1E1E'
+                            950: '#050505', // Fond ultra noir
+                            900: '#121212', // Fond modules
+                            800: '#1E1E1E', // Bordures sombres
+                            700: '#2D2D2D'
                         }
                     },
                     fontFamily: {
@@ -32,19 +35,43 @@
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Range Slider Custom Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #CCFF00;
+            cursor: pointer;
+            margin-top: -6px; 
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #ddd;
+            border-radius: 2px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #333;
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="bg-gray-50 text-gray-800 dark:bg-dark-950 dark:text-gray-200">
 
-    <div class="bg-dark-900 text-gray-300 text-xs py-2 hidden md:block border-b border-gray-800">
+    <div class="bg-dark-950 text-gray-400 text-xs py-2 hidden md:block border-b border-gray-800 dark:border-dark-800">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <div class="flex space-x-6">
                 <a href="#" class="hover:text-synapse transition">Vendre sur Synapse</a>
                 <a href="#" class="hover:text-synapse transition">Aide</a>
-                <a href="#" class="hover:text-synapse transition">Protection de l'acheteur</a>
             </div>
             <div class="flex space-x-6 items-center">
                 <span class="flex items-center gap-2 cursor-pointer hover:text-white">
@@ -53,405 +80,364 @@
                 <span class="flex items-center gap-2 cursor-pointer hover:text-white">
                     Fr / EUR <i class="fa-solid fa-chevron-down text-[10px]"></i>
                 </span>
-                <span class="flex items-center gap-2 cursor-pointer hover:text-white">
-                    <i class="fa-regular fa-heart"></i> Liste d'envies
-                </span>
             </div>
         </div>
     </div>
 
-    <header class="bg-white sticky top-0 z-50 shadow-sm py-4">
-        <div class="container mx-auto px-4 flex items-center justify-between gap-8">
+    <header class="bg-white dark:bg-dark-900 sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-dark-800 transition-colors duration-300">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-4 md:gap-8">
             
-            <a href="#" class="flex items-center gap-1 group">
-                <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-dark-900 font-bold text-xl">S</div>
-                <span class="text-2xl font-black tracking-tighter text-dark-900 group-hover:text-synapse-dark transition">SYNAPSE</span>
+            <a href="#" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
+                <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-black font-bold text-xl">S</div>
+                <span class="text-2xl font-black tracking-tighter text-black dark:text-white group-hover:text-synapse transition">SYNAPSE</span>
             </a>
 
             <div class="flex-1 max-w-3xl relative hidden md:block">
-                <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 h-11">
-                    <input type="text" placeholder="Chercher 'Montre connectée', 'Casque'..." class="w-full px-5 bg-transparent outline-none text-sm placeholder-gray-500 font-medium">
-                    <button class="bg-synapse h-full px-8 text-dark-900 font-bold hover:bg-black hover:text-synapse transition duration-300">
+                <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
+                    <input type="text" placeholder="Chercher..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
+                    <button class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="flex items-center gap-6">
+            <div class="flex items-center gap-6 shrink-0">
+                <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center text-gray-600 dark:text-synapse hover:bg-gray-200 dark:hover:bg-dark-700 transition">
+                    <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+
                 <div class="flex items-center gap-2 cursor-pointer group">
-                    <div class="text-2xl text-gray-700 group-hover:text-black"><i class="fa-regular fa-user"></i></div>
+                    <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse"><i class="fa-regular fa-user"></i></div>
                     <div class="hidden lg:block leading-tight">
-                        <div class="text-xs text-gray-500">Bienvenue</div>
-                        <div class="text-sm font-bold text-dark-900 group-hover:text-synapse-dark">Se connecter / S'inscrire</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Bonjour,</div>
+                        <div class="text-sm font-bold text-black dark:text-white">Compte</div>
                     </div>
                 </div>
                 <div class="relative cursor-pointer group">
-                    <div class="text-2xl text-gray-700 group-hover:text-black transition"><i class="fa-solid fa-cart-shopping"></i></div>
-                    <span class="absolute -top-2 -right-2 bg-synapse text-dark-900 text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white">2</span>
+                    <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse transition"><i class="fa-solid fa-cart-shopping"></i></div>
+                    <span class="absolute -top-2 -right-2 bg-synapse text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white dark:border-dark-900">2</span>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="container mx-auto px-4 mt-6">
-        <div class="grid grid-cols-12 gap-4 h-auto md:h-[400px]">
-            
-            <div class="col-span-2 bg-white rounded-xl shadow-sm p-4 hidden lg:block border border-gray-100">
-                <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400">Catégories</h3>
-                <ul class="space-y-3 text-sm font-medium text-gray-700">
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 hover:text-synapse-dark p-2 rounded-lg transition">
-                        <i class="fa-solid fa-laptop text-gray-400"></i> Informatique & PC
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 hover:text-synapse-dark p-2 rounded-lg transition">
-                        <i class="fa-solid fa-mobile-button text-gray-400"></i> Téléphonie
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 hover:text-synapse-dark p-2 rounded-lg transition">
-                        <i class="fa-solid fa-shirt text-gray-400"></i> Mode Homme
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 hover:text-synapse-dark p-2 rounded-lg transition">
-                        <i class="fa-solid fa-gamepad text-gray-400"></i> Gaming
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 hover:text-synapse-dark p-2 rounded-lg transition">
-                        <i class="fa-solid fa-stopwatch text-gray-400"></i> Montres & Bijoux
-                    </li>
-                    <li class="flex items-center gap-3 cursor-pointer hover:bg-gray-50 hover:text-synapse-dark p-2 rounded-lg transition">
-                        <i class="fa-solid fa-car text-gray-400"></i> Auto & Moto
-                    </li>
+    <div id="home-view" class="block transition-opacity duration-300">
+        
+        <div class="container mx-auto px-4 mt-6">
+            <div class="grid grid-cols-12 gap-6">
+                
+                <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
+                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                        <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
+                        <ul class="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1">
+                                <span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </li>
+                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1">
+                                <span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </li>
+                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1">
+                                <span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                        <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Prix</h3>
+                        <div class="mb-4">
+                            <input type="range" min="0" max="1000" value="500" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                            <div class="flex justify-between text-xs mt-2 text-gray-500">
+                                <span>0€</span>
+                                <span>1000€+</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="number" placeholder="Min" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 rounded text-sm border border-transparent focus:border-synapse outline-none">
+                            <input type="number" placeholder="Max" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 rounded text-sm border border-transparent focus:border-synapse outline-none">
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                        <h3 class="font-bold mb-3 text-sm text-black dark:text-white">Marques</h3>
+                        <div class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse">
+                                <input type="checkbox" class="accent-synapse"> Xiaomi
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse">
+                                <input type="checkbox" class="accent-synapse" checked> Apple
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse">
+                                <input type="checkbox" class="accent-synapse"> Samsung
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer hover:text-synapse">
+                                <input type="checkbox" class="accent-synapse"> Sony
+                            </label>
+                        </div>
+                    </div>
+
+                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                        <h3 class="font-bold mb-3 text-sm text-black dark:text-white">Avis</h3>
+                        <div class="space-y-2 text-sm cursor-pointer">
+                            <div class="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-dark-800 p-1 rounded">
+                                <div class="text-yellow-400 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-xs">& Plus</span>
+                            </div>
+                            <div class="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-dark-800 p-1 rounded">
+                                <div class="text-yellow-400 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-xs">& Plus</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-12 lg:col-span-9 xl:col-span-10">
+                    
+                    <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[350px] md:h-[400px]">
+                        <div class="absolute inset-0 bg-gradient-to-r from-synapse via-synapse-light to-white dark:from-synapse dark:to-dark-900"></div>
+                        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-20 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
+                        
+                        <div class="relative z-10 h-full flex items-center justify-between px-8 md:px-16">
+                            <div class="max-w-md">
+                                <span class="inline-block py-1 px-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-full mb-4">NOUVELLE COLLECTION</span>
+                                <h1 class="text-4xl md:text-5xl font-black text-black dark:text-white leading-tight mb-4">
+                                    Next Gen <br> Audio Reality
+                                </h1>
+                                <button onclick="showProduct()" class="bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-lg font-bold hover:scale-105 transition shadow-xl mt-4">
+                                    Voir le Produit <i class="fa-solid fa-arrow-right ml-2 text-synapse dark:text-black"></i>
+                                </button>
+                            </div>
+                            <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="hidden md:block w-[350px] object-contain drop-shadow-2xl transform group-hover:scale-110 transition duration-500">
+                        </div>
+                    </div>
+
+                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-synapse"></i> Tendances
+                    </h2>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div onclick="showProduct()" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
+                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
+                                <span class="absolute top-2 left-2 bg-synapse text-black text-[10px] font-bold px-2 py-1 rounded">HOT</span>
+                                <img src="https://pngimg.com/d/headphones_PNG7645.png" class="h-full object-contain group-hover:scale-110 transition">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Sony WH-1000XM5 Noise Cancelling</h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-lg font-bold text-black dark:text-white">$299.00</span>
+                                    <span class="text-xs text-gray-400 line-through">$350</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
+                                        <i class="fa-solid fa-star text-synapse"></i> 4.9
+                                    </div>
+                                    <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
+                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
+                                <span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">-20%</span>
+                                <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="h-full object-contain group-hover:scale-110 transition">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Smart Watch Ultra Titanium</h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-lg font-bold text-black dark:text-white">$85.00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
+                                        <i class="fa-solid fa-star text-synapse"></i> 4.5
+                                    </div>
+                                    <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                         <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
+                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
+                                <img src="https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png" class="h-full object-contain group-hover:scale-105 transition">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Drone 4K Pro GPS 5km Range</h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-lg font-bold text-black dark:text-white">$450.00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
+                                        <i class="fa-solid fa-star text-synapse"></i> 4.8
+                                    </div>
+                                    <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="product-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="cursor-pointer hover:text-synapse">Audio</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-black dark:text-white font-bold">Sony WH-1000XM5</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+            <div class="col-span-12 md:col-span-6 lg:col-span-5">
+                <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 mb-4 h-[400px]">
+                    <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full object-contain drop-shadow-2xl">
+                </div>
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-dark-900 rounded-lg p-2 border-2 border-synapse cursor-pointer h-20 flex items-center justify-center">
+                        <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full">
+                    </div>
+                    <div class="bg-white dark:bg-dark-900 rounded-lg p-2 border border-gray-200 dark:border-dark-800 cursor-pointer h-20 flex items-center justify-center opacity-60 hover:opacity-100">
+                        <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full grayscale">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-black text-white dark:bg-synapse dark:text-black text-[10px] font-bold px-2 py-0.5 rounded">OFFICIEL SONY</span>
+                        <div class="text-yellow-400 text-xs">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="text-xs text-gray-500">2340 Avis</span>
+                    </div>
+                    <h1 class="text-3xl font-black text-black dark:text-white mb-4">Sony WH-1000XM5 Wireless Noise Cancelling</h1>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
+                    <div class="flex items-end gap-3 mb-1">
+                        <span class="text-4xl font-black text-synapse-dark dark:text-synapse">$299.00</span>
+                        <span class="text-lg text-gray-400 line-through mb-1">$350.00</span>
+                        <span class="text-sm text-red-500 font-bold mb-1">-15%</span>
+                    </div>
+                    <div class="text-xs text-gray-500">Prix hors taxes. Livraison gratuite.</div>
+                </div>
+
+                <div>
+                    <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">Couleur: <span class="text-black dark:text-white">Noir Mat</span></h3>
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-black border-2 border-synapse cursor-pointer shadow-lg"></div>
+                        <div class="w-10 h-10 rounded-full bg-gray-200 border-2 border-transparent hover:border-synapse cursor-pointer"></div>
+                        <div class="w-10 h-10 rounded-full bg-blue-900 border-2 border-transparent hover:border-synapse cursor-pointer"></div>
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="flex items-center border border-gray-300 dark:border-dark-700 rounded-lg px-3 gap-4">
+                        <button class="text-gray-500 hover:text-synapse"><i class="fa-solid fa-minus"></i></button>
+                        <span class="font-bold text-black dark:text-white">1</span>
+                        <button class="text-gray-500 hover:text-synapse"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <button class="flex-1 bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">
+                        Ajouter au panier
+                    </button>
+                    <button class="w-14 bg-gray-100 dark:bg-dark-800 rounded-lg flex items-center justify-center text-gray-500 hover:text-red-500 transition">
+                        <i class="fa-regular fa-heart text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 text-[10px] text-gray-500 text-center">
+                    <div class="flex flex-col items-center gap-1">
+                        <i class="fa-solid fa-shield-halved text-xl text-synapse"></i>
+                        <span>Garantie 2 ans</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <i class="fa-solid fa-rotate-left text-xl text-synapse"></i>
+                        <span>Retour 30j</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1">
+                        <i class="fa-solid fa-truck-fast text-xl text-synapse"></i>
+                        <span>Livraison 48h</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-12 lg:col-span-3">
+                <div class="bg-white dark:bg-dark-900 rounded-xl p-4 border border-gray-100 dark:border-dark-800 sticky top-24">
+                    <h4 class="font-bold text-sm text-gray-400 mb-3 uppercase">Vendu par</h4>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold">S</div>
+                        <div>
+                            <div class="font-bold text-sm dark:text-white">Sony Official Store</div>
+                            <div class="text-xs text-green-500">98% Satisfaction</div>
+                        </div>
+                    </div>
+                    <button class="w-full border border-gray-300 dark:border-dark-700 text-black dark:text-white py-2 rounded-lg text-sm font-bold hover:border-synapse hover:text-synapse transition mb-2">
+                        Visiter la boutique
+                    </button>
+                    <button class="w-full bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-sm font-bold hover:bg-gray-200 transition">
+                        Contacter
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-12">
+            <div class="border-b border-gray-200 dark:border-dark-800 flex gap-8">
+                <button class="pb-4 border-b-2 border-synapse font-bold text-black dark:text-white">Description</button>
+                <button class="pb-4 border-b-2 border-transparent text-gray-500 hover:text-synapse">Spécifications</button>
+                <button class="pb-4 border-b-2 border-transparent text-gray-500 hover:text-synapse">Avis (2340)</button>
+            </div>
+            <div class="py-8 text-gray-600 dark:text-gray-400 leading-relaxed max-w-4xl">
+                <p class="mb-4">Le casque WH-1000XM5 récrit les règles pour une écoute sans distraction. Deux processeurs contrôlent 8 microphones pour une réduction du bruit sans précédent et une qualité d'appel exceptionnelle.</p>
+                <img src="https://sony.scene7.com/is/image/sonyglobalsolutions/wh-1000xm5_Primary_image?$categorypdpnav$&fmt=png-alpha" class="w-full rounded-xl my-6 bg-gray-50 dark:bg-dark-900 p-8">
+                <h3 class="text-xl font-bold text-black dark:text-white mb-2">Caractéristiques principales :</h3>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Réduction de bruit HD QN1</li>
+                    <li>30 heures d'autonomie avec charge rapide</li>
+                    <li>Confort ultra-léger "Soft Fit Leather"</li>
+                    <li>Connexion multipoint</li>
                 </ul>
             </div>
-
-            <div class="col-span-12 lg:col-span-10 relative rounded-3xl overflow-hidden shadow-lg group">
-                <div class="absolute inset-0 bg-gradient-to-r from-synapse via-synapse-light to-white"></div>
-                
-                <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-20 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
-                
-                <div class="relative z-10 h-full flex items-center justify-between px-8 md:px-16">
-                    <div class="max-w-md">
-                        <span class="inline-block py-1 px-3 bg-black text-white text-xs font-bold rounded-full mb-4">NOUVELLE COLLECTION</span>
-                        <h1 class="text-4xl md:text-6xl font-black text-dark-900 leading-tight mb-4">
-                            Bring Gaming <br> Worlds To Life
-                        </h1>
-                        <div class="text-xl font-bold text-gray-800 mb-6">
-                            À partir de <span class="text-3xl font-black text-black">$449.99</span>
-                        </div>
-                        <button class="bg-black text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 hover:scale-105 transition shadow-xl">
-                            Acheter Maintenant <i class="fa-solid fa-arrow-right ml-2 text-synapse"></i>
-                        </button>
-                    </div>
-                    <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" alt="Console Controller" class="hidden md:block w-[400px] object-contain drop-shadow-2xl transform group-hover:scale-110 transition duration-500">
-                </div>
-            </div>
         </div>
     </div>
-
-    <div class="container mx-auto px-4 mt-8">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div class="flex justify-between gap-4 overflow-x-auto scrollbar-hide">
-                <div class="flex flex-col items-center min-w-[80px] gap-2 cursor-pointer group">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-xl text-gray-600 group-hover:bg-synapse group-hover:text-black transition duration-300">
-                        <i class="fa-solid fa-laptop"></i>
-                    </div>
-                    <span class="text-xs font-medium text-center text-gray-600">Laptop</span>
-                </div>
-                <div class="flex flex-col items-center min-w-[80px] gap-2 cursor-pointer group">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-xl text-gray-600 group-hover:bg-synapse group-hover:text-black transition duration-300">
-                        <i class="fa-solid fa-camera"></i>
-                    </div>
-                    <span class="text-xs font-medium text-center text-gray-600">Caméras</span>
-                </div>
-                 <div class="flex flex-col items-center min-w-[80px] gap-2 cursor-pointer group">
-                    <div class="w-14 h-14 rounded-full bg-synapse flex items-center justify-center text-xl text-black shadow-lg shadow-synapse/50 transition duration-300">
-                        <i class="fa-solid fa-gamepad"></i>
-                    </div>
-                    <span class="text-xs font-bold text-center text-black">Gaming</span>
-                </div>
-                <div class="flex flex-col items-center min-w-[80px] gap-2 cursor-pointer group">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-xl text-gray-600 group-hover:bg-synapse group-hover:text-black transition duration-300">
-                        <i class="fa-solid fa-headphones"></i>
-                    </div>
-                    <span class="text-xs font-medium text-center text-gray-600">Audio</span>
-                </div>
-                 <div class="flex flex-col items-center min-w-[80px] gap-2 cursor-pointer group">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-xl text-gray-600 group-hover:bg-synapse group-hover:text-black transition duration-300">
-                        <i class="fa-solid fa-clock"></i>
-                    </div>
-                    <span class="text-xs font-medium text-center text-gray-600">Montres</span>
-                </div>
-                <div class="flex flex-col items-center min-w-[80px] gap-2 cursor-pointer group">
-                    <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center text-xl text-gray-600 group-hover:bg-synapse group-hover:text-black transition duration-300">
-                        <i class="fa-solid fa-drone"></i>
-                    </div>
-                    <span class="text-xs font-medium text-center text-gray-600">Drones</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mx-auto px-4 mt-8">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-4">
-                <h2 class="text-2xl font-black text-dark-900">Flash Deals</h2>
-                <div class="bg-black text-synapse px-3 py-1 rounded text-sm font-bold flex gap-2">
-                    Fin dans : <span id="timer">02:14:55</span>
-                </div>
-            </div>
-            <a href="#" class="text-sm font-bold text-gray-500 hover:text-synapse-dark">Voir tout ></a>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div class="bg-white p-3 rounded-xl hover:shadow-xl transition group border border-transparent hover:border-synapse cursor-pointer">
-                <div class="relative mb-3 bg-gray-50 rounded-lg p-2 h-40 flex items-center justify-center">
-                    <span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">-40%</span>
-                    <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="h-28 object-contain group-hover:scale-110 transition">
-                </div>
-                <div class="text-xs text-gray-400 mb-1">Amazfit</div>
-                <h3 class="font-bold text-sm text-dark-900 truncate mb-2">Smart Watch Series 7 GPS</h3>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <div class="text-lg font-black text-synapse-dark">$129.99</div>
-                        <div class="text-xs text-gray-400 line-through">$250.00</div>
-                    </div>
-                    <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-synapse hover:text-black transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-synapse h-full w-3/4"></div>
-                </div>
-                <div class="text-[10px] text-gray-500 mt-1">85 vendus</div>
-            </div>
-
-             <div class="bg-white p-3 rounded-xl hover:shadow-xl transition group border border-transparent hover:border-synapse cursor-pointer">
-                <div class="relative mb-3 bg-gray-50 rounded-lg p-2 h-40 flex items-center justify-center">
-                    <span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">-15%</span>
-                    <img src="https://pngimg.com/d/headphones_PNG7645.png" class="h-28 object-contain group-hover:scale-110 transition">
-                </div>
-                <div class="text-xs text-gray-400 mb-1">Sony</div>
-                <h3 class="font-bold text-sm text-dark-900 truncate mb-2">Casque Noise Cancel</h3>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <div class="text-lg font-black text-synapse-dark">$89.00</div>
-                        <div class="text-xs text-gray-400 line-through">$105.00</div>
-                    </div>
-                    <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-synapse hover:text-black transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                 <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-synapse h-full w-1/4"></div>
-                </div>
-                <div class="text-[10px] text-gray-500 mt-1">12 vendus</div>
-            </div>
-
-            <div class="bg-white p-3 rounded-xl hover:shadow-xl transition group border border-transparent hover:border-synapse cursor-pointer">
-                <div class="relative mb-3 bg-gray-50 rounded-lg p-2 h-40 flex items-center justify-center">
-                    <span class="absolute top-2 left-2 bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded">HOT</span>
-                    <img src="https://pngimg.com/d/iphone_14_PNG20.png" class="h-32 object-contain group-hover:scale-110 transition">
-                </div>
-                <div class="text-xs text-gray-400 mb-1">Apple</div>
-                <h3 class="font-bold text-sm text-dark-900 truncate mb-2">iPhone 14 Pro Max</h3>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <div class="text-lg font-black text-synapse-dark">$999.00</div>
-                        <div class="text-xs text-gray-400 line-through">$1200.00</div>
-                    </div>
-                    <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-synapse hover:text-black transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                 <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-synapse h-full w-full"></div>
-                </div>
-                <div class="text-[10px] text-gray-500 mt-1">900+ vendus</div>
-            </div>
-
-             <div class="bg-white p-3 rounded-xl hover:shadow-xl transition group border border-transparent hover:border-synapse cursor-pointer">
-                <div class="relative mb-3 bg-gray-50 rounded-lg p-2 h-40 flex items-center justify-center">
-                    <img src="https://freepngimg.com/thumb/xbox/154776-series-xbox-x-console-download-hq-png.png" class="h-28 object-contain group-hover:scale-110 transition">
-                </div>
-                <div class="text-xs text-gray-400 mb-1">Microsoft</div>
-                <h3 class="font-bold text-sm text-dark-900 truncate mb-2">Xbox Series X</h3>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <div class="text-lg font-black text-synapse-dark">$499.00</div>
-                    </div>
-                    <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-synapse hover:text-black transition">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-                 <div class="mt-2 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-synapse h-full w-1/2"></div>
-                </div>
-                <div class="text-[10px] text-gray-500 mt-1">450 vendus</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container mx-auto px-4 mt-12 mb-12">
-        <h2 class="text-xl font-bold text-dark-900 mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-heart text-synapse-dark"></i> Recommandé pour vous
-        </h2>
-        
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
-                <div class="h-48 bg-gray-100 p-4 flex items-center justify-center">
-                    <img src="https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png" class="h-full object-contain group-hover:scale-105 transition">
-                </div>
-                <div class="p-3">
-                    <h3 class="text-sm text-gray-700 line-clamp-2 mb-2 group-hover:text-synapse-dark font-medium">Drone Professionnel 4K GPS 5G WIFI FPV</h3>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-lg font-bold text-dark-900">$45.60</span>
-                        <span class="text-xs bg-synapse text-black px-1 rounded font-bold">-50%</span>
-                    </div>
-                    <div class="text-xs text-green-600 font-bold mb-2">Livraison Gratuite</div>
-                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
-                        <i class="fa-solid fa-star text-yellow-400"></i> 4.8 (205)
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
-                <div class="h-48 bg-gray-100 p-4 flex items-center justify-center">
-                    <img src="https://freepngimg.com/thumb/shoes/27428-5-nike-shoes-transparent-background.png" class="h-full object-contain group-hover:scale-105 transition">
-                </div>
-                <div class="p-3">
-                    <h3 class="text-sm text-gray-700 line-clamp-2 mb-2 group-hover:text-synapse-dark font-medium">Baskets Sport Running Homme Respirant</h3>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-lg font-bold text-dark-900">$22.00</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mb-2">Livraison: $3.50</div>
-                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
-                        <i class="fa-solid fa-star text-yellow-400"></i> 4.5 (1020)
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
-                <div class="h-48 bg-gray-100 p-4 flex items-center justify-center">
-                    <img src="https://freepngimg.com/thumb/keyboard/22467-3-keyboard.png" class="h-full object-contain group-hover:scale-105 transition">
-                </div>
-                <div class="p-3">
-                    <h3 class="text-sm text-gray-700 line-clamp-2 mb-2 group-hover:text-synapse-dark font-medium">Clavier Mécanique RGB Gaming Switch Blue</h3>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-lg font-bold text-dark-900">$35.99</span>
-                         <span class="text-xs bg-synapse text-black px-1 rounded font-bold">-20%</span>
-                    </div>
-                    <div class="text-xs text-green-600 font-bold mb-2">Retour Gratuit</div>
-                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
-                        <i class="fa-solid fa-star text-yellow-400"></i> 4.9 (55)
-                    </div>
-                </div>
-            </div>
-            
-             <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
-                <div class="h-48 bg-gray-100 p-4 flex items-center justify-center">
-                    <img src="https://pngimg.com/d/vr_glasses_PNG3.png" class="h-full object-contain group-hover:scale-105 transition">
-                </div>
-                <div class="p-3">
-                    <h3 class="text-sm text-gray-700 line-clamp-2 mb-2 group-hover:text-synapse-dark font-medium">Lunette VR 3D Meta Quest Compatible</h3>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-lg font-bold text-dark-900">$19.99</span>
-                    </div>
-                    <div class="text-xs text-gray-400 mb-2">Livraison: $5.00</div>
-                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
-                        <i class="fa-solid fa-star text-yellow-400"></i> 4.2 (12)
-                    </div>
-                </div>
-            </div>
-
-             <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition cursor-pointer group">
-                <div class="h-48 bg-gray-100 p-4 flex items-center justify-center">
-                    <img src="https://www.pngall.com/wp-content/uploads/2016/04/Speaker-PNG.png" class="h-full object-contain group-hover:scale-105 transition">
-                </div>
-                <div class="p-3">
-                    <h3 class="text-sm text-gray-700 line-clamp-2 mb-2 group-hover:text-synapse-dark font-medium">Enceinte Bluetooth Waterproof Bass Boost</h3>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-lg font-bold text-dark-900">$28.50</span>
-                         <span class="text-xs bg-synapse text-black px-1 rounded font-bold">-10%</span>
-                    </div>
-                    <div class="text-xs text-green-600 font-bold mb-2">Livraison Gratuite</div>
-                    <div class="flex items-center text-[10px] text-gray-500 gap-1">
-                        <i class="fa-solid fa-star text-yellow-400"></i> 4.7 (330)
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="mt-8 text-center">
-            <button class="bg-white border border-gray-300 px-8 py-3 rounded-full font-bold text-gray-700 hover:border-synapse hover:text-synapse-dark transition">
-                Voir Plus de Produits
-            </button>
-        </div>
-    </div>
-
-    <footer class="bg-white border-t border-gray-200 py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <a href="#" class="flex items-center gap-1 mb-4">
-                        <div class="w-6 h-6 bg-synapse rounded flex items-center justify-center text-dark-900 font-bold text-sm">S</div>
-                        <span class="text-xl font-black tracking-tighter text-dark-900">SYNAPSE</span>
-                    </a>
-                    <p class="text-sm text-gray-500">
-                        Votre plateforme de commerce nouvelle génération. Sécurisée, Rapide, Intelligente.
-                    </p>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Service Client</h4>
-                    <ul class="text-sm text-gray-500 space-y-2">
-                        <li>Centre d'aide</li>
-                        <li>Remboursements</li>
-                        <li>Guide achat</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Collaborer</h4>
-                    <ul class="text-sm text-gray-500 space-y-2">
-                        <li>Vendre sur Synapse</li>
-                        <li>Affiliation</li>
-                        <li>Blog</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-bold mb-4">Newsletter</h4>
-                    <div class="flex">
-                        <input type="email" placeholder="Email" class="bg-gray-100 px-3 py-2 rounded-l w-full outline-none focus:ring-1 focus:ring-synapse">
-                        <button class="bg-synapse text-black font-bold px-4 rounded-r">OK</button>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-12 pt-8 border-t border-gray-100 text-center text-xs text-gray-400">
-                &copy; 2026 Synapse Inc. Tous droits réservés.
-            </div>
-        </div>
-    </footer>
 
     <script>
-        // Compte à rebours fictif pour l'animation
-        function startTimer(duration, display) {
-            var timer = duration, hours, minutes, seconds;
-            setInterval(function () {
-                hours = parseInt(timer / 3600, 10);
-                minutes = parseInt((timer % 3600) / 60, 10);
-                seconds = parseInt(timer % 60, 10);
-
-                hours = hours < 10 ? "0" + hours : hours;
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-
-                display.textContent = hours + ":" + minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    timer = duration;
-                }
-            }, 1000);
+        // 1. GESTION DU MODE SOMBRE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                html.classList.add('dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
         }
 
-        window.onload = function () {
-            var fiveHours = 60 * 60 * 5; // 5 heures en secondes
-            var display = document.querySelector('#timer');
-            startTimer(fiveHours, display);
-        };
+        // 2. NAVIGATION (Simulation Single Page App)
+        function showProduct() {
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('product-view').classList.remove('hidden');
+            window.scrollTo(0, 0); // Remonter en haut de page
+        }
+
+        function goHome() {
+            document.getElementById('product-view').classList.add('hidden');
+            document.getElementById('home-view').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
     </script>
 </body>
 </html>
