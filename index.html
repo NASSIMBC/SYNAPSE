@@ -47,6 +47,7 @@
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #CCFF00; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #ddd; border-radius: 2px; }
@@ -79,7 +80,7 @@
 
             <div class="flex-1 max-w-3xl relative hidden md:block">
                 <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
-                    <input type="text" placeholder="Chercher..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
+                    <input type="text" placeholder="Chercher un produit..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
                     <button class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
@@ -170,6 +171,19 @@
                                 </div>
                             </div>
                         </div>
+                         <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
+                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
+                                <img src="https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png" class="h-full object-contain group-hover:scale-105 transition">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Drone 4K Pro GPS 5km Range</h3>
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">95 000 DA</span></div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.8</div>
+                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -203,11 +217,25 @@
                 <div class="inline-flex items-center justify-center w-12 h-12 bg-synapse rounded-lg text-black font-bold text-2xl mb-3">S</div>
                 <h2 class="text-2xl font-black text-black dark:text-white">Bienvenue</h2>
             </div>
+            <div class="flex border-b border-gray-100 dark:border-dark-700">
+                <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-4 font-bold text-sm border-b-2 border-synapse text-black dark:text-white bg-white dark:bg-dark-900">Se connecter</button>
+                <button onclick="toggleAuthMode('signup')" id="tab-signup" class="flex-1 py-4 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-synapse bg-gray-50 dark:bg-dark-800">Créer un compte</button>
+            </div>
             <div class="p-8">
                 <form id="form-login" class="space-y-4">
-                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label><input type="email" placeholder="email@exemple.com" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
-                    <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mot de passe</label><input type="password" placeholder="••••••••" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
-                    <button type="button" onclick="showDashboard()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-black hover:text-synapse transition shadow-lg mt-2">SE CONNECTER</button>
+                    <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Email</label><input type="email" id="login-email" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                    <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Mot de passe</label><input type="password" id="login-password" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                    <button type="button" onclick="handleLogin()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-black hover:text-synapse transition shadow-lg mt-2">SE CONNECTER</button>
+                </form>
+
+                <form id="form-signup" class="space-y-4 hidden">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Prénom</label><input type="text" id="signup-firstname" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                        <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Nom</label><input type="text" id="signup-lastname" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                    </div>
+                    <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Email</label><input type="email" id="signup-email" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                    <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Mot de passe</label><input type="password" id="signup-password" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
+                    <button type="button" onclick="handleSignUp()" class="w-full bg-black dark:bg-white text-white dark:text-black font-bold py-3 rounded-lg hover:bg-synapse hover:text-black transition shadow-lg mt-2">CRÉER MON COMPTE</button>
                 </form>
             </div>
         </div>
@@ -390,7 +418,56 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
+        // CONFIGURATION SUPABASE
+        const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+        // LOGIQUE SUPABASE
+        async function handleSignUp() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const firstName = document.getElementById('signup-firstname').value;
+            const lastName = document.getElementById('signup-lastname').value;
+
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: { full_name: firstName + ' ' + lastName, role: 'buyer' }
+                }
+            });
+
+            if (error) alert("Erreur: " + error.message);
+            else alert("Compte créé ! Vérifiez votre email.");
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) alert("Erreur de connexion : " + error.message);
+            else {
+                console.log("Connecté :", data.user);
+                showDashboard();
+            }
+        }
+
+        async function checkUserSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) console.log("Utilisateur déjà connecté");
+        }
+        checkUserSession();
+
+        // UI LOGIC
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -436,10 +513,7 @@
             btn.classList.remove('bg-synapse', 'text-black', 'hover:bg-white');
             btn.classList.add('bg-green-600', 'text-white', 'cursor-default');
             btn.removeAttribute('onclick');
-            const toast = document.getElementById('toast');
-            toast.querySelector('span').innerText = "Commande confirmée et expédiée !";
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+            addToCart("Commande mise à jour !");
         }
 
         function toggleAuthMode(mode) {
@@ -482,12 +556,12 @@
             }
         }
 
-        function addToCart() {
+        function addToCart(msg = "Produit ajouté au panier !") {
             const toast = document.getElementById('toast');
-            toast.querySelector('span').innerText = "Produit ajouté au panier !";
+            toast.querySelector('span').innerText = msg;
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
-            setTimeout(() => { toggleCart(); }, 500);
+            if(msg.includes("panier")) setTimeout(() => { toggleCart(); }, 500);
         }
     </script>
 </body>
