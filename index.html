@@ -67,7 +67,7 @@
                     <i class="fa-solid fa-mobile-screen"></i> App
                 </span>
                 <span class="flex items-center gap-2 cursor-pointer hover:text-white">
-                    Fr / EUR <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                    DZ / DA <i class="fa-solid fa-chevron-down text-[10px]"></i>
                 </span>
             </div>
         </div>
@@ -87,7 +87,7 @@
 
             <div class="flex-1 max-w-3xl relative hidden md:block">
                 <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
-                    <input type="text" placeholder="Chercher..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
+                    <input type="text" placeholder="Chercher un produit..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
                     <button class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
@@ -136,8 +136,8 @@
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
                         <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Prix</h3>
                         <div class="mb-4">
-                            <input type="range" min="0" max="1000" value="500" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                            <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0€</span><span>1000€+</span></div>
+                            <input type="range" min="0" max="200000" value="50000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                            <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0 DA</span><span>200k DA+</span></div>
                         </div>
                         <div class="flex gap-2">
                             <input type="number" placeholder="Min" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 rounded text-sm border border-transparent focus:border-synapse outline-none">
@@ -178,7 +178,7 @@
                             </div>
                             <div class="p-4">
                                 <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Sony WH-1000XM5 Noise Cancelling</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">$299.00</span><span class="text-xs text-gray-400 line-through">$350</span></div>
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">58 000 DA</span><span class="text-xs text-gray-400 line-through">65 000 DA</span></div>
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.9</div>
                                     <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
@@ -192,7 +192,7 @@
                             </div>
                             <div class="p-4">
                                 <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Smart Watch Ultra Titanium</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">$85.00</span></div>
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">18 500 DA</span></div>
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.5</div>
                                     <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
@@ -205,7 +205,7 @@
                             </div>
                             <div class="p-4">
                                 <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Drone 4K Pro GPS 5km Range</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">$450.00</span></div>
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">95 000 DA</span></div>
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.8</div>
                                     <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
@@ -254,9 +254,9 @@
 
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
                     <div class="flex items-end gap-3 mb-1">
-                        <span class="text-4xl font-black text-synapse-dark dark:text-synapse">$299.00</span>
-                        <span class="text-lg text-gray-400 line-through mb-1">$350.00</span>
-                        <span class="text-sm text-red-500 font-bold mb-1">-15%</span>
+                        <span class="text-4xl font-black text-synapse-dark dark:text-synapse">58 000 DA</span>
+                        <span class="text-lg text-gray-400 line-through mb-1">65 000 DA</span>
+                        <span class="text-sm text-red-500 font-bold mb-1">-10%</span>
                     </div>
                     <div class="text-xs text-gray-500">Prix hors taxes. Livraison gratuite.</div>
                 </div>
@@ -434,7 +434,7 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="font-bold text-black dark:text-white">$299.00</div>
+                            <div class="font-bold text-black dark:text-white">58 000 DA</div>
                             <div class="text-xs text-gray-400">Qté: 1</div>
                         </div>
                     </div>
@@ -458,32 +458,24 @@
                         <input type="text" placeholder="Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
                         <input type="text" placeholder="Nom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
                         <input type="text" placeholder="Adresse" class="col-span-2 p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Ville" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Code Postal" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Commune" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
                     </div>
                 </div>
 
                 <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
                     <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
                     
-                    <div class="mb-6 w-full max-w-sm h-48 bg-gradient-to-br from-gray-800 to-black rounded-xl p-6 text-white shadow-xl relative overflow-hidden border border-gray-700">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-synapse opacity-20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
-                        <div class="flex justify-between items-start mb-8">
-                            <i class="fa-brands fa-cc-visa text-3xl"></i>
-                            <span class="font-mono text-sm opacity-70">Débit</span>
+                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
+                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
                         </div>
-                        <div class="font-mono text-xl tracking-widest mb-4">•••• •••• •••• 4242</div>
-                        <div class="flex justify-between">
-                            <div><div class="text-[10px] opacity-70 uppercase">Titulaire</div><div class="text-sm font-bold">JOHN DOE</div></div>
-                            <div><div class="text-[10px] opacity-70 uppercase">Exp</div><div class="text-sm font-bold">12/28</div></div>
+                        <div>
+                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
+                            <p class="text-xs text-gray-500">Payez en espèces à la réception de votre colis (Yalidine/Wilaya).</p>
                         </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <input type="text" placeholder="Numéro de carte" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <div class="grid grid-cols-2 gap-4">
-                            <input type="text" placeholder="MM / YY" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                            <input type="text" placeholder="CVC" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <div class="ml-auto text-synapse-dark">
+                            <i class="fa-solid fa-circle-check text-2xl"></i>
                         </div>
                     </div>
                 </div>
@@ -493,18 +485,17 @@
                 <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
                     <h3 class="font-bold text-black dark:text-white mb-4">Résumé de la commande</h3>
                     <div class="space-y-3 mb-4">
-                        <div class="flex justify-between text-sm text-gray-500"><span>Sous-total</span> <span>$384.00</span></div>
+                        <div class="flex justify-between text-sm text-gray-500"><span>Sous-total</span> <span>76 500 DA</span></div>
                         <div class="flex justify-between text-sm text-gray-500"><span>Livraison</span> <span class="text-synapse-dark dark:text-synapse">Gratuit</span></div>
-                        <div class="flex justify-between text-sm text-gray-500"><span>Taxes</span> <span>$12.50</span></div>
                     </div>
                     <div class="border-t border-gray-100 dark:border-dark-800 pt-4 mb-6">
-                        <div class="flex justify-between text-xl font-black text-black dark:text-white"><span>Total</span> <span>$396.50</span></div>
+                        <div class="flex justify-between text-xl font-black text-black dark:text-white"><span>Total</span> <span>76 500 DA</span></div>
                     </div>
                     <button class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse hover:shadow-lg transition uppercase tracking-wide">
-                        Confirmer et Payer
+                        Confirmer la commande
                     </button>
                     <div class="mt-4 flex items-center justify-center gap-2 text-gray-400 text-xs">
-                        <i class="fa-solid fa-lock"></i> Paiement crypté SSL 256-bit
+                        <i class="fa-solid fa-truck-fast"></i> Livraison disponible 58 Wilayas
                     </div>
                 </div>
             </div>
@@ -522,17 +513,17 @@
                 <div class="flex-1 overflow-y-auto space-y-4">
                     <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
                         <img src="https://pngimg.com/d/headphones_PNG7645.png" class="w-16 h-16 object-contain bg-white rounded-md">
-                        <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Sony WH-1000XM5</h4><div class="text-xs text-gray-500 mb-1">Noir Mat</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">$299.00</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
+                        <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Sony WH-1000XM5</h4><div class="text-xs text-gray-500 mb-1">Noir Mat</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">58 000 DA</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
                     </div>
                     <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
                         <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="w-16 h-16 object-contain bg-white rounded-md">
-                        <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Smart Watch Ultra</h4><div class="text-xs text-gray-500 mb-1">Titane</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">$85.00</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
+                        <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Smart Watch Ultra</h4><div class="text-xs text-gray-500 mb-1">Titane</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">18 500 DA</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
                     </div>
                 </div>
                 <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4">
-                    <div class="flex justify-between text-sm mb-2 text-gray-500"><span>Sous-total</span><span>$384.00</span></div>
-                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-4"><span>Total</span><span>$384.00</span></div>
-                    <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">Payer Maintenant</button>
+                    <div class="flex justify-between text-sm mb-2 text-gray-500"><span>Sous-total</span><span>76 500 DA</span></div>
+                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-4"><span>Total</span><span>76 500 DA</span></div>
+                    <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
                 </div>
             </div>
         </div>
