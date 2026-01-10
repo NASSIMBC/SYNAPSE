@@ -420,69 +420,37 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
-        // CONFIGURATION SUPABASE
-        const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
-
-        // LOGIQUE SUPABASE
-        async function handleSignUp() {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const firstName = document.getElementById('signup-firstname').value;
-            const lastName = document.getElementById('signup-lastname').value;
-
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-                options: {
-                    data: { full_name: firstName + ' ' + lastName, role: 'buyer' }
-                }
-            });
-
-            if (error) alert("Erreur: " + error.message);
-            else alert("Compte créé ! Vérifiez votre email.");
+        // 1. Initialisation sécurisée de Supabase
+        // (Même si ça échoue, le reste du site continuera de marcher)
+        let supabase;
+        try {
+            const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs';
+            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+            console.log("Supabase connecté !");
+        } catch (err) {
+            console.error("Erreur Supabase:", err);
+            alert("Erreur de connexion à la base de données. Les boutons visuels marcheront quand même.");
         }
 
-        async function handleLogin() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-            if (error) alert("Erreur de connexion : " + error.message);
-            else {
-                console.log("Connecté :", data.user);
-                showDashboard();
-            }
-        }
-
-        async function checkUserSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) console.log("Utilisateur déjà connecté");
-        }
-        checkUserSession();
-
-        // UI LOGIC
-        function toggleTheme() {
+        // 2. Fonctions d'interface (UI) - Elles doivent être définies globalement
+        
+        window.toggleTheme = function() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
             if (html.classList.contains('dark')) {
                 html.classList.remove('dark');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
+                if(icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
             } else {
                 html.classList.add('dark');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
+                if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
             }
         }
 
-        function hideAllViews() {
+        window.hideAllViews = function() {
             const views = ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'];
             views.forEach(id => {
                 const el = document.getElementById(id);
@@ -490,49 +458,14 @@
             });
         }
 
-        function goHome() { hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        function showProduct() { hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        function showAuth() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        function showDashboard() { hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        function showSellerDashboard() { hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        function showCheckout() { hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.goHome = function() { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.showProduct = function() { window.hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.showAuth = function() { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.showDashboard = function() { window.hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.showSellerDashboard = function() { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.showCheckout = function() { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); window.scrollTo(0, 0); }
 
-        function switchSellerTab(tabName) {
-            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
-            document.querySelectorAll('.seller-tab-btn').forEach(btn => {
-                btn.classList.remove('bg-synapse', 'text-black');
-                btn.classList.add('text-gray-400');
-            });
-            event.currentTarget.classList.add('bg-synapse', 'text-black');
-            event.currentTarget.classList.remove('text-gray-400');
-        }
-
-        function updateOrderStatus(btn, status) {
-            btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${status}`;
-            btn.classList.remove('bg-synapse', 'text-black', 'hover:bg-white');
-            btn.classList.add('bg-green-600', 'text-white', 'cursor-default');
-            btn.removeAttribute('onclick');
-            addToCart("Commande mise à jour !");
-        }
-
-        function toggleAuthMode(mode) {
-            const loginForm = document.getElementById('form-login');
-            const signupForm = document.getElementById('form-signup');
-            const tabLogin = document.getElementById('tab-login');
-            const tabSignup = document.getElementById('tab-signup');
-            if (mode === 'login') {
-                loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
-                tabLogin.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-                tabSignup.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-            } else {
-                loginForm.classList.add('hidden'); signupForm.classList.remove('hidden');
-                tabSignup.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-                tabLogin.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-            }
-        }
-
-        function toggleCart() {
+        window.toggleCart = function() {
             const drawer = document.getElementById('cart-drawer');
             const content = document.getElementById('cart-content');
             if (drawer.classList.contains('hidden')) {
@@ -544,7 +477,7 @@
             }
         }
 
-        function toggleMobileMenu() {
+        window.toggleMobileMenu = function() {
             const menu = document.getElementById('mobile-menu');
             const content = document.getElementById('mobile-menu-content');
             if (menu.classList.contains('hidden')) {
@@ -556,13 +489,80 @@
             }
         }
 
-        function addToCart(msg = "Produit ajouté au panier !") {
+        window.addToCart = function(msg) {
             const toast = document.getElementById('toast');
-            toast.querySelector('span').innerText = msg;
+            if(msg) toast.querySelector('span').innerText = msg;
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
-            if(msg.includes("panier")) setTimeout(() => { toggleCart(); }, 500);
+            if(!msg) setTimeout(() => { window.toggleCart(); }, 500);
+        }
+
+        window.toggleAuthMode = function(mode) {
+            const loginForm = document.getElementById('form-login');
+            const signupForm = document.getElementById('form-signup');
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+
+            if (mode === 'login') {
+                loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
+                tabLogin.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+                tabSignup.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+            } else {
+                loginForm.classList.add('hidden'); signupForm.classList.remove('hidden');
+                tabSignup.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+                tabLogin.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
+            }
+        }
+        
+        window.switchSellerTab = function(tabName) {
+            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
+        }
+        
+        window.updateOrderStatus = function(btn, status) {
+            btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${status}`;
+            btn.classList.remove('bg-synapse', 'text-black', 'hover:bg-white');
+            btn.classList.add('bg-green-600', 'text-white', 'cursor-default');
+            window.addToCart("Commande expédiée !");
+        }
+
+        // 3. Fonctions Asynchrones (Supabase)
+        window.handleSignUp = async function() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const firstName = document.getElementById('signup-firstname').value;
+            const lastName = document.getElementById('signup-lastname').value;
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: { data: { full_name: firstName + ' ' + lastName, role: 'buyer' } }
+                });
+                if (error) throw error;
+                alert("Compte créé ! Vérifiez votre email.");
+            } catch (error) {
+                alert("Erreur: " + error.message);
+            }
+        }
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (error) throw error;
+                console.log("Connecté :", data.user);
+                window.showDashboard();
+            } catch (error) {
+                alert("Erreur de connexion : " + error.message);
+            }
         }
     </script>
+
 </body>
 </html>
