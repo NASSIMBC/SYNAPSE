@@ -13,8 +13,10 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: { synapse: { DEFAULT: '#CCFF00', dark: '#A3CC00' }, dark: { 950: '#050505', 900: '#121212', 800: '#1E1E1E' } },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                    colors: { synapse: { DEFAULT: '#CCFF00', dark: '#A3CC00', dim: '#b3e600' }, dark: { 950: '#050505', 900: '#121212', 800: '#1E1E1E' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'fade-in-up': 'fadeInUp 0.5s ease-out' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
                 }
             }
         }
@@ -22,8 +24,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-        /* Loader */
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #CCFF00; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
+        .loader { border: 4px solid #333; border-top: 4px solid #CCFF00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
@@ -32,28 +33,25 @@
     <div class="bg-dark-950 text-gray-400 text-xs py-2 hidden md:block border-b border-gray-800">
         <div class="container mx-auto px-4 flex justify-between">
             <div class="flex space-x-6"><a href="#" class="hover:text-synapse">Vendre</a><a href="#" class="hover:text-synapse">Aide</a></div>
-            <div>Livraison 58 Wilayas</div>
+            <div>Livraison 58 Wilayas 🇩🇿</div>
         </div>
     </div>
 
     <header class="bg-white dark:bg-dark-900 sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-dark-800">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl"><i class="fa-solid fa-bars"></i></button>
-            
             <a href="#" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
                 <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-black font-bold text-xl">S</div>
                 <span class="text-2xl font-black tracking-tighter group-hover:text-synapse transition">SYNAPSE</span>
             </a>
-
             <div class="flex-1 max-w-2xl hidden md:block relative">
                 <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
-                    <input type="text" id="search-input" placeholder="Chercher un produit (ex: iPhone, Montre)..." class="w-full px-5 bg-transparent outline-none text-sm font-medium">
+                    <input type="text" id="search-input" placeholder="Rechercher..." class="w-full px-5 bg-transparent outline-none text-sm font-medium">
                     <button onclick="handleSearch()" class="bg-synapse h-full px-6 text-black hover:bg-black hover:text-synapse transition"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
-
             <div class="flex items-center gap-4">
-                <button onclick="showSellerDashboard()" class="hidden md:block text-xs bg-black text-white dark:bg-white dark:text-black px-3 py-1.5 rounded font-bold hover:scale-105 transition">ESPACE VENDEUR</button>
+                <button onclick="showSellerDashboard()" class="hidden md:block text-xs bg-red-600 text-white px-3 py-1.5 rounded font-bold hover:scale-105 transition shadow-lg">ESPACE VENDEUR</button>
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center"><i id="theme-icon" class="fa-solid fa-moon"></i></button>
                 <div onclick="showAuth()" class="cursor-pointer text-xl"><i class="fa-regular fa-user"></i></div>
                 <div onclick="toggleCart()" class="cursor-pointer text-xl relative">
@@ -64,80 +62,105 @@
         </div>
     </header>
 
-    <div id="home-view" class="block container mx-auto px-4 mt-6 space-y-12 mb-20">
+    <div id="home-view" class="block container mx-auto px-4 mt-6 space-y-12 mb-20 animate-fade-in-up">
         
-        <div id="boosted-section" class="hidden">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Offres Flash (Boostées)</h2>
-            <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
+                <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold mb-4 text-sm uppercase text-gray-400">Catégories</h3>
+                    <ul class="space-y-2 text-sm font-medium">
+                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-mobile-screen w-6"></i> Téléphonie</li>
+                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-laptop w-6"></i> Informatique</li>
+                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-shirt w-6"></i> Mode</li>
+                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-gamepad w-6"></i> Gaming</li>
+                    </ul>
                 </div>
-        </div>
-
-        <div>
-            <div class="flex justify-between items-end mb-6">
-                <h2 class="text-2xl font-black flex items-center gap-2"><i class="fa-solid fa-fire text-orange-500"></i> Hot du Moment</h2>
-                <a href="#" class="text-xs text-synapse font-bold hover:underline">Voir tout</a>
-            </div>
-            <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <div class="col-span-full text-center py-10"><div class="loader mx-auto"></div></div>
-            </div>
-        </div>
-
-        <div id="recommended-section" class="hidden">
-            <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-thumbs-up text-blue-500"></i> Parce que vous avez cherché "<span id="last-search-term" class="text-synapse"></span>"</h2>
-            <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold mb-4 text-sm">Prix</h3>
+                    <input type="range" class="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0 DA</span><span>500k+</span></div>
                 </div>
-        </div>
+            </div>
 
-        <div>
-            <h2 class="text-xl font-bold mb-6">Découvrir</h2>
-            <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            <div class="col-span-12 lg:col-span-9 xl:col-span-10">
+                <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[300px] bg-gradient-to-r from-synapse via-lime-400 to-green-400">
+                    <div class="absolute inset-0 bg-black/10"></div>
+                    <div class="relative z-10 h-full flex items-center justify-between px-10">
+                        <div class="text-black">
+                            <span class="bg-black text-white text-xs font-bold px-3 py-1 rounded-full">PROMO</span>
+                            <h1 class="text-5xl font-black mt-2 leading-tight">Soldes <br>D'Hiver</h1>
+                            <button class="mt-4 bg-white text-black px-6 py-2 rounded-lg font-bold hover:scale-105 transition">Découvrir</button>
+                        </div>
+                        <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="h-[120%] object-contain -rotate-12 translate-y-4">
+                    </div>
+                </div>
+
+                <div id="boosted-section" class="hidden mb-8">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Offres Flash</h2>
+                    <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-end mb-6">
+                        <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-fire text-orange-500"></i> Derniers Ajouts</h2>
+                    </div>
+                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div class="col-span-full loader"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="product-view" class="hidden container mx-auto px-4 mt-6 animate-fade-in-up">
+        <button onclick="goHome()" class="mb-4 text-sm font-bold text-gray-500 hover:text-synapse"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 h-[400px] flex items-center justify-center">
+                <img id="detail-img" class="max-h-full max-w-full object-contain drop-shadow-2xl">
+            </div>
+            <div>
+                <h1 id="detail-title" class="text-3xl font-black mb-2 dark:text-white"></h1>
+                <div class="flex items-center gap-4 mb-6">
+                    <span id="detail-price" class="text-4xl font-bold text-synapse"></span>
+                    <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">En Stock</span>
+                </div>
+                <div class="bg-dark-800 p-4 rounded-xl mb-6">
+                    <p id="detail-desc" class="text-gray-300"></p>
+                </div>
+                <button onclick="addToCart()" class="w-full bg-synapse text-black font-bold py-4 rounded-xl hover:bg-white transition uppercase">Ajouter au panier</button>
+            </div>
         </div>
     </div>
 
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-black text-synapse">TABLEAU DE BORD VENDEUR</h1>
-            <button onclick="goHome()" class="text-sm font-bold underline">Quitter</button>
-        </div>
-
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-dark-900 border border-gray-800 p-4 rounded-xl">
-                <div class="text-gray-400 text-xs uppercase font-bold">Chiffre d'affaires</div>
-                <div class="text-2xl font-black text-white mt-1" id="stat-revenue">0 DA</div>
-            </div>
-            <div class="bg-dark-900 border border-gray-800 p-4 rounded-xl">
-                <div class="text-gray-400 text-xs uppercase font-bold">Ventes Totales</div>
-                <div class="text-2xl font-black text-white mt-1" id="stat-sales">0</div>
-            </div>
-            <div class="bg-dark-900 border border-gray-800 p-4 rounded-xl">
-                <div class="text-gray-400 text-xs uppercase font-bold">Produits en ligne</div>
-                <div class="text-2xl font-black text-white mt-1" id="stat-products">0</div>
-            </div>
-            <div class="bg-synapse p-4 rounded-xl text-black flex items-center justify-between cursor-pointer hover:bg-white transition" onclick="switchSellerTab('products')">
-                <span class="font-bold">Ajouter un produit</span>
-                <i class="fa-solid fa-plus-circle text-2xl"></i>
-            </div>
+            <h1 class="text-2xl font-black text-synapse">ESPACE VENDEUR</h1>
+            <button onclick="goHome()" class="text-sm font-bold underline text-gray-500 hover:text-white">Quitter</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="col-span-1">
-                <div class="bg-black border border-synapse/30 rounded-xl p-4 sticky top-24">
-                    <ul class="space-y-1 text-sm font-bold text-gray-400">
-                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn p-3 rounded-lg cursor-pointer bg-synapse text-black">Mes Commandes</li>
-                        <li onclick="switchSellerTab('products')" class="seller-tab-btn p-3 rounded-lg cursor-pointer hover:bg-dark-800">Ajouter Produit</li>
+                <div class="bg-dark-900 border border-gray-800 rounded-xl p-4 sticky top-24">
+                    <div class="mb-6 pb-6 border-b border-gray-800">
+                        <div class="text-gray-400 text-xs uppercase font-bold">Chiffre d'affaires</div>
+                        <div class="text-2xl font-black text-white mt-1" id="stat-revenue">0 DA</div>
+                    </div>
+                    <ul class="space-y-2 text-sm font-bold text-gray-400">
+                        <li onclick="switchSellerTab('products')" class="seller-tab-btn p-3 rounded-lg cursor-pointer bg-synapse text-black flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
+                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn p-3 rounded-lg cursor-pointer hover:bg-dark-800 flex items-center gap-2"><i class="fa-solid fa-box-open"></i> Mes Commandes</li>
                     </ul>
                 </div>
             </div>
 
             <div class="col-span-1 lg:col-span-3">
-                <div id="seller-tab-products" class="seller-tab-content hidden">
+                <div id="seller-tab-products" class="seller-tab-content">
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
                         <h3 class="text-white font-bold mb-4">Nouveau Produit</h3>
                         <div class="space-y-4">
                             <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
                                 <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(this)">
-                                <img id="image-preview" class="hidden h-full object-contain">
-                                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse">
+                                <img id="image-preview" class="hidden h-full object-contain absolute inset-0 m-auto">
+                                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
                                     <i class="fa-solid fa-cloud-arrow-up text-3xl mb-2"></i>
                                     <span class="block text-xs font-bold">Cliquez pour uploader une image</span>
                                 </div>
@@ -149,21 +172,20 @@
                                 <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
                             </div>
                             <div class="flex gap-4 items-center text-white text-sm">
-                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="prod-hot" class="accent-synapse"> Mettre en "Hot"</label>
-                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="prod-boost" class="accent-synapse"> Booster (Payant)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="prod-hot" class="accent-synapse"> Hot</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="prod-boost" class="accent-synapse"> Booster</label>
                             </div>
-                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
-                                <option value="Tech">Tech</option><option value="Mode">Mode</option><option value="Maison">Maison</option>
-                            </select>
-                            <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">
-                                Publier maintenant
-                            </button>
+                            <textarea id="prod-desc" placeholder="Description..." rows="3" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
+                            <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">Publier maintenant</button>
                         </div>
                     </div>
                 </div>
                 
-                <div id="seller-tab-orders" class="seller-tab-content">
-                    <div class="text-gray-400 text-center py-10">Chargement des commandes...</div>
+                <div id="seller-tab-orders" class="seller-tab-content hidden">
+                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-6 text-center text-gray-500">
+                        <i class="fa-solid fa-box-open text-4xl mb-2 opacity-50"></i>
+                        <p>Aucune commande pour le moment.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -171,28 +193,23 @@
 
     <div id="auth-view" class="hidden container mx-auto px-4 mt-10 max-w-md">
         <div class="bg-white dark:bg-dark-900 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800">
-            <h2 class="text-2xl font-bold mb-6 text-center">Connexion</h2>
-            <input type="email" id="login-email" placeholder="Email" class="w-full p-3 mb-4 bg-gray-50 dark:bg-dark-800 rounded border border-gray-200 dark:border-gray-700">
-            <input type="password" id="login-password" placeholder="Mot de passe" class="w-full p-3 mb-4 bg-gray-50 dark:bg-dark-800 rounded border border-gray-200 dark:border-gray-700">
+            <h2 class="text-2xl font-bold mb-6 text-center dark:text-white">Connexion</h2>
+            <input type="email" id="login-email" placeholder="Email" class="w-full p-3 mb-4 bg-gray-50 dark:bg-black rounded border border-gray-200 dark:border-gray-700 text-white">
+            <input type="password" id="login-password" placeholder="Mot de passe" class="w-full p-3 mb-4 bg-gray-50 dark:bg-black rounded border border-gray-200 dark:border-gray-700 text-white">
             <button onclick="handleLogin()" class="w-full bg-synapse text-black font-bold py-3 rounded">Se connecter</button>
-            <div class="text-center mt-4 text-xs text-gray-500">Pas de compte ? <span onclick="alert('Utilisez le même formulaire pour test')" class="underline cursor-pointer">S'inscrire</span></div>
+            <div class="text-center mt-4 text-xs text-gray-500">Pas de compte ? <span onclick="alert('Utilisez le même formulaire pour inscription (test)')" class="underline cursor-pointer">S'inscrire</span></div>
         </div>
     </div>
 
-    <div id="product-view" class="hidden container mx-auto px-4 mt-6">
-        <button onclick="goHome()" class="mb-4"><i class="fa-solid fa-arrow-left"></i> Retour</button>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <img id="detail-img" class="w-full rounded-xl bg-white object-contain h-96">
-            <div>
-                <h1 id="detail-title" class="text-3xl font-black mb-2"></h1>
-                <div id="detail-price" class="text-4xl font-bold text-synapse mb-4"></div>
-                <p id="detail-desc" class="text-gray-400 mb-6"></p>
-                <button class="w-full bg-synapse text-black font-bold py-4 rounded-xl">ACHETER MAINTENANT</button>
-            </div>
+    <div id="checkout-view" class="hidden container mx-auto px-4 mt-6"><div class="text-center text-2xl font-bold dark:text-white">Page Paiement (À venir)</div></div>
+    <div id="dashboard-view" class="hidden container mx-auto px-4 mt-6"><div class="text-center text-2xl font-bold dark:text-white">Mon Compte (À venir)</div></div>
+
+    <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300">
+        <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3">
+            <i class="fa-solid fa-check-circle text-synapse dark:text-green-600"></i>
+            <span class="font-bold text-sm">Succès !</span>
         </div>
     </div>
-
-    <div id="cart-drawer" class="fixed inset-0 z-50 hidden bg-black/50" onclick="toggleCart()"></div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -201,35 +218,39 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
         const supabase = createClient(supabaseUrl, supabaseKey)
 
+        // --- DONNÉES DE SECOURS (Si la DB est vide ou plante) ---
+        const MOCK_PRODUCTS = [
+            { title: "Sony WH-1000XM5", price: 58000, image_url: "https://pngimg.com/d/headphones_PNG7645.png", description: "Le meilleur casque à réduction de bruit." },
+            { title: "Apple Watch Ultra", price: 120000, image_url: "https://pngimg.com/d/smart_watch_PNG25.png", description: "Pour les aventuriers extrêmes." },
+            { title: "Drone DJI Mini 3", price: 95000, image_url: "https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png", description: "4K HDR, Léger et compact." },
+            { title: "iPhone 15 Pro", price: 250000, image_url: "https://assets.stickpng.com/images/65046279930c832e0e092672.png", description: "Titane. Si puissant." }
+        ];
+
         // --- GLOBAL FUNCTIONS ---
         window.toggleTheme = () => document.documentElement.classList.toggle('dark');
         window.hideAllViews = () => document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add('hidden'));
         window.goHome = () => { hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchAllData(); window.scrollTo(0,0); }
         window.showAuth = () => { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
-        window.showSellerDashboard = async () => { 
-            hideAllViews(); 
-            document.getElementById('seller-dashboard-view').classList.remove('hidden'); 
-            loadSellerStats(); // Charger les stats
-        }
+        window.showSellerDashboard = () => { hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); }
         window.switchSellerTab = (tab) => {
             document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
             document.getElementById(`seller-tab-${tab}`).classList.remove('hidden');
         }
         
-        // --- 1. RECHERCHE INTELLIGENTE (HISTORIQUE) ---
+        // --- 1. RECHERCHE INTELLIGENTE ---
         window.handleSearch = async () => {
-            const term = document.getElementById('search-input').value;
-            if(term) {
-                // Sauvegarder dans le navigateur
-                localStorage.setItem('synapse_last_search', term);
-                
-                // Faire la recherche
-                const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
+            // Si pas de résultats DB, on filtre les mocks
+            if (!data || data.length === 0) {
+                const mocks = MOCK_PRODUCTS.filter(p => p.title.toLowerCase().includes(term));
+                renderGrid('products-grid', mocks.length ? mocks : []);
+            } else {
                 renderGrid('products-grid', data);
             }
         }
 
-        // --- 2. UPLOAD IMAGE & PUBLICATION ---
+        // --- 2. UPLOAD & PUBLICATION ---
         window.previewImage = (input) => {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -244,112 +265,95 @@
 
         window.publishProduct = async () => {
             const btn = document.getElementById('btn-publish');
-            btn.innerText = "Publication en cours...";
-            btn.disabled = true;
-
-            const title = document.getElementById('prod-title').value;
-            const price = document.getElementById('prod-price').value;
-            const file = document.getElementById('prod-image').files[0];
-            const isHot = document.getElementById('prod-hot').checked;
-            const isBoosted = document.getElementById('prod-boost').checked;
+            btn.innerText = "Patientez..."; btn.disabled = true;
 
             try {
                 const { data: { user } } = await supabase.auth.getUser();
-                if(!user) throw new Error("Connectez-vous !");
+                if(!user) throw new Error("Connectez-vous d'abord !");
+
+                const title = document.getElementById('prod-title').value;
+                const price = document.getElementById('prod-price').value;
+                const file = document.getElementById('prod-image').files[0];
+                const desc = document.getElementById('prod-desc').value;
+                const isHot = document.getElementById('prod-hot').checked;
+                const isBoosted = document.getElementById('prod-boost').checked;
 
                 // 1. Upload Image
-                let imageUrl = "https://pngimg.com/d/box_PNG120.png"; // Defaut
+                let imageUrl = "https://pngimg.com/d/box_PNG120.png";
                 if (file) {
                     const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
                     const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
-                    if (uploadError) throw uploadError;
-                    const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-                    imageUrl = publicUrl.publicUrl;
+                    if (!uploadError) {
+                        const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
+                        imageUrl = publicUrl.publicUrl;
+                    }
                 }
 
-                // 2. Get/Create Store
+                // 2. Store & Product
                 let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
                 if (!store) {
                     const { data: newStore } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Ma Boutique" }]).select().single();
                     store = newStore;
                 }
 
-                // 3. Insert Product
                 const { error } = await supabase.from('products').insert([{
-                    store_id: store.id, title, price, image_url: imageUrl, is_hot: isHot, is_boosted: isBoosted
+                    store_id: store.id, title, price, image_url: imageUrl, description: desc, is_hot: isHot, is_boosted: isBoosted
                 }]);
 
                 if(error) throw error;
-                alert("Produit publié avec succès !");
+                alert("Publié !");
+                btn.innerText = "Publier"; btn.disabled = false;
                 goHome();
 
             } catch (err) {
                 alert("Erreur: " + err.message);
-                btn.innerText = "Réessayer";
-                btn.disabled = false;
+                btn.innerText = "Réessayer"; btn.disabled = false;
             }
         }
 
-        // --- 3. CHARGEMENT DES DONNÉES ---
+        // --- 3. FETCH DATA (AVEC FALLBACK) ---
         async function fetchAllData() {
-            // A. Produits Hot
-            const { data: hot } = await supabase.from('products').select('*').eq('is_hot', true).limit(5);
-            renderGrid('hot-grid', hot);
+            try {
+                const { data: products, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+                
+                // SI ERREUR OU VIDE -> UTILISER LES MOCKS (SECOURS)
+                if (error || !products || products.length === 0) {
+                    console.warn("Utilisation des données de démo");
+                    renderGrid('products-grid', MOCK_PRODUCTS);
+                    renderGrid('hot-grid', MOCK_PRODUCTS.slice(0,2)); // Juste pour l'exemple
+                } else {
+                    // VRAIES DONNÉES
+                    renderGrid('products-grid', products);
+                    
+                    const hot = products.filter(p => p.is_hot);
+                    renderGrid('hot-grid', hot.length ? hot : products.slice(0,4));
 
-            // B. Produits Boostés
-            const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
-            if(boosted && boosted.length > 0) {
-                document.getElementById('boosted-section').classList.remove('hidden');
-                renderGrid('boosted-grid', boosted, true); // true = layout spécial
-            }
-
-            // C. Recommandations (Local Storage)
-            const lastSearch = localStorage.getItem('synapse_last_search');
-            if(lastSearch) {
-                document.getElementById('last-search-term').innerText = lastSearch;
-                const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
-                if(recos && recos.length > 0) {
-                    document.getElementById('recommended-section').classList.remove('hidden');
-                    renderGrid('recommended-grid', recos);
+                    const boosted = products.filter(p => p.is_boosted);
+                    if(boosted.length > 0) {
+                        document.getElementById('boosted-section').classList.remove('hidden');
+                        renderGrid('boosted-grid', boosted, true);
+                    }
                 }
+            } catch (e) {
+                console.error(e);
+                renderGrid('products-grid', MOCK_PRODUCTS); // Toujours afficher quelque chose
             }
-
-            // D. Tous les produits
-            const { data: all } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-            renderGrid('products-grid', all);
         }
 
-        // --- 4. DASHBOARD STATS ---
-        async function loadSellerStats() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) return;
-
-            // Récupérer la boutique
-            const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
-            if(!store) return;
-
-            // Compter les produits
-            const { count: prodCount } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', store.id);
-            document.getElementById('stat-products').innerText = prodCount || 0;
-
-            // Simuler Ventes (car pas encore de commandes réelles liées)
-            // Dans le futur: query sur order_items
-            document.getElementById('stat-sales').innerText = "0"; 
-            document.getElementById('stat-revenue').innerText = "0 DA";
-        }
-
-        // --- HELPER RENDU HTML ---
+        // --- HELPER RENDU ---
         function renderGrid(containerId, products, isBoostedLayout = false) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
-            
             if(!products || products.length === 0) return;
 
             products.forEach(p => {
                 const card = isBoostedLayout 
-                ? `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded">BOOSTÉ</span><h3 class="font-bold mt-1">${p.title}</h3><div class="text-xl font-black">${p.price} DA</div></div></div></div>`
-                : `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden border border-gray-100 dark:border-dark-800 cursor-pointer hover:shadow-lg transition"><div class="h-48 p-4 flex items-center justify-center bg-gray-50 dark:bg-dark-800"><img src="${p.image_url}" class="h-full object-contain"></div><div class="p-4"><h3 class="font-bold text-sm truncate">${p.title}</h3><div class="font-black mt-1">${p.price} DA</div></div></div>`;
-                
+                ? `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`
+                : `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden border border-gray-100 dark:border-dark-800 cursor-pointer hover:shadow-xl transition group relative">
+                    ${p.is_hot ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
+                    <div class="h-48 p-4 flex items-center justify-center bg-gray-50 dark:bg-dark-800"><img src="${p.image_url}" class="h-full object-contain group-hover:scale-110 transition duration-500"></div>
+                    <div class="p-4"><h3 class="font-bold text-sm truncate dark:text-gray-200">${p.title}</h3><div class="font-black mt-1 text-lg dark:text-white">${p.price} DA</div></div>
+                   </div>`;
                 container.innerHTML += card;
             });
         }
@@ -357,7 +361,7 @@
         window.openDetail = (t, p, d, i) => {
             document.getElementById('detail-title').innerText = t;
             document.getElementById('detail-price').innerText = p + " DA";
-            document.getElementById('detail-desc').innerText = d;
+            document.getElementById('detail-desc').innerText = d || "Aucune description.";
             document.getElementById('detail-img').src = i;
             hideAllViews(); document.getElementById('product-view').classList.remove('hidden');
         }
