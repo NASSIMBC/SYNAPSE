@@ -14,31 +14,12 @@
             theme: {
                 extend: {
                     colors: {
-                        synapse: {
-                            DEFAULT: '#CCFF00',
-                            dark: '#A3CC00',
-                            dim: '#b3e600',
-                            light: '#E5FF80'
-                        },
-                        dark: {
-                            950: '#050505',
-                            900: '#121212',
-                            800: '#1E1E1E',
-                            700: '#2D2D2D'
-                        }
+                        synapse: { DEFAULT: '#CCFF00', dark: '#A3CC00', dim: '#b3e600', light: '#E5FF80' },
+                        dark: { 950: '#050505', 900: '#121212', 800: '#1E1E1E', 700: '#2D2D2D' }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    animation: {
-                        'fade-in-up': 'fadeInUp 0.5s ease-out',
-                    },
-                    keyframes: {
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        }
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 'fade-in-up': 'fadeInUp 0.5s ease-out' },
+                    keyframes: { fadeInUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
                 }
             }
         }
@@ -47,7 +28,6 @@
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #CCFF00; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #ddd; border-radius: 2px; }
@@ -86,7 +66,7 @@
             </div>
 
             <div class="flex items-center gap-6 shrink-0">
-                <button onclick="showSellerDashboard()" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">TEST VENDEUR</button>
+                <button onclick="showSellerDashboard()" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
 
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center text-gray-600 dark:text-synapse hover:bg-gray-200 dark:hover:bg-dark-700 transition"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
 
@@ -167,19 +147,6 @@
                                 <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">18 500 DA</span></div>
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.5</div>
-                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                         <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
-                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
-                                <img src="https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png" class="h-full object-contain group-hover:scale-105 transition">
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Drone 4K Pro GPS 5km Range</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">95 000 DA</span></div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.8</div>
                                     <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
                                 </div>
                             </div>
@@ -418,24 +385,15 @@
         </div>
     </div>
 
-    <    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-    <script>
-        // 1. Initialisation sécurisée de Supabase
-        // (Même si ça échoue, le reste du site continuera de marcher)
-        let supabase;
-        try {
-            const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co';
-            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs';
-            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-            console.log("Supabase connecté !");
-        } catch (err) {
-            console.error("Erreur Supabase:", err);
-            alert("Erreur de connexion à la base de données. Les boutons visuels marcheront quand même.");
-        }
+        // 1. CONFIGURATION SUPABASE
+        const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
+        const supabase = createClient(supabaseUrl, supabaseKey)
 
-        // 2. Fonctions d'interface (UI) - Elles doivent être définies globalement
-        
+        // 2. FONCTIONS GLOBALES (Pour que le HTML puisse les voir)
         window.toggleTheme = function() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -524,7 +482,7 @@
             window.addToCart("Commande expédiée !");
         }
 
-        // 3. Fonctions Asynchrones (Supabase)
+        // 3. FONCTIONS SUPABASE ASYNCHRONES
         window.handleSignUp = async function() {
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
@@ -538,7 +496,7 @@
                     options: { data: { full_name: firstName + ' ' + lastName, role: 'buyer' } }
                 });
                 if (error) throw error;
-                alert("Compte créé ! Vérifiez votre email.");
+                alert("Compte créé ! Vérifiez votre email pour confirmer.");
             } catch (error) {
                 alert("Erreur: " + error.message);
             }
@@ -560,8 +518,14 @@
                 alert("Erreur de connexion : " + error.message);
             }
         }
+
+        // Vérification de session au chargement
+        async function checkUserSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) console.log("Session active:", session.user.email);
+        }
+        checkUserSession();
+
     </script>
-
-
 </body>
 </html>
