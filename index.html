@@ -62,7 +62,7 @@
 
             <div class="flex-1 max-w-3xl relative hidden md:block">
                 <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
-                    <input type="text" id="search-input" placeholder="Chercher un produit (ex: iPhone)..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
+                    <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') handleSearch()" placeholder="Chercher un produit (ex: iPhone)..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
                     <button onclick="handleSearch()" class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
@@ -640,7 +640,18 @@
             const term = document.getElementById('search-input').value;
             if(term) {
                 localStorage.setItem('synapse_last_search', term);
+                // 1. Switch to Home View (Added for correction)
+                hideAllViews();
+                document.getElementById('home-view').classList.remove('hidden');
+                window.scrollTo(0, 0);
+                
+                // 2. Clear grid and show loader (Added for correction)
+                document.getElementById('products-grid').innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span> Recherche...</div>';
+
+                // 3. Fetch Data
                 const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
+                
+                // 4. Render
                 renderGrid('products-grid', data);
             }
         }
@@ -693,8 +704,10 @@
                 if(isBoostedLayout) {
                      card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
                 } else {
+                     // CONDITION HOT MISE A JOUR: >= 100 vues
+                     const isHot = p.view_count >= 100;
                      card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse relative">
-                        ${p.view_count >= 100 ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
+                        ${isHot ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
                         <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
                             <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
                         </div>
