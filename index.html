@@ -133,7 +133,10 @@
                          <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
 
-                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Tendances & Nouveautés</h2>
+                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Tendances</h2>
+                    <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[100px] mb-8"></div>
+
+                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts (Vos Produits)</h2>
                     <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[200px]">
                         <div class="col-span-full text-center py-10 text-gray-500">
                             <span class="loader mr-2"></span> Chargement des produits...
@@ -212,7 +215,7 @@
                         <input type="text" id="profile-name" placeholder="Nom Complet" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white font-bold">
                         <input type="text" id="profile-phone" placeholder="Téléphone (ex: 0550...)" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
                         <input type="text" id="profile-wilaya" placeholder="Wilaya / Adresse" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
-                        <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2">Enregistrer Profil</button>
+                        <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2 hover:opacity-80">Enregistrer Profil</button>
                     </div>
                 </div>
             </div>
@@ -397,7 +400,7 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
         const supabase = createClient(supabaseUrl, supabaseKey)
 
-        // --- GESTION DU PANIER ---
+        // --- GESTION PANIER ---
         window.myCart = [];
 
         window.addToCart = function(title, price, image) {
@@ -407,6 +410,12 @@
             toast.querySelector('span').innerText = "Ajouté au panier !";
             toast.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+        }
+
+        // FONCTION AJOUTÉE : SUPPRESSION PANIER
+        window.removeFromCart = function(index) {
+            window.myCart.splice(index, 1);
+            updateCartUI();
         }
 
         function updateCartUI() {
@@ -422,11 +431,11 @@
             if (window.myCart.length === 0) {
                 container.innerHTML = '<div class="text-center text-gray-500 mt-10">Votre panier est vide</div>';
             } else {
-                window.myCart.forEach(item => {
+                window.myCart.forEach((item, index) => {
                     let cleanPrice = parseInt(item.price.replace(/\D/g, '')) || 0;
                     total += cleanPrice;
                     const html = `
-                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
+                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg relative group">
                         <img src="${item.image}" class="w-16 h-16 object-contain bg-white rounded-md">
                         <div class="flex-1">
                             <h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">${item.title}</h4>
@@ -434,6 +443,9 @@
                                 <span class="font-bold text-synapse-dark dark:text-synapse">${item.price}</span>
                             </div>
                         </div>
+                        <button onclick="removeFromCart(${index})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>`;
                     container.innerHTML += html;
                 });
@@ -443,44 +455,7 @@
             if(totalCheckout) totalCheckout.innerText = formattedTotal;
         }
 
-        // --- FONCTION ENVOYER COMMANDE (NOUVEAU) ---
-        window.submitOrder = async function() {
-            if(window.myCart.length === 0) return alert("Votre panier est vide !");
-            
-            const name = document.getElementById('checkout-name').value;
-            const phone = document.getElementById('checkout-phone').value;
-            const wilaya = document.getElementById('checkout-wilaya').value;
-
-            if(!name || !phone || !wilaya) return alert("Veuillez remplir l'adresse de livraison.");
-
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if(!user) return alert("Connectez-vous pour commander !");
-
-                let total = 0;
-                window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
-
-                // Insert Order
-                const { error } = await supabase.from('orders').insert([{
-                    user_id: user.id,
-                    total_amount: total,
-                    shipping_address: `${name}, ${wilaya}, ${phone}`,
-                    status: 'en_attente'
-                }]);
-
-                if(error) throw error;
-
-                alert("Commande envoyée avec succès !");
-                window.myCart = [];
-                updateCartUI();
-                goHome();
-
-            } catch(e) {
-                alert("Erreur commande: " + e.message);
-            }
-        }
-
-        // --- GESTION PROFIL (NOUVEAU) ---
+        // --- GESTION PROFIL (FONCTION CORRIGÉE & AJOUTÉE) ---
         window.loadProfile = async function() {
             const { data: { user } } = await supabase.auth.getUser();
             if(user) {
@@ -496,6 +471,7 @@
             }
         }
 
+        // CETTE FONCTION MANQUAIT DANS LE DERNIER BLOC :
         window.saveProfile = async function() {
             const name = document.getElementById('profile-name').value;
             const phone = document.getElementById('profile-phone').value;
@@ -509,15 +485,49 @@
                     phone: phone,
                     wilaya: wilaya
                 });
-                if(error) alert("Erreur sauvegarde");
+                if(error) alert("Erreur sauvegarde: " + error.message);
                 else {
                     alert("Profil mis à jour !");
                     loadProfile();
                 }
+            } else {
+                alert("Connectez-vous d'abord !");
             }
         }
 
-        // 2. FONCTIONS GLOBALES
+        window.submitOrder = async function() {
+            if(window.myCart.length === 0) return alert("Votre panier est vide !");
+            const name = document.getElementById('checkout-name').value;
+            const phone = document.getElementById('checkout-phone').value;
+            const wilaya = document.getElementById('checkout-wilaya').value;
+
+            if(!name || !phone || !wilaya) return alert("Veuillez remplir l'adresse de livraison.");
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if(!user) return alert("Connectez-vous pour commander !");
+
+                let total = 0;
+                window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
+
+                const { error } = await supabase.from('orders').insert([{
+                    user_id: user.id,
+                    total_amount: total,
+                    shipping_address: `${name}, ${wilaya}, ${phone}`,
+                    status: 'en_attente'
+                }]);
+
+                if(error) throw error;
+
+                alert("Commande envoyée avec succès !");
+                window.myCart = [];
+                updateCartUI();
+                goHome();
+
+            } catch(e) { alert("Erreur commande: " + e.message); }
+        }
+
+        // UI & NAVIGATION
         window.toggleTheme = function() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -550,7 +560,7 @@
             hideAllViews(); 
             document.getElementById('dashboard-view').classList.remove('hidden'); 
             window.scrollTo(0, 0);
-            loadProfile(); // Charger le profil
+            loadProfile(); 
         }
         window.showSellerDashboard = function() { 
             hideAllViews(); 
@@ -561,7 +571,6 @@
         window.showCheckout = function() { 
             hideAllViews(); 
             document.getElementById('checkout-view').classList.remove('hidden'); 
-            // Pré-remplir si profil existe
             const name = document.getElementById('profile-name').value;
             const phone = document.getElementById('profile-phone').value;
             const wilaya = document.getElementById('profile-wilaya').value;
@@ -639,19 +648,30 @@
             }
         }
 
+        // --- FETCH DATA MODIFIÉ POUR SEPARER HOT ET DERNIERS AJOUTS ---
         async function fetchAllData() {
+            // 1. Hot Products (Seulement si is_hot = true)
             const { data: hot } = await supabase.from('products').select('*').eq('is_hot', true).limit(4);
+            
+            // 2. Boosted
             const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
+            
+            // 3. Recommended
             const lastSearch = localStorage.getItem('synapse_last_search');
             let recommended = [];
             if(lastSearch) {
                 const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
                 recommended = recos;
             }
+            
+            // 4. TOUS les produits (Derniers ajouts - Triés par date)
             const { data: all } = await supabase.from('products').select('*').order('created_at', { ascending: false });
 
-            renderGrid('products-grid', all);
-            if(hot && hot.length > 0) renderGrid('products-grid', hot);
+            // Remplir les grilles SÉPARÉMENT
+            renderGrid('products-grid', all); // Les derniers ajouts vont ici
+            
+            if(hot && hot.length > 0) renderGrid('hot-grid', hot); // Les hot vont dans leur propre grille
+            
             if(boosted && boosted.length > 0) {
                 document.getElementById('boosted-section').classList.remove('hidden');
                 renderGrid('boosted-grid', boosted, true);
@@ -666,7 +686,7 @@
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             if(!products || products.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucun produit trouvé.</div>';
+                if(containerId === 'products-grid') container.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucun produit trouvé.</div>';
                 return;
             }
             products.forEach(p => {
@@ -748,7 +768,6 @@
         }
         checkUserSession();
 
-        // 4. PUBLIER PRODUIT (CORRIGÉ: UPDATE DIRECT + SANS HOT/BOOST UI)
         window.publishProduct = async function() {
             const btn = document.getElementById('btn-publish');
             btn.innerText = "Publication..."; btn.disabled = true;
@@ -791,14 +810,14 @@
 
                 const { error: productError } = await supabase.from('products').insert([{
                     store_id: store.id, title, description: desc, price, stock, category, image_url: imageUrl,
-                    is_hot: false, is_boosted: false // Défaut
+                    is_hot: false, is_boosted: false
                 }]);
 
                 if (productError) throw productError;
 
                 alert("Produit publié !");
-                goHome(); // Refresh
-                await fetchAllData(); // Force fetch
+                goHome(); 
+                await fetchAllData(); 
                 
             } catch (err) {
                 console.error(err);
