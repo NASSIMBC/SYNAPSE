@@ -1195,38 +1195,52 @@
         }
 
         // --- FONCTIONS COMMENTAIRES (AVIS) ---
-      async function loadComments(productId) {
+     // --- VERSION BLINDÉE (SANS JOINTURE COMPLEXE) ---
+        async function loadComments(productId) {
             const list = document.getElementById('comments-list');
-            list.innerHTML = '<div class="text-center text-gray-400 text-xs">Chargement des avis...</div>';
+            list.innerHTML = '<div class="text-center text-gray-400 text-xs">Chargement...</div>';
 
-            // On demande les commentaires ET les infos du profil lié
+            // 1. On récupère les commentaires BRUTS (sans demander le profil)
+            // Cela évite l'erreur PGRST200
             const { data: comments, error } = await supabase
                 .from('product_comments')
-                .select(`
-                    content, 
-                    created_at, 
-                    profiles ( full_name )
-                `)
+                .select('*') // On prend juste tout ce qu'il y a dans la table
                 .eq('product_id', productId)
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error("Erreur chargement avis:", error);
-                list.innerHTML = '<div class="text-red-500 text-xs text-center">Erreur de chargement.</div>';
+                console.error("Erreur SQL:", error);
+                list.innerHTML = '<div class="text-red-500 text-xs text-center">Erreur technique.</div>';
                 return;
             }
 
-            list.innerHTML = '';
-            if(!comments || comments.length === 0) {
+            if (!comments || comments.length === 0) {
                 list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">Soyez le premier à donner votre avis !</div>';
                 return;
             }
 
+            // 2. On récupère la liste des IDs des auteurs pour chercher leurs noms
+            const userIds = comments.map(c => c.user_id);
+            
+            // 3. On demande les noms séparément (Requête simple, pas de bug de relation)
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, full_name')
+                .in('id', userIds);
+
+            // 4. On crée un dictionnaire pour retrouver les noms facilement
+            const namesMap = {};
+            if(profiles) {
+                profiles.forEach(p => { namesMap[p.id] = p.full_name; });
+            }
+
+            // 5. On affiche le tout
+            list.innerHTML = '';
             comments.forEach(c => {
-                // Sécurité : Si le profil n'est pas trouvé, on affiche "Anonyme"
-                const name = (c.profiles && c.profiles.full_name) ? c.profiles.full_name : 'Utilisateur Anonyme';
+                // Si on trouve le nom, on l'affiche, sinon "Utilisateur"
+                const name = namesMap[c.user_id] || 'Utilisateur';
                 const date = new Date(c.created_at).toLocaleDateString();
-                
+
                 list.innerHTML += `
                 <div class="border-b border-gray-100 dark:border-dark-800 pb-4 last:border-0 mb-4">
                     <div class="flex justify-between items-center mb-1">
