@@ -1195,15 +1195,26 @@
         }
 
         // --- FONCTIONS COMMENTAIRES (AVIS) ---
-        async function loadComments(productId) {
+       async function loadComments(productId) {
             const list = document.getElementById('comments-list');
             list.innerHTML = '<div class="text-center text-gray-400 text-xs">Chargement des avis...</div>';
 
-            const { data: comments } = await supabase
+            // On demande les commentaires ET les infos du profil lié
+            const { data: comments, error } = await supabase
                 .from('product_comments')
-                .select('content, created_at, profiles(full_name)')
+                .select(`
+                    content, 
+                    created_at, 
+                    profiles ( full_name )
+                `)
                 .eq('product_id', productId)
                 .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error("Erreur chargement avis:", error);
+                list.innerHTML = '<div class="text-red-500 text-xs text-center">Erreur de chargement.</div>';
+                return;
+            }
 
             list.innerHTML = '';
             if(!comments || comments.length === 0) {
@@ -1212,10 +1223,12 @@
             }
 
             comments.forEach(c => {
-                const name = c.profiles ? c.profiles.full_name : 'Utilisateur';
+                // Sécurité : Si le profil n'est pas trouvé, on affiche "Anonyme"
+                const name = (c.profiles && c.profiles.full_name) ? c.profiles.full_name : 'Utilisateur Anonyme';
                 const date = new Date(c.created_at).toLocaleDateString();
+                
                 list.innerHTML += `
-                <div class="border-b border-gray-100 dark:border-dark-800 pb-4 last:border-0">
+                <div class="border-b border-gray-100 dark:border-dark-800 pb-4 last:border-0 mb-4">
                     <div class="flex justify-between items-center mb-1">
                         <span class="font-bold text-sm text-black dark:text-white">${name}</span>
                         <span class="text-[10px] text-gray-400">${date}</span>
