@@ -69,9 +69,7 @@
 
             <div class="flex items-center gap-4 md:gap-6 shrink-0">
                 <button onclick="showSellerDashboard()" class="hidden lg:block text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
-
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center text-gray-600 dark:text-synapse hover:bg-gray-200 dark:hover:bg-dark-700 transition"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
-
                 <div onclick="showDashboard()" class="flex items-center gap-2 cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse"><i class="fa-regular fa-user"></i></div>
                     <div class="hidden lg:block leading-tight">
@@ -79,7 +77,6 @@
                         <div id="header-username" class="text-sm font-bold text-black dark:text-white">Compte</div>
                     </div>
                 </div>
-                
                 <div onclick="toggleCart()" class="relative cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse transition"><i class="fa-solid fa-cart-shopping"></i></div>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-synapse text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white dark:border-dark-900">0</span>
@@ -160,12 +157,13 @@
                 </div>
             </div>
             <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
+                <input type="hidden" id="detail-id">
                 <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
                     <div class="flex items-end gap-3 mb-1"><span id="detail-price" class="text-3xl md:text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span></div>
                 </div>
                 <p id="detail-desc" class="text-gray-500 dark:text-gray-400">Description...</p>
-                <button id="btn-add-cart-detail" onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src)" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
+                <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
             </div>
         </div>
     </div>
@@ -306,7 +304,9 @@
             <div class="col-span-1 lg:col-span-3 space-y-6">
                 <div id="seller-tab-orders" class="seller-tab-content">
                     <h2 class="text-2xl font-black text-white mb-6">Commandes à traiter</h2>
-                    <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucune commande pour le moment.</div>
+                    <div id="seller-orders-list" class="space-y-4">
+                        <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement des commandes...</div>
+                    </div>
                 </div>
 
                 <div id="seller-tab-products" class="seller-tab-content hidden">
@@ -411,8 +411,9 @@
         // --- GESTION PANIER ---
         window.myCart = [];
 
-        window.addToCart = function(title, price, image) {
-            window.myCart.push({ title, price, image });
+        window.addToCart = function(title, price, image, id) {
+            // STOCKAGE DE L'ID (IMPORTANT POUR LA COMMANDE)
+            window.myCart.push({ title, price, image, id });
             updateCartUI();
             const toast = document.getElementById('toast');
             toast.querySelector('span').innerText = "Ajouté au panier !";
@@ -501,6 +502,7 @@
             }
         }
 
+        // --- COMMANDE AVEC DETAILS (CORRIGÉ) ---
         window.submitOrder = async function() {
             if(window.myCart.length === 0) return alert("Votre panier est vide !");
             const name = document.getElementById('checkout-name').value;
@@ -516,14 +518,26 @@
                 let total = 0;
                 window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
 
-                const { error } = await supabase.from('orders').insert([{
+                // 1. Créer la commande principale
+                const { data: order, error: orderError } = await supabase.from('orders').insert([{
                     user_id: user.id,
                     total_amount: total,
                     shipping_address: `${name}, ${wilaya}, ${phone}`,
                     status: 'en_attente'
-                }]);
+                }]).select().single();
 
-                if(error) throw error;
+                if(orderError) throw orderError;
+
+                // 2. Créer les articles liés (Order Items)
+                const orderItems = window.myCart.map(item => ({
+                    order_id: order.id,
+                    product_id: item.id, // On utilise l'ID stocké
+                    price: parseInt(item.price.replace(/\D/g, '')) || 0,
+                    quantity: 1
+                }));
+
+                const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+                if(itemsError) throw itemsError;
 
                 alert("Commande envoyée avec succès !");
                 window.myCart = [];
@@ -531,6 +545,74 @@
                 goHome();
 
             } catch(e) { alert("Erreur commande: " + e.message); }
+        }
+
+        // --- DASHBOARD VENDEUR (CHARGEMENT DES VRAIES COMMANDES) ---
+        async function loadSellerOrders() {
+            const list = document.getElementById('seller-orders-list');
+            list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if(!user) return;
+
+                // 1. Trouver ma boutique
+                const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+                if(!store) {
+                    list.innerHTML = '<div class="text-gray-500 text-center">Créez votre boutique en ajoutant un produit.</div>';
+                    return;
+                }
+
+                // 2. Trouver les articles commandés liés à ma boutique
+                // Astuce : On joint order_items -> products -> store
+                const { data: items, error } = await supabase
+                    .from('order_items')
+                    .select('*, product:products(*), order:orders(*)')
+                    .eq('product.store_id', store.id) // Filtre coté client souvent nécessaire avec Supabase simple
+                    .order('created_at', { ascending: false });
+
+                // Filtrage manuel si la requête complexe échoue (sécurité)
+                const myItems = items ? items.filter(i => i.product && i.product.store_id === store.id) : [];
+
+                if(!myItems || myItems.length === 0) {
+                    list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucune commande pour le moment.</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                myItems.forEach(item => {
+                    const html = `
+                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
+                        <div class="flex justify-between items-start border-b border-gray-800 pb-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 uppercase font-bold">Commande #${item.order_id}</span>
+                                <div class="text-sm text-gray-300 mt-1">${new Date(item.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-black text-white">${item.price} DA</div>
+                                <span class="bg-orange-500/20 text-orange-500 text-xs font-bold px-2 py-1 rounded border border-orange-500/20">À Expédier</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-center mb-4">
+                            <img src="${item.product.image_url}" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
+                            <div>
+                                <h4 class="font-bold text-white">${item.product.title}</h4>
+                                <div class="text-xs text-gray-400">Qté: ${item.quantity}</div>
+                            </div>
+                        </div>
+                        <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800">
+                            <div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison :</div>
+                            <p>${item.order.shipping_address || 'Adresse non spécifiée'}</p>
+                        </div>
+                        <button onclick="alert('Commande marquée comme expédiée !')" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition"><i class="fa-solid fa-check"></i> Expédier</button>
+                    </div>`;
+                    list.innerHTML += html;
+                });
+
+            } catch(e) {
+                console.error(e);
+                list.innerHTML = '<div class="text-red-500 text-center">Erreur de chargement.</div>';
+            }
         }
 
         window.toggleTheme = function() {
@@ -571,6 +653,7 @@
             hideAllViews(); 
             document.getElementById('seller-dashboard-view').classList.remove('hidden'); 
             loadSellerStats();
+            loadSellerOrders(); // CHARGER LES COMMANDES
             window.scrollTo(0, 0); 
         }
         window.showCheckout = function() { 
@@ -731,7 +814,7 @@
                             <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span></div>
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 5.0</div>
-                                <button onclick="addToCart('${p.title}', '${p.price}', '${p.image_url}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                                <button onclick="addToCart('${p.title}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
                             </div>
                         </div>
                     </div>`;
@@ -747,6 +830,8 @@
             document.getElementById('detail-price').innerText = p + " DA";
             document.getElementById('detail-desc').innerText = (d && d !== 'undefined') ? d : "Pas de description.";
             document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
+            document.getElementById('detail-id').value = id; // Stocker l'ID pour le panier
+            
             hideAllViews();
             document.getElementById('product-view').classList.remove('hidden');
             window.scrollTo(0,0);
