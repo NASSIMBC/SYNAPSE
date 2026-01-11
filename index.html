@@ -29,6 +29,7 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* Style pour les catégories déroulantes */
         details > summary { list-style: none; cursor: pointer; transition: all 0.2s; }
         details > summary::-webkit-details-marker { display: none; }
         details[open] > summary { color: #CCFF00; font-weight: bold; }
@@ -99,7 +100,7 @@
                 
                 <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800 h-[600px] overflow-y-auto scrollbar-hide">
-                        <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Rayons</h3>
+                        <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
                         <div class="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                             
                             <details class="group">
@@ -138,10 +139,20 @@
                                 </ul>
                             </details>
 
-                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
-                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
+                            <li onclick="filterByCategory('Electronique')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-plug w-5"></i> Electronique</span></li>
+
                             <li onclick="filterByCategory('Bijoux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gem w-5"></i> Bijoux & Montres</span></li>
+
+                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
+
+                            <li onclick="filterByCategory('Sacs')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-bag-shopping w-5"></i> Sacs & Bagages</span></li>
+
                             <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gamepad w-5"></i> Jouets & Loisirs</span></li>
+
+                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sports</span></li>
+
+                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
+
                             <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-5"></i> Auto & Moto</span></li>
 
                         </div>
@@ -213,14 +224,13 @@
             </div>
             <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
                 <input type="hidden" id="detail-id">
-                <input type="hidden" id="detail-store-id"> 
-                
-                <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
+                <input type="hidden" id="detail-store-id"> <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
                 
                 <div class="flex items-center gap-2 mb-2">
-                    <div class="flex text-yellow-400 text-sm" id="detail-stars">
-                        </div>
-                    <span class="text-xs text-gray-500" id="detail-rating-text">(0 avis)</span>
+                    <div class="flex text-yellow-400 text-sm">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span class="text-xs text-gray-500">(4.8/5) Vendeur vérifié</span>
                 </div>
 
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
@@ -262,6 +272,7 @@
     <div id="auth-view" class="hidden container mx-auto px-4 mt-6 mb-12 flex justify-center items-center min-h-[60vh] animate-fade-in-up z-[100]">
         <div class="w-full max-w-md bg-white dark:bg-dark-900 rounded-2xl shadow-xl border border-gray-100 dark:border-dark-800 overflow-hidden relative">
             <button onclick="goHome()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
             <div class="bg-gray-50 dark:bg-dark-800 p-6 text-center border-b border-gray-100 dark:border-dark-700">
                 <div class="inline-flex items-center justify-center w-12 h-12 bg-synapse rounded-lg text-black font-bold text-2xl mb-3">S</div>
                 <h2 class="text-2xl font-black text-black dark:text-white">Connexion / Inscription</h2>
@@ -380,8 +391,8 @@
                 <div class="text-2xl font-black text-white" id="stat-sales">0</div>
             </div>
             <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
-                <div class="text-gray-400 text-xs font-bold uppercase">Chiffre d'affaires</div>
-                <div class="text-2xl font-black text-white text-synapse" id="stat-revenue">0 DA</div>
+                <div class="text-gray-400 text-xs font-bold uppercase">Note Moyenne</div>
+                <div class="text-2xl font-black text-white text-yellow-400"><i class="fa-solid fa-star"></i> <span id="stat-rating">5.0</span></div>
             </div>
         </div>
 
@@ -404,7 +415,7 @@
                 <div id="seller-tab-orders" class="seller-tab-content">
                     <h2 class="text-2xl font-black text-white mb-6">Commandes à traiter</h2>
                     <div id="seller-orders-list" class="space-y-4">
-                        <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement...</div>
+                        <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement des commandes...</div>
                     </div>
                 </div>
 
@@ -417,26 +428,41 @@
                                 <img id="image-preview" class="hidden h-full object-contain absolute inset-0 m-auto">
                                 <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
                                     <i class="fa-solid fa-cloud-arrow-up text-3xl mb-2"></i>
-                                    <span class="block text-xs font-bold">Cliquez pour uploader</span>
+                                    <span class="block text-xs font-bold">Cliquez pour uploader une image</span>
                                 </div>
                             </div>
-                            <input type="text" id="prod-title" placeholder="Titre" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
+
+                            <input type="text" id="prod-title" placeholder="Titre du produit (ex: iPhone 15)" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                            
                             <div class="grid grid-cols-2 gap-4">
-                                <input type="number" id="prod-price" placeholder="Prix" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                                <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
+                                <input type="number" id="prod-price" placeholder="Prix (DA)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                                <input type="number" id="prod-stock" placeholder="Stock (Qté)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
                             </div>
-                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
-                                <option value="Tech">Tech</option><option value="Mode">Mode</option><option value="Maison">Maison</option><option value="Beauté">Beauté</option><option value="Sport">Sport</option><option value="Auto">Auto</option><option value="Jouets">Jouets</option>
+
+                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400 focus:border-synapse outline-none">
+                                <option value="Tech">Tech & Informatique</option>
+                                <option value="Mode">Mode & Vêtements</option>
+                                <option value="Maison">Maison & Déco</option>
+                                <option value="Beauté">Beauté & Santé</option>
+                                <option value="Sport">Sport & Loisirs</option>
+                                <option value="Auto">Auto & Moto</option>
+                                <option value="Jouets">Jouets & Kids</option>
                             </select>
-                            <textarea id="prod-desc" placeholder="Description..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
-                            <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">Publier</button>
+
+                            <textarea id="prod-desc" placeholder="Description détaillée..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none"></textarea>
+
+                            <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">
+                                Publier l'annonce
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div id="seller-tab-my-products" class="seller-tab-content hidden">
                     <h2 class="text-2xl font-black text-white mb-6">Mon Stock</h2>
-                    <div id="seller-products-list" class="space-y-4"></div>
+                    <div id="seller-products-list" class="space-y-4">
+                        <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement...</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -444,18 +470,18 @@
 
     <div id="edit-modal" class="hidden fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
         <div class="bg-dark-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-white mb-4">Modifier</h3>
+            <h3 class="text-xl font-bold text-white mb-4">Modifier le produit</h3>
             <input type="hidden" id="edit-prod-id">
             <div class="space-y-4">
-                <input type="text" id="edit-prod-title" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
+                <input type="text" id="edit-prod-title" placeholder="Titre" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="edit-prod-price" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                    <input type="number" id="edit-prod-stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
+                    <input type="number" id="edit-prod-price" placeholder="Prix" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
+                    <input type="number" id="edit-prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
                 </div>
-                <textarea id="edit-prod-desc" rows="3" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
-                <div class="flex gap-2">
+                <textarea id="edit-prod-desc" placeholder="Description" rows="3" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
+                <div class="flex gap-2 mt-4">
                     <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded-lg">Annuler</button>
-                    <button onclick="saveProductChanges()" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg">Sauvegarder</button>
+                    <button onclick="saveProductChanges()" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">Sauvegarder</button>
                 </div>
             </div>
         </div>
@@ -469,9 +495,16 @@
                     <h2 class="text-xl font-black text-black dark:text-white">Mon Panier</h2>
                     <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <div id="cart-items-container" class="flex-1 overflow-y-auto space-y-4"><div class="text-center text-gray-500 mt-10">Votre panier est vide</div></div>
+                
+                <div id="cart-items-container" class="flex-1 overflow-y-auto space-y-4">
+                    <div class="text-center text-gray-500 mt-10">Votre panier est vide</div>
+                </div>
+                
                 <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4 safe-area-bottom">
-                    <div class="flex justify-between text-lg font-bold dark:text-white mb-4"><span>Total</span><span id="cart-drawer-total">0 DA</span></div>
+                    <div class="flex justify-between text-lg font-bold dark:text-white mb-4">
+                        <span>Total</span>
+                        <span id="cart-drawer-total">0 DA</span>
+                    </div>
                     <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
                 </div>
             </div>
@@ -485,12 +518,14 @@
                 <span class="text-2xl font-black dark:text-white tracking-tighter">SYNAPSE</span>
                 <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-2xl dark:text-white"></i></button>
             </div>
+
             <div class="mb-8">
                 <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-dark-800 h-10">
                     <input type="text" id="mobile-search-input" onkeyup="if(event.key === 'Enter') handleSearchMobile()" placeholder="Rechercher..." class="w-full px-3 bg-transparent outline-none text-sm dark:text-white">
                     <button onclick="handleSearchMobile()" class="bg-synapse h-full px-4 text-black"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
+
             <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
                 <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-house w-6"></i> Accueil</li>
                 <li onclick="handleAccountClick(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-user w-6"></i> Mon Compte</li>
@@ -506,7 +541,6 @@
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
-
+  
 </body>
 </html>
