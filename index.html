@@ -412,7 +412,6 @@
         window.myCart = [];
 
         window.addToCart = function(title, price, image, id) {
-            // STOCKAGE DE L'ID (IMPORTANT POUR LA COMMANDE)
             window.myCart.push({ title, price, image, id });
             updateCartUI();
             const toast = document.getElementById('toast');
@@ -502,7 +501,7 @@
             }
         }
 
-        // --- COMMANDE AVEC DETAILS (CORRIGÉ) ---
+        // --- COMMANDE AVEC DETAILS ---
         window.submitOrder = async function() {
             if(window.myCart.length === 0) return alert("Votre panier est vide !");
             const name = document.getElementById('checkout-name').value;
@@ -518,7 +517,6 @@
                 let total = 0;
                 window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
 
-                // 1. Créer la commande principale
                 const { data: order, error: orderError } = await supabase.from('orders').insert([{
                     user_id: user.id,
                     total_amount: total,
@@ -528,10 +526,9 @@
 
                 if(orderError) throw orderError;
 
-                // 2. Créer les articles liés (Order Items)
                 const orderItems = window.myCart.map(item => ({
                     order_id: order.id,
-                    product_id: item.id, // On utilise l'ID stocké
+                    product_id: item.id,
                     price: parseInt(item.price.replace(/\D/g, '')) || 0,
                     quantity: 1
                 }));
@@ -547,7 +544,48 @@
             } catch(e) { alert("Erreur commande: " + e.message); }
         }
 
-        // --- DASHBOARD VENDEUR (CHARGEMENT DES VRAIES COMMANDES) ---
+        // --- AUTH CORRIGÉE ---
+        window.handleSignUp = async function() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const firstName = document.getElementById('signup-firstname').value;
+            const lastName = document.getElementById('signup-lastname').value;
+
+            try {
+                // 1. Créer le compte
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: { data: { full_name: firstName + ' ' + lastName, role: 'buyer' } }
+                });
+                
+                if (error) throw error;
+
+                // 2. Connexion automatique (Si Supabase le permet, sinon user doit login)
+                // Note: Par défaut, signUp peut demander une confirmation email.
+                // Si l'auto-confirm est activé, on peut enchainer.
+                
+                // Pour une meilleure UX, on tente de loguer tout de suite
+                const { error: loginError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if(!loginError) {
+                    alert("Compte créé et connecté !");
+                    // Créer le profil initial
+                    await supabase.from('profiles').insert([{ id: data.user.id, full_name: firstName + ' ' + lastName }]);
+                    window.showDashboard();
+                } else {
+                    alert("Compte créé ! Veuillez confirmer votre email si nécessaire.");
+                }
+
+            } catch (error) {
+                alert("Erreur: " + error.message);
+            }
+        }
+
+        // --- DASHBOARD VENDEUR ---
         async function loadSellerOrders() {
             const list = document.getElementById('seller-orders-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -556,22 +594,18 @@
                 const { data: { user } } = await supabase.auth.getUser();
                 if(!user) return;
 
-                // 1. Trouver ma boutique
                 const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
                 if(!store) {
                     list.innerHTML = '<div class="text-gray-500 text-center">Créez votre boutique en ajoutant un produit.</div>';
                     return;
                 }
 
-                // 2. Trouver les articles commandés liés à ma boutique
-                // Astuce : On joint order_items -> products -> store
                 const { data: items, error } = await supabase
                     .from('order_items')
                     .select('*, product:products(*), order:orders(*)')
-                    .eq('product.store_id', store.id) // Filtre coté client souvent nécessaire avec Supabase simple
+                    .eq('product.store_id', store.id) 
                     .order('created_at', { ascending: false });
 
-                // Filtrage manuel si la requête complexe échoue (sécurité)
                 const myItems = items ? items.filter(i => i.product && i.product.store_id === store.id) : [];
 
                 if(!myItems || myItems.length === 0) {
@@ -653,7 +687,7 @@
             hideAllViews(); 
             document.getElementById('seller-dashboard-view').classList.remove('hidden'); 
             loadSellerStats();
-            loadSellerOrders(); // CHARGER LES COMMANDES
+            loadSellerOrders(); 
             window.scrollTo(0, 0); 
         }
         window.showCheckout = function() { 
@@ -754,16 +788,11 @@
             }
         }
 
-        // --- FETCH DATA MODIFIÉ AVEC LOGIQUE "HOT" INTELLIGENTE ---
+        // --- FETCH DATA ---
         async function fetchAllData() {
-            // 1. Hot Products : Basé sur le nombre de VUES (view_count)
-            // On prend les 4 produits les plus vus
             const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(4);
-            
-            // 2. Boosted
             const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
             
-            // 3. Recommended
             const lastSearch = localStorage.getItem('synapse_last_search');
             let recommended = [];
             if(lastSearch) {
@@ -771,13 +800,10 @@
                 recommended = recos;
             }
             
-            // 4. Derniers Ajouts (All Products)
             const { data: all } = await supabase.from('products').select('*').order('created_at', { ascending: false });
 
-            // Rendu
-            renderGrid('products-grid', all); // Les derniers ajouts
-            
-            if(hot && hot.length > 0) renderGrid('hot-grid', hot); // Les plus vus
+            renderGrid('products-grid', all);
+            if(hot && hot.length > 0) renderGrid('hot-grid', hot);
             
             if(boosted && boosted.length > 0) {
                 document.getElementById('boosted-section').classList.remove('hidden');
@@ -798,11 +824,9 @@
             }
             products.forEach(p => {
                 let card;
-                // ON PASSE L'ID DU PRODUIT DANS L'ONCLICK POUR COMPTER LES VUES
                 if(isBoostedLayout) {
                      card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
                 } else {
-                     // CONDITION HOT MISE A JOUR: >= 100 vues
                      const isHot = p.view_count >= 100;
                      card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse relative">
                         ${isHot ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
@@ -823,23 +847,18 @@
             });
         }
 
-        // --- NOUVEAU: FONCTION POUR OUVRIR ET COMPTER LES VUES ---
         window.openDetail = async function(t, p, d, i, id) {
-            // Affichage UI (Immédiat)
             document.getElementById('detail-title').innerText = t;
             document.getElementById('detail-price').innerText = p + " DA";
             document.getElementById('detail-desc').innerText = (d && d !== 'undefined') ? d : "Pas de description.";
             document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
-            document.getElementById('detail-id').value = id; // Stocker l'ID pour le panier
+            document.getElementById('detail-id').value = id;
             
             hideAllViews();
             document.getElementById('product-view').classList.remove('hidden');
             window.scrollTo(0,0);
 
-            // Appel Supabase pour incrémenter la vue (+1)
-            if(id) {
-                await supabase.rpc('increment_views', { row_id: id });
-            }
+            if(id) { await supabase.rpc('increment_views', { row_id: id }); }
         }
 
         window.handleLogin = async () => {
