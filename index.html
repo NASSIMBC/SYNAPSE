@@ -1174,30 +1174,65 @@
             });
         }
 
-        // --- MISE A JOUR: OPEN DETAIL AVEC STORE_ID (Pour les messages) ---
-        window.openDetail = async function(t, p, d, i, id, storeId) {
-            document.getElementById('detail-title').innerText = t;
-            document.getElementById('detail-price').innerText = p + " DA";
-            document.getElementById('detail-desc').innerText = (d && d !== 'undefined') ? d : "Pas de description.";
-            document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
-            document.getElementById('detail-id').value = id;
-            
-            // MODIFICATION CRUCIALE POUR LA MESSAGERIE
-            // On a besoin de l'ID du propriétaire du store pour lui envoyer un message
-            // On fait une petite requête pour le trouver si on a le storeId
-            if(storeId) {
-                 const { data: store } = await supabase.from('stores').select('owner_id').eq('id', storeId).single();
-                 if(store) document.getElementById('detail-store-id').value = store.owner_id;
-                loadProductRating(id);
-            }
+       // --- MISE A JOUR: OPEN DETAIL AVEC STORE_ID ET NOTE VENDEUR ---
+window.openDetail = async function(t, p, d, i, id, storeId) {
+    document.getElementById('detail-title').innerText = t;
+    document.getElementById('detail-price').innerText = p + " DA";
+    document.getElementById('detail-desc').innerText = (d && d !== 'undefined') ? d : "Pas de description.";
+    document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
+    document.getElementById('detail-id').value = id;
+    
+    // Reset visuel des étoiles
+    document.getElementById('detail-stars').innerHTML = '<span class="text-xs text-gray-400">Chargement...</span>';
+    document.getElementById('detail-rating-text').innerText = "";
 
-            
-            hideAllViews();
-            document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0,0);
+    // GESTION DU VENDEUR ET DE SA NOTE
+    if(storeId) {
+         // On récupère le vendeur
+         const { data: store } = await supabase.from('stores').select('owner_id').eq('id', storeId).single();
 
-            if(id) { await supabase.rpc('increment_views', { row_id: id }); }
-        }
+         if(store) {
+             document.getElementById('detail-store-id').value = store.owner_id;
+             
+             // Récupération et Calcul de la note (Moyenne)
+             const { data: reviews } = await supabase.from('reviews').select('rating').eq('seller_id', store.owner_id);
+             
+             let avg = 0;
+             let count = 0;
+
+             if(reviews && reviews.length > 0) {
+                 count = reviews.length;
+                 const totalStars = reviews.reduce((sum, r) => sum + r.rating, 0);
+                 avg = (totalStars / count).toFixed(1); // Moyenne avec 1 décimale (ex: 4.5)
+             }
+             
+             // Génération des étoiles
+             let starsHtml = '';
+             for(let k=1; k<=5; k++) { 
+                 if(k <= Math.round(avg)) {
+                     starsHtml += '<i class="fa-solid fa-star text-yellow-400"></i>'; // Étoile pleine
+                 } else {
+                     starsHtml += '<i class="fa-regular fa-star text-gray-300"></i>'; // Étoile vide
+                 }
+             }
+             
+             // Affichage
+             document.getElementById('detail-stars').innerHTML = starsHtml;
+             document.getElementById('detail-rating-text').innerText = `(${avg}/5) • ${count} avis`;
+         }
+         
+         // Charger aussi la note spécifique du produit si elle existe (Optionnel, si vous avez ajouté la table product_reviews)
+         if (typeof loadProductRating === 'function') {
+            loadProductRating(id);
+         }
+    }
+
+    hideAllViews();
+    document.getElementById('product-view').classList.remove('hidden');
+    window.scrollTo(0,0);
+
+    if(id) { await supabase.rpc('increment_views', { row_id: id }); }
+}
 
         window.publishProduct = async function() {
             const btn = document.getElementById('btn-publish');
@@ -1344,6 +1379,56 @@ function resetStarColors() {
     for (let btn of buttons) {
         btn.classList.add('text-gray-300');
         btn.classList.remove('text-yellow-400');
+    }
+} 
+        // --- SYSTEME DE NOTATION VENDEUR ---
+
+// 1. Fonction pour calculer la moyenne (Appelée par openDetail)
+async function getSellerRating(sellerId) {
+    // On récupère toutes les notes de ce vendeur
+    const { data: reviews } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('seller_id', sellerId);
+    
+    if (!reviews || reviews.length === 0) return { avg: 0, count: 0 };
+    
+    // Calcul mathématique : Somme des étoiles / Nombre de votes
+    const totalStars = reviews.reduce((sum, r) => sum + r.rating, 0);
+    const avg = (totalStars / reviews.length).toFixed(1); // 1 chiffre après la virgule (ex: 4.5)
+    
+    return { avg: avg, count: reviews.length };
+}
+
+// 2. Fonction déclenchée au clic sur une étoile
+window.rateSeller = async function(stars) {
+    const sellerId = document.getElementById('detail-store-id').value;
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // Vérifications de sécurité
+    if(!user) return alert("Veuillez vous connecter pour noter !");
+    if(!sellerId) return alert("Vendeur introuvable.");
+    if(user.id === sellerId) return alert("Vous ne pouvez pas vous noter vous-même.");
+
+    // Envoi de la note dans la table 'reviews'
+    const { error } = await supabase.from('reviews').insert([{
+        seller_id: sellerId,
+        buyer_id: user.id,
+        rating: stars
+    }]);
+
+    if(error) {
+        // Code 23505 = Doublon (L'utilisateur a déjà noté ce vendeur)
+        if(error.code === '23505') alert("Vous avez déjà noté ce vendeur.");
+        else alert("Erreur lors de la notation : " + error.message);
+    } else {
+        showToast(`Merci ! Note de ${stars} étoiles enregistrée.`);
+        
+        // Petite astuce : On ferme et rouvre la modale ou on rafraichit la page
+        // Pour voir la nouvelle moyenne immédiatement.
+        // Ici, on met juste à jour le texte pour l'utilisateur
+        const currentText = document.getElementById('detail-rating-text').innerText;
+        document.getElementById('detail-rating-text').innerText = "Merci pour votre avis !";
     }
 }
         
