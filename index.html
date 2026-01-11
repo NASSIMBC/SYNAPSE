@@ -96,7 +96,6 @@
                             <li onclick="filterByCategory('Tech')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                             <li onclick="filterByCategory('Mode')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                             <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            
                             <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-heart w-6"></i> Beauté</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                             <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-basketball w-6"></i> Sport</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                             <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-6"></i> Auto</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
@@ -114,16 +113,18 @@
 
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
                     <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
-                        <div class="absolute inset-0 bg-gradient-to-r from-synapse via-synapse-light to-white dark:from-synapse dark:to-dark-900"></div>
-                        <div class="absolute top-0 right-0 w-[300px] md:w-[500px] h-[500px] bg-white opacity-20 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
-                        <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
-                            <div class="max-w-md">
-                                <span class="inline-block py-1 px-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-full mb-2 md:mb-4">NOUVELLE COLLECTION</span>
-                                <h1 class="text-3xl md:text-5xl font-black text-black dark:text-white leading-tight mb-4">Next Gen <br> Audio Reality</h1>
-                                <button onclick="window.scrollTo(0, 500)" class="bg-black text-white dark:bg-white dark:text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:scale-105 transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir les Offres</button>
-                            </div>
-                            <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="hidden md:block w-[250px] lg:w-[350px] object-contain drop-shadow-2xl transform group-hover:scale-110 transition duration-500">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
+                            <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
                         </div>
+                        
+                        <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
+                            <div class="max-w-lg">
+                                <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
+                                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
+                                <p class="text-gray-300 mb-6 hidden md:block">Profitez de cet espace premium pour toucher des milliers de clients en Algérie. Boostez vos ventes dès aujourd'hui.</p>
+                                <button onclick="window.scrollTo(0, 500)" class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
+                            </div>
+                            </div>
                     </div>
 
                     <div id="boosted-section" class="hidden mb-8">
@@ -540,7 +541,7 @@
             }
         }
 
-        // --- COMMANDE ---
+        // --- COMMANDE AVEC DETAILS ---
         window.submitOrder = async function() {
             if(window.myCart.length === 0) return alert("Votre panier est vide !");
             const name = document.getElementById('checkout-name').value;
@@ -617,7 +618,7 @@
             }
         }
 
-        // --- GESTION VENDEUR ---
+        // --- GESTION VENDEUR : PRODUITS (AJOUTÉ) ---
         window.loadSellerProducts = async function() {
             const list = document.getElementById('seller-products-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -682,10 +683,11 @@
             else {
                 alert("Produit mis à jour !");
                 document.getElementById('edit-modal').classList.add('hidden');
-                loadSellerProducts();
+                loadSellerProducts(); // Refresh list
             }
         }
 
+        // --- DASHBOARD VENDEUR : COMMANDES ---
         async function loadSellerOrders() {
             const list = document.getElementById('seller-orders-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -879,7 +881,7 @@
             const term = document.getElementById('mobile-search-input').value;
             if(term) {
                 localStorage.setItem('synapse_last_search', term);
-                toggleMobileMenu();
+                toggleMobileMenu(); // Fermer le menu
                 hideAllViews();
                 document.getElementById('home-view').classList.remove('hidden');
                 window.scrollTo(0, 0);
