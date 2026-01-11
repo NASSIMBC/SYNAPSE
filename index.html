@@ -88,13 +88,19 @@
     <div id="home-view" class="block transition-opacity duration-300">
         <div class="container mx-auto px-4 mt-6">
             <div class="grid grid-cols-12 gap-6">
+                
                 <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
                         <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
                         <ul class="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li onclick="filterByCategory('Tech')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li onclick="filterByCategory('Mode')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            
+                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-heart w-6"></i> Beauté</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-basketball w-6"></i> Sport</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-6"></i> Auto</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
+                            <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-puzzle-piece w-6"></i> Jouets</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                         </ul>
                     </div>
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
@@ -107,7 +113,7 @@
                 </div>
 
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                    <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
+                    <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
                         <div class="absolute inset-0 bg-gradient-to-r from-synapse via-synapse-light to-white dark:from-synapse dark:to-dark-900"></div>
                         <div class="absolute top-0 right-0 w-[300px] md:w-[500px] h-[500px] bg-white opacity-20 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
                         <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
@@ -130,10 +136,12 @@
                          <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
 
-                    <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot 100+)</h2>
-                    <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[100px] mb-8"></div>
+                    <div id="hot-section-container">
+                        <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot 100+)</h2>
+                        <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[100px] mb-8"></div>
+                    </div>
 
-                    <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
+                    <h2 id="main-grid-title" class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
                     <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[200px]">
                         <div class="col-span-full text-center py-10 text-gray-500">
                             <span class="loader mr-2"></span> Chargement des produits...
@@ -334,6 +342,10 @@
                                 <option value="Tech">Tech & Informatique</option>
                                 <option value="Mode">Mode & Vêtements</option>
                                 <option value="Maison">Maison & Déco</option>
+                                <option value="Beauté">Beauté & Santé</option>
+                                <option value="Sport">Sport & Loisirs</option>
+                                <option value="Auto">Auto & Moto</option>
+                                <option value="Jouets">Jouets & Kids</option>
                             </select>
 
                             <textarea id="prod-desc" placeholder="Description détaillée..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none"></textarea>
@@ -528,7 +540,7 @@
             }
         }
 
-        // --- COMMANDE AVEC DETAILS ---
+        // --- COMMANDE ---
         window.submitOrder = async function() {
             if(window.myCart.length === 0) return alert("Votre panier est vide !");
             const name = document.getElementById('checkout-name').value;
@@ -605,7 +617,7 @@
             }
         }
 
-        // --- GESTION VENDEUR : PRODUITS (AJOUTÉ) ---
+        // --- GESTION VENDEUR ---
         window.loadSellerProducts = async function() {
             const list = document.getElementById('seller-products-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -629,7 +641,6 @@
 
                 list.innerHTML = '';
                 products.forEach(p => {
-                    // Encode data to pass to function safely
                     const safeTitle = p.title.replace(/'/g, "\\'");
                     const safeDesc = (p.description || '').replace(/'/g, "\\'");
                     
@@ -671,11 +682,10 @@
             else {
                 alert("Produit mis à jour !");
                 document.getElementById('edit-modal').classList.add('hidden');
-                loadSellerProducts(); // Refresh list
+                loadSellerProducts();
             }
         }
 
-        // --- DASHBOARD VENDEUR : COMMANDES ---
         async function loadSellerOrders() {
             const list = document.getElementById('seller-orders-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -778,7 +788,7 @@
             document.getElementById('seller-dashboard-view').classList.remove('hidden'); 
             loadSellerStats();
             loadSellerOrders(); 
-            loadSellerProducts(); // NOUVEAU
+            loadSellerProducts();
             window.scrollTo(0, 0); 
         }
         window.showCheckout = function() { 
@@ -869,7 +879,7 @@
             const term = document.getElementById('mobile-search-input').value;
             if(term) {
                 localStorage.setItem('synapse_last_search', term);
-                toggleMobileMenu(); // Fermer le menu
+                toggleMobileMenu();
                 hideAllViews();
                 document.getElementById('home-view').classList.remove('hidden');
                 window.scrollTo(0, 0);
@@ -878,6 +888,30 @@
                 renderGrid('products-grid', data);
             }
         }
+        
+        // --- NOUVELLE FONCTION FILTRE ---
+        window.filterByCategory = async function(category) {
+            hideAllViews();
+            document.getElementById('home-view').classList.remove('hidden');
+            
+            // Cacher les sections spéciales
+            document.getElementById('boosted-section').classList.add('hidden');
+            document.getElementById('recommended-section').classList.add('hidden');
+            document.getElementById('hot-section-container').classList.add('hidden');
+            document.getElementById('hero-banner').classList.add('hidden'); // Optionnel : Cacher la bannière
+
+            // Mettre à jour le titre
+            document.getElementById('main-grid-title').innerHTML = `<i class="fa-solid fa-filter text-synapse"></i> Catégorie : ${category}`;
+
+            // Loader
+            const grid = document.getElementById('products-grid');
+            grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+
+            const { data } = await supabase.from('products').select('*').eq('category', category);
+            renderGrid('products-grid', data);
+            window.scrollTo(0, 0);
+        }
+
 
         // --- FETCH DATA ---
         async function fetchAllData() {
@@ -952,11 +986,79 @@
             if(id) { await supabase.rpc('increment_views', { row_id: id }); }
         }
 
+        window.publishProduct = async function() {
+            const btn = document.getElementById('btn-publish');
+            btn.innerText = "Publication..."; btn.disabled = true;
+
+            const title = document.getElementById('prod-title').value;
+            const price = document.getElementById('prod-price').value;
+            const stock = document.getElementById('prod-stock').value;
+            const desc = document.getElementById('prod-desc').value;
+            const category = document.getElementById('prod-category').value;
+            const file = document.getElementById('prod-image').files[0];
+
+            if (!title || !price) {
+                alert("Veuillez mettre un titre et un prix !");
+                btn.innerText = "Publier l'annonce"; btn.disabled = false;
+                return;
+            }
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return alert("Veuillez vous connecter d'abord !");
+
+                let imageUrl = "https://pngimg.com/d/box_PNG120.png";
+                if(file) {
+                    const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
+                    const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
+                    if(uploadError) console.log("Upload fail", uploadError);
+                    else {
+                        const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
+                        imageUrl = publicUrl.publicUrl;
+                    }
+                }
+
+                let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+                if (!store) {
+                    const { data: newStore } = await supabase.from('stores').insert([{ 
+                        owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name
+                    }]).select().single();
+                    store = newStore;
+                }
+
+                const { error: productError } = await supabase.from('products').insert([{
+                    store_id: store.id, title, description: desc, price, stock, category, image_url: imageUrl,
+                    is_hot: false, is_boosted: false
+                }]);
+
+                if (productError) throw productError;
+
+                alert("Produit publié !");
+                goHome(); 
+                await fetchAllData(); 
+                
+            } catch (err) {
+                console.error(err);
+                alert("Erreur : " + err.message);
+                btn.innerText = "Publier l'annonce"; btn.disabled = false;
+            }
+        }
+
         window.handleLogin = async () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const { error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) alert(error.message); else goHome();
+        }
+
+        async function loadSellerStats() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) return;
+            const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+            if(store) {
+                const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', store.id);
+                document.getElementById('stat-products').innerText = count || 0;
+            }
         }
 
         // Init
