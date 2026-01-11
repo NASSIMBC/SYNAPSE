@@ -28,6 +28,13 @@
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Style pour les catégories déroulantes */
+        details > summary { list-style: none; cursor: pointer; transition: all 0.2s; }
+        details > summary::-webkit-details-marker { display: none; }
+        details[open] > summary { color: #CCFF00; font-weight: bold; }
+        details > summary:hover { color: #CCFF00; }
+        
         input[type=range] { -webkit-appearance: none; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: #CCFF00; cursor: pointer; margin-top: -6px; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #ddd; border-radius: 2px; }
@@ -70,13 +77,15 @@
             <div class="flex items-center gap-4 md:gap-6 shrink-0">
                 <button onclick="showSellerDashboard()" class="hidden lg:block text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center text-gray-600 dark:text-synapse hover:bg-gray-200 dark:hover:bg-dark-700 transition"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
-                <div onclick="showDashboard()" class="flex items-center gap-2 cursor-pointer group">
+                
+                <div onclick="handleAccountClick()" class="flex items-center gap-2 cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse"><i class="fa-regular fa-user"></i></div>
                     <div class="hidden lg:block leading-tight">
                         <div class="text-xs text-gray-500 dark:text-gray-400">Bonjour,</div>
                         <div id="header-username" class="text-sm font-bold text-black dark:text-white">Compte</div>
                     </div>
                 </div>
+                
                 <div onclick="toggleCart()" class="relative cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse transition"><i class="fa-solid fa-cart-shopping"></i></div>
                     <span id="cart-count" class="absolute -top-2 -right-2 bg-synapse text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white dark:border-dark-900">0</span>
@@ -90,23 +99,73 @@
             <div class="grid grid-cols-12 gap-6">
                 
                 <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
-                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800 h-[600px] overflow-y-auto scrollbar-hide">
                         <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
-                        <ul class="space-y-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            <li onclick="filterByCategory('Tech')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-microchip w-6"></i> Tech</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li onclick="filterByCategory('Mode')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-shirt w-6"></i> Mode</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-heart w-6"></i> Beauté</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-basketball w-6"></i> Sport</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-6"></i> Auto</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                            <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-puzzle-piece w-6"></i> Jouets</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
-                        </ul>
+                        <div class="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                            
+                            <details class="group">
+                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5"></i> Mode Femme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
+                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Robes')">Robes</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Chemisiers')">Chemisiers</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jeans Femme')">Jeans</li>
+                                </ul>
+                            </details>
+
+                            <details class="group">
+                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-shirt w-5"></i> Mode Homme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
+                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('T-Shirts')">T-Shirts</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Vestes')">Vestes</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Pantalons')">Pantalons</li>
+                                </ul>
+                            </details>
+
+                            <details class="group">
+                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5"></i> Téléphonie</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
+                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Smartphones')">Smartphones</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Coques')">Coques & Étuis</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires')">Accessoires</li>
+                                </ul>
+                            </details>
+
+                            <details class="group">
+                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5"></i> Ordi & Bureau</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
+                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Laptops')">Ordinateurs Portables</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Composants')">Composants</li>
+                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Périphériques')">Claviers/Souris</li>
+                                </ul>
+                            </details>
+
+                            <li onclick="filterByCategory('Electronique')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-plug w-5"></i> Electronique</span></li>
+
+                            <li onclick="filterByCategory('Bijoux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gem w-5"></i> Bijoux & Montres</span></li>
+
+                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
+
+                            <li onclick="filterByCategory('Sacs')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-bag-shopping w-5"></i> Sacs & Bagages</span></li>
+
+                            <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gamepad w-5"></i> Jouets & Loisirs</span></li>
+
+                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sports</span></li>
+
+                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
+
+                            <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-5"></i> Auto & Moto</span></li>
+
+                        </div>
                     </div>
+
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                        <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Prix</h3>
+                        <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Filtrer par Prix (Max)</h3>
                         <div class="mb-4">
-                            <input type="range" min="0" max="200000" value="50000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                            <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0 DA</span><span>200k DA+</span></div>
+                            <input type="range" id="price-slider" min="0" max="500000" step="1000" value="500000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" oninput="updatePriceLabel(this.value)" onchange="applyPriceFilter(this.value)">
+                            <div class="flex justify-between text-xs mt-2 text-gray-500">
+                                <span>0 DA</span>
+                                <span id="price-value">500k DA</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,15 +175,13 @@
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
                             <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
                         </div>
-                        
                         <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
                             <div class="max-w-lg">
                                 <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
                                 <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
-                                <p class="text-gray-300 mb-6 hidden md:block">Profitez de cet espace premium pour toucher des milliers de clients en Algérie. Boostez vos ventes dès aujourd'hui.</p>
-                                <button onclick="window.scrollTo(0, 500)" class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
+                                <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
                             </div>
-                            </div>
+                        </div>
                     </div>
 
                     <div id="boosted-section" class="hidden mb-8">
@@ -167,21 +224,58 @@
             </div>
             <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
                 <input type="hidden" id="detail-id">
-                <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
+                <input type="hidden" id="detail-store-id"> <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
+                
+                <div class="flex items-center gap-2 mb-2">
+                    <div class="flex text-yellow-400 text-sm">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span class="text-xs text-gray-500">(4.8/5) Vendeur vérifié</span>
+                </div>
+
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
                     <div class="flex items-end gap-3 mb-1"><span id="detail-price" class="text-3xl md:text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span></div>
                 </div>
+                
                 <p id="detail-desc" class="text-gray-500 dark:text-gray-400">Description...</p>
-                <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
+                
+                <div class="flex gap-4">
+                    <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="flex-1 bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
+                    <button onclick="openMessageModal()" class="bg-gray-200 dark:bg-dark-800 text-black dark:text-white px-6 rounded-lg font-bold hover:bg-gray-300 transition"><i class="fa-solid fa-envelope"></i></button>
+                </div>
+
+                <div class="mt-6 pt-6 border-t border-gray-200 dark:border-dark-800">
+                    <h3 class="font-bold text-sm mb-2 text-black dark:text-white">Noter ce vendeur</h3>
+                    <div class="flex gap-2">
+                        <button onclick="rateSeller(1)" class="text-gray-300 hover:text-yellow-400 text-xl"><i class="fa-solid fa-star"></i></button>
+                        <button onclick="rateSeller(2)" class="text-gray-300 hover:text-yellow-400 text-xl"><i class="fa-solid fa-star"></i></button>
+                        <button onclick="rateSeller(3)" class="text-gray-300 hover:text-yellow-400 text-xl"><i class="fa-solid fa-star"></i></button>
+                        <button onclick="rateSeller(4)" class="text-gray-300 hover:text-yellow-400 text-xl"><i class="fa-solid fa-star"></i></button>
+                        <button onclick="rateSeller(5)" class="text-gray-300 hover:text-yellow-400 text-xl"><i class="fa-solid fa-star"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="auth-view" class="hidden container mx-auto px-4 mt-6 mb-12 flex justify-center items-center min-h-[60vh] animate-fade-in-up">
-        <div class="w-full max-w-md bg-white dark:bg-dark-900 rounded-2xl shadow-xl border border-gray-100 dark:border-dark-800 overflow-hidden">
+    <div id="message-modal" class="hidden fixed inset-0 z-[90] bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 rounded-xl p-6 w-full max-w-md shadow-2xl">
+            <h3 class="text-xl font-bold text-black dark:text-white mb-4">Envoyer un message</h3>
+            <textarea id="msg-content" rows="4" placeholder="Bonjour, ce produit est-il disponible ?" class="w-full p-3 bg-gray-50 dark:bg-black border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white mb-4"></textarea>
+            <div class="flex gap-2">
+                <button onclick="document.getElementById('message-modal').classList.add('hidden')" class="flex-1 bg-gray-200 dark:bg-dark-800 text-black dark:text-white font-bold py-3 rounded-lg">Annuler</button>
+                <button onclick="sendMessage()" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg hover:bg-black hover:text-synapse transition">Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth-view" class="hidden container mx-auto px-4 mt-6 mb-12 flex justify-center items-center min-h-[60vh] animate-fade-in-up z-[100]">
+        <div class="w-full max-w-md bg-white dark:bg-dark-900 rounded-2xl shadow-xl border border-gray-100 dark:border-dark-800 overflow-hidden relative">
+            <button onclick="goHome()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+            
             <div class="bg-gray-50 dark:bg-dark-800 p-6 text-center border-b border-gray-100 dark:border-dark-700">
                 <div class="inline-flex items-center justify-center w-12 h-12 bg-synapse rounded-lg text-black font-bold text-2xl mb-3">S</div>
-                <h2 class="text-2xl font-black text-black dark:text-white">Bienvenue</h2>
+                <h2 class="text-2xl font-black text-black dark:text-white">Connexion / Inscription</h2>
             </div>
             <div class="flex border-b border-gray-100 dark:border-dark-700">
                 <button onclick="toggleAuthMode('login')" id="tab-login" class="flex-1 py-4 font-bold text-sm border-b-2 border-synapse text-black dark:text-white bg-white dark:bg-dark-900">Se connecter</button>
@@ -225,10 +319,16 @@
                         <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2 hover:opacity-80">Enregistrer Profil</button>
                     </div>
                 </div>
+                <div class="bg-white dark:bg-dark-900 rounded-xl p-4 border border-gray-100 dark:border-dark-800 mt-4">
+                    <h3 class="font-bold text-sm mb-3 dark:text-white"><i class="fa-solid fa-envelope"></i> Mes Messages</h3>
+                    <div id="my-messages-list" class="space-y-2 max-h-40 overflow-y-auto text-xs text-left">
+                        <div class="text-gray-400">Aucun message.</div>
+                    </div>
+                </div>
             </div>
             <div class="col-span-1 md:col-span-3">
                 <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden">
-                    <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white">Historique</div>
+                    <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white">Historique Commandes</div>
                     <div class="p-10 text-center text-gray-500">Vous n'avez pas encore de commandes.</div>
                 </div>
             </div>
@@ -291,8 +391,8 @@
                 <div class="text-2xl font-black text-white" id="stat-sales">0</div>
             </div>
             <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
-                <div class="text-gray-400 text-xs font-bold uppercase">Chiffre d'affaires</div>
-                <div class="text-2xl font-black text-white text-synapse">0 DA</div>
+                <div class="text-gray-400 text-xs font-bold uppercase">Note Moyenne</div>
+                <div class="text-2xl font-black text-white text-yellow-400"><i class="fa-solid fa-star"></i> <span id="stat-rating">5.0</span></div>
             </div>
         </div>
 
@@ -428,7 +528,7 @@
 
             <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
                 <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-house w-6"></i> Accueil</li>
-                <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-user w-6"></i> Mon Compte</li>
+                <li onclick="handleAccountClick(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-user w-6"></i> Mon Compte</li>
                 <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer text-red-500 hover:text-red-400 flex items-center gap-3 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800"><i class="fa-solid fa-store w-6"></i> Espace Vendeur</li>
             </ul>
         </div>
@@ -502,7 +602,30 @@
             if(totalCheckout) totalCheckout.innerText = formattedTotal;
         }
 
-        // --- GESTION PROFIL ---
+        // --- AUTH & CHECK ---
+        window.handleAccountClick = async function() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                window.showDashboard();
+            } else {
+                window.showAuth();
+            }
+        }
+
+        // --- FILTRE PRIX & CAT ---
+        window.updatePriceLabel = function(val) {
+            document.getElementById('price-value').innerText = parseInt(val).toLocaleString() + ' DA';
+        }
+        
+        window.applyPriceFilter = async function(val) {
+            const max = parseInt(val);
+            const { data } = await supabase.from('products').select('*').lte('price', max).order('created_at', { ascending: false });
+            renderGrid('products-grid', data);
+            // Hide special sections when filtering
+            document.getElementById('hot-section-container').classList.add('hidden');
+        }
+
+        // --- GESTION PROFIL & MESSAGES ---
         window.loadProfile = async function() {
             const { data: { user } } = await supabase.auth.getUser();
             if(user) {
@@ -515,7 +638,69 @@
                     if(profile.phone) document.getElementById('profile-phone').value = profile.phone;
                     if(profile.wilaya) document.getElementById('profile-wilaya').value = profile.wilaya;
                 }
+                loadMyMessages(user.id);
             }
+        }
+
+        // --- MESSAGERIE & NOTES ---
+        window.openMessageModal = function() {
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        window.sendMessage = async function() {
+            const content = document.getElementById('msg-content').value;
+            const sellerId = document.getElementById('detail-store-id').value; // Faut qu'on le remplisse dans openDetail
+
+            if(!content) return alert("Message vide !");
+            
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) return alert("Connectez-vous !");
+
+            // On a besoin de l'ID utilisateur du vendeur, pas l'ID du store.
+            // On fait une requête pour trouver le owner_id du store
+            // Simplification : On suppose que detail-store-id contient l'owner_id (voir modif openDetail)
+            
+            const { error } = await supabase.from('messages').insert([{
+                sender_id: user.id,
+                receiver_id: sellerId,
+                content: content
+            }]);
+
+            if(error) alert("Erreur envoi");
+            else {
+                alert("Message envoyé !");
+                document.getElementById('message-modal').classList.add('hidden');
+                document.getElementById('msg-content').value = "";
+            }
+        }
+
+        async function loadMyMessages(userId) {
+            const list = document.getElementById('my-messages-list');
+            const { data: msgs } = await supabase.from('messages').select('*').eq('receiver_id', userId).order('created_at', { ascending: false });
+            
+            if(msgs && msgs.length > 0) {
+                list.innerHTML = '';
+                msgs.forEach(m => {
+                    list.innerHTML += `<div class="p-2 bg-gray-50 dark:bg-black rounded border border-gray-200 dark:border-gray-800"><div class="font-bold text-synapse text-[10px]">De: un utilisateur</div><div>${m.content}</div></div>`;
+                });
+            } else {
+                list.innerHTML = '<div class="text-gray-400">Aucun message.</div>';
+            }
+        }
+
+        window.rateSeller = async function(stars) {
+            const sellerId = document.getElementById('detail-store-id').value;
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) return alert("Connectez-vous !");
+
+            const { error } = await supabase.from('reviews').insert([{
+                seller_id: sellerId,
+                buyer_id: user.id,
+                rating: stars
+            }]);
+
+            if(error) alert("Vous avez déjà noté ce vendeur ou erreur.");
+            else alert("Note enregistrée : " + stars + " étoiles !");
         }
 
         window.saveProfile = async function() {
@@ -618,7 +803,7 @@
             }
         }
 
-        // --- GESTION VENDEUR : PRODUITS (AJOUTÉ) ---
+        // --- GESTION VENDEUR ---
         window.loadSellerProducts = async function() {
             const list = document.getElementById('seller-products-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -683,11 +868,10 @@
             else {
                 alert("Produit mis à jour !");
                 document.getElementById('edit-modal').classList.add('hidden');
-                loadSellerProducts(); // Refresh list
+                loadSellerProducts();
             }
         }
 
-        // --- DASHBOARD VENDEUR : COMMANDES ---
         async function loadSellerOrders() {
             const list = document.getElementById('seller-orders-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -771,38 +955,38 @@
             });
         }
 
-        window.goHome = function() { 
-            hideAllViews(); 
-            document.getElementById('home-view').classList.remove('hidden'); 
-            fetchAllData(); 
-            window.scrollTo(0, 0); 
+        window.goHome = function() { 
+            hideAllViews(); 
+            document.getElementById('home-view').classList.remove('hidden'); 
+            fetchAllData(); 
+            window.scrollTo(0, 0); 
         }
         window.showProduct = function() { hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); window.scrollTo(0, 0); }
         window.showAuth = function() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        window.showDashboard = function() { 
-            hideAllViews(); 
-            document.getElementById('dashboard-view').classList.remove('hidden'); 
+        window.showDashboard = function() { 
+            hideAllViews(); 
+            document.getElementById('dashboard-view').classList.remove('hidden'); 
             window.scrollTo(0, 0);
-            loadProfile(); 
+            loadProfile(); 
         }
-        window.showSellerDashboard = function() { 
-            hideAllViews(); 
-            document.getElementById('seller-dashboard-view').classList.remove('hidden'); 
+        window.showSellerDashboard = function() { 
+            hideAllViews(); 
+            document.getElementById('seller-dashboard-view').classList.remove('hidden'); 
             loadSellerStats();
-            loadSellerOrders(); 
+            loadSellerOrders(); 
             loadSellerProducts();
-            window.scrollTo(0, 0); 
+            window.scrollTo(0, 0); 
         }
-        window.showCheckout = function() { 
-            hideAllViews(); 
-            document.getElementById('checkout-view').classList.remove('hidden'); 
+        window.showCheckout = function() { 
+            hideAllViews(); 
+            document.getElementById('checkout-view').classList.remove('hidden'); 
             const name = document.getElementById('profile-name').value;
             const phone = document.getElementById('profile-phone').value;
             const wilaya = document.getElementById('profile-wilaya').value;
             if(name) document.getElementById('checkout-name').value = name;
             if(phone) document.getElementById('checkout-phone').value = phone;
             if(wilaya) document.getElementById('checkout-wilaya').value = wilaya;
-            window.scrollTo(0, 0); 
+            window.scrollTo(0, 0); 
         }
 
         window.toggleCart = function() {
@@ -952,10 +1136,10 @@
             products.forEach(p => {
                 let card;
                 if(isBoostedLayout) {
-                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
+                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}', '${p.store_id}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
                 } else {
                      const isHot = p.view_count >= 100;
-                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse relative">
+                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}', '${p.store_id}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse relative">
                         ${isHot ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
                         <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
                             <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
@@ -974,13 +1158,22 @@
             });
         }
 
-        window.openDetail = async function(t, p, d, i, id) {
+        // --- MISE A JOUR: OPEN DETAIL AVEC STORE_ID (Pour les messages) ---
+        window.openDetail = async function(t, p, d, i, id, storeId) {
             document.getElementById('detail-title').innerText = t;
             document.getElementById('detail-price').innerText = p + " DA";
             document.getElementById('detail-desc').innerText = (d && d !== 'undefined') ? d : "Pas de description.";
             document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
             document.getElementById('detail-id').value = id;
             
+            // MODIFICATION CRUCIALE POUR LA MESSAGERIE
+            // On a besoin de l'ID du propriétaire du store pour lui envoyer un message
+            // On fait une petite requête pour le trouver si on a le storeId
+            if(storeId) {
+                 const { data: store } = await supabase.from('stores').select('owner_id').eq('id', storeId).single();
+                 if(store) document.getElementById('detail-store-id').value = store.owner_id;
+            }
+
             hideAllViews();
             document.getElementById('product-view').classList.remove('hidden');
             window.scrollTo(0,0);
