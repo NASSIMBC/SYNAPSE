@@ -2,7 +2,7 @@
 <html lang="fr" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SYNAPSE | Global Shopping</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -60,15 +60,15 @@
                 <span class="text-2xl font-black tracking-tighter text-black dark:text-white group-hover:text-synapse transition">SYNAPSE</span>
             </a>
 
-            <div class="flex-1 max-w-3xl relative hidden md:block">
+            <div class="flex-1 max-w-3xl relative hidden lg:block">
                 <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
                     <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') handleSearch()" placeholder="Chercher un produit (ex: iPhone)..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
                     <button onclick="handleSearch()" class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
 
-            <div class="flex items-center gap-6 shrink-0">
-                <button onclick="showSellerDashboard()" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
+            <div class="flex items-center gap-4 md:gap-6 shrink-0">
+                <button onclick="showSellerDashboard()" class="hidden lg:block text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
 
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center text-gray-600 dark:text-synapse hover:bg-gray-200 dark:hover:bg-dark-700 transition"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
 
@@ -110,34 +110,34 @@
                 </div>
 
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                    <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[350px] md:h-[400px]">
+                    <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
                         <div class="absolute inset-0 bg-gradient-to-r from-synapse via-synapse-light to-white dark:from-synapse dark:to-dark-900"></div>
-                        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-white opacity-20 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
-                        <div class="relative z-10 h-full flex items-center justify-between px-8 md:px-16">
+                        <div class="absolute top-0 right-0 w-[300px] md:w-[500px] h-[500px] bg-white opacity-20 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl"></div>
+                        <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
                             <div class="max-w-md">
-                                <span class="inline-block py-1 px-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-full mb-4">NOUVELLE COLLECTION</span>
-                                <h1 class="text-4xl md:text-5xl font-black text-black dark:text-white leading-tight mb-4">Next Gen <br> Audio Reality</h1>
-                                <button onclick="window.scrollTo(0, 500)" class="bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-lg font-bold hover:scale-105 transition shadow-xl mt-4">Voir les Offres <i class="fa-solid fa-arrow-right ml-2 text-synapse dark:text-black"></i></button>
+                                <span class="inline-block py-1 px-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-full mb-2 md:mb-4">NOUVELLE COLLECTION</span>
+                                <h1 class="text-3xl md:text-5xl font-black text-black dark:text-white leading-tight mb-4">Next Gen <br> Audio Reality</h1>
+                                <button onclick="window.scrollTo(0, 500)" class="bg-black text-white dark:bg-white dark:text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:scale-105 transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir les Offres</button>
                             </div>
-                            <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="hidden md:block w-[350px] object-contain drop-shadow-2xl transform group-hover:scale-110 transition duration-500">
+                            <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="hidden md:block w-[250px] lg:w-[350px] object-contain drop-shadow-2xl transform group-hover:scale-110 transition duration-500">
                         </div>
                     </div>
 
                     <div id="boosted-section" class="hidden mb-8">
-                        <h2 class="text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Produits Boostés</h2>
+                        <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Produits Boostés</h2>
                         <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                     </div>
 
                     <div id="recommended-section" class="hidden mb-8">
-                         <h2 class="text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-thumbs-up text-blue-500"></i> Recommandé pour vous (Historique)</h2>
+                         <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-thumbs-up text-blue-500"></i> Recommandé pour vous</h2>
                          <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
 
-                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot 100+)</h2>
-                    <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[100px] mb-8"></div>
+                    <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot 100+)</h2>
+                    <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[100px] mb-8"></div>
 
-                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
-                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[200px]">
+                    <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
+                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[200px]">
                         <div class="col-span-full text-center py-10 text-gray-500">
                             <span class="loader mr-2"></span> Chargement des produits...
                         </div>
@@ -155,14 +155,14 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
             <div class="col-span-12 md:col-span-6 lg:col-span-5">
-                <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 mb-4 h-[400px]">
+                <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 mb-4 h-[300px] md:h-[400px]">
                     <img id="detail-img" src="" class="max-h-full object-contain drop-shadow-2xl">
                 </div>
             </div>
             <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
-                <h1 id="detail-title" class="text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
+                <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white mb-4">Titre Produit</h1>
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <div class="flex items-end gap-3 mb-1"><span id="detail-price" class="text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span></div>
+                    <div class="flex items-end gap-3 mb-1"><span id="detail-price" class="text-3xl md:text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span></div>
                 </div>
                 <p id="detail-desc" class="text-gray-500 dark:text-gray-400">Description...</p>
                 <button id="btn-add-cart-detail" onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src)" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
@@ -274,7 +274,7 @@
             <button onclick="showDashboard()" class="text-xs font-bold text-gray-500 hover:text-white">Retour au mode Acheteur</button>
         </div>
 
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
                 <div class="text-gray-400 text-xs font-bold uppercase">Produits en ligne</div>
                 <div class="text-2xl font-black text-white" id="stat-products">0</div>
@@ -349,23 +349,23 @@
 
     <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
-        <div class="absolute right-0 top-0 h-full w-[400px] max-w-[85vw] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full" id="cart-content">
+        <div class="absolute right-0 top-0 h-full w-full md:w-[400px] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full" id="cart-content">
             <div class="p-5 h-full flex flex-col">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-black text-black dark:text-white">Mon Panier</h2>
-                    <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                    <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500 text-2xl"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 
                 <div id="cart-items-container" class="flex-1 overflow-y-auto space-y-4">
                     <div class="text-center text-gray-500 mt-10">Votre panier est vide</div>
                 </div>
                 
-                <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4">
+                <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4 safe-area-bottom">
                     <div class="flex justify-between text-lg font-bold dark:text-white mb-4">
                         <span>Total</span>
                         <span id="cart-drawer-total">0 DA</span>
                     </div>
-                    <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
+                    <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
                 </div>
             </div>
         </div>
@@ -375,20 +375,28 @@
         <div onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full" id="mobile-menu-content">
             <div class="flex items-center justify-between mb-8">
-                <span class="text-xl font-black dark:text-white">MENU</span>
-                <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-xl dark:text-white"></i></button>
+                <span class="text-2xl font-black dark:text-white tracking-tighter">SYNAPSE</span>
+                <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-2xl dark:text-white"></i></button>
             </div>
+
+            <div class="mb-8">
+                <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-dark-800 h-10">
+                    <input type="text" id="mobile-search-input" onkeyup="if(event.key === 'Enter') handleSearchMobile()" placeholder="Rechercher..." class="w-full px-3 bg-transparent outline-none text-sm dark:text-white">
+                    <button onclick="handleSearchMobile()" class="bg-synapse h-full px-4 text-black"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
             <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
-                <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Accueil</li>
-                <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Mon Compte</li>
-                <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse text-red-500">Espace Vendeur</li>
+                <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-house w-6"></i> Accueil</li>
+                <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-user w-6"></i> Mon Compte</li>
+                <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer text-red-500 hover:text-red-400 flex items-center gap-3 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800"><i class="fa-solid fa-store w-6"></i> Espace Vendeur</li>
             </ul>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300">
-        <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3">
-            <i class="fa-solid fa-check-circle text-synapse dark:text-green-600"></i>
+    <div id="toast" class="fixed bottom-5 right-5 left-5 md:left-auto z-[70] transform translate-y-40 opacity-0 transition-all duration-300">
+        <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 justify-center">
+            <i class="fa-solid fa-check-circle text-synapse dark:text-green-600 text-xl"></i>
             <span class="font-bold text-sm">Action réussie !</span>
         </div>
     </div>
@@ -408,8 +416,8 @@
             updateCartUI();
             const toast = document.getElementById('toast');
             toast.querySelector('span').innerText = "Ajouté au panier !";
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+            toast.classList.remove('translate-y-40', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-40', 'opacity-0'); }, 3000);
         }
 
         window.removeFromCart = function(index) {
@@ -442,7 +450,7 @@
                                 <span class="font-bold text-synapse-dark dark:text-synapse">${item.price}</span>
                             </div>
                         </div>
-                        <button onclick="removeFromCart(${index})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                        <button onclick="removeFromCart(${index})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-2">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
                     </div>`;
@@ -640,18 +648,25 @@
             const term = document.getElementById('search-input').value;
             if(term) {
                 localStorage.setItem('synapse_last_search', term);
-                // 1. Switch to Home View (Added for correction)
                 hideAllViews();
                 document.getElementById('home-view').classList.remove('hidden');
                 window.scrollTo(0, 0);
-                
-                // 2. Clear grid and show loader (Added for correction)
                 document.getElementById('products-grid').innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span> Recherche...</div>';
-
-                // 3. Fetch Data
                 const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
-                
-                // 4. Render
+                renderGrid('products-grid', data);
+            }
+        }
+
+        window.handleSearchMobile = async function() {
+            const term = document.getElementById('mobile-search-input').value;
+            if(term) {
+                localStorage.setItem('synapse_last_search', term);
+                toggleMobileMenu(); // Fermer le menu
+                hideAllViews();
+                document.getElementById('home-view').classList.remove('hidden');
+                window.scrollTo(0, 0);
+                document.getElementById('products-grid').innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span> Recherche...</div>';
+                const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
                 renderGrid('products-grid', data);
             }
         }
