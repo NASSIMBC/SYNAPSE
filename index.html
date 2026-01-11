@@ -486,13 +486,14 @@
     </div>
 
     <script type="module">
-     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+   import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
+        // --- 1. CONFIGURATION SUPABASE ---
         const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
         const supabase = createClient(supabaseUrl, supabaseKey)
 
-        // --- GESTION PANIER ---
+        // --- 2. GESTION DU PANIER ---
         window.myCart = [];
 
         window.addToCart = function(title, price, image, id) {
@@ -550,7 +551,7 @@
             setTimeout(() => { toast.classList.add('translate-y-40', 'opacity-0'); }, 3000);
         }
 
-        // --- AUTH ---
+        // --- 3. AUTHENTIFICATION ---
         window.handleSignUp = async function() {
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
@@ -599,7 +600,7 @@
             }
         }
 
-        // --- PROFIL ---
+        // --- 4. GESTION PROFIL ---
         window.loadProfile = async function() {
             const { data: { user } } = await supabase.auth.getUser();
             if(user) {
@@ -638,7 +639,7 @@
             }
         }
 
-        // --- MESSAGERIE ---
+        // --- 6. MESSAGERIE ---
         window.openMessageModal = () => document.getElementById('message-modal').classList.remove('hidden');
 
         window.sendMessage = async function() {
@@ -677,7 +678,7 @@
             }
         }
 
-        // --- FILTRES ---
+        // --- 7. RECHERCHE & FILTRES ---
         window.handleSearch = async function() {
             const term = document.getElementById('search-input').value;
             if(term) performSearch(term);
@@ -731,7 +732,7 @@
             document.getElementById('hot-section-container').classList.add('hidden');
         }
 
-        // --- AFFICHAGE DONNEES ---
+        // --- 8. AFFICHAGE DONNEES & REALTIME ---
         async function fetchAllData() {
             const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(4);
             const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
@@ -754,6 +755,28 @@
                 document.getElementById('boosted-section').classList.remove('hidden');
                 renderGrid('boosted-grid', boosted, true);
             }
+            
+            // --- ACTIVATION DU REALTIME (Écouteur) ---
+            setupRealtime();
+        }
+        
+        function setupRealtime() {
+            supabase
+            .channel('public:products')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, payload => {
+                // Dès qu'un produit est modifié (ex: nouvelle vente)
+                const newSales = payload.new.sales;
+                const productId = payload.new.id;
+                
+                // On met à jour l'affichage si le produit est visible
+                const element = document.getElementById(`sales-count-${productId}`);
+                if(element) {
+                    element.innerText = newSales;
+                    element.classList.add('text-green-500', 'scale-125'); // Petit effet visuel
+                    setTimeout(() => { element.classList.remove('text-green-500', 'scale-125'); }, 1000);
+                }
+            })
+            .subscribe();
         }
 
         function renderGrid(containerId, products, isBoostedLayout = false) {
@@ -769,8 +792,8 @@
                 const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
                 const safeStoreId = p.store_id || '';
                 
-                // NOUVEAU : Affichage du nombre de ventes
-                const salesTag = `<div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-fire text-orange-500"></i> ${p.sales || 0} vendus</div>`;
+                // --- ID AJOUTÉ POUR LE REALTIME ---
+                const salesTag = `<div class="flex items-center text-[10px] text-gray-500 gap-1 transition-all"><i class="fa-solid fa-fire text-orange-500"></i> <span id="sales-count-${p.id}" class="font-bold transition-transform duration-300 inline-block">${p.sales || 0}</span> vendus</div>`;
 
                 if(isBoostedLayout) {
                      card = `<div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${safeStoreId}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
@@ -854,7 +877,7 @@
 
                 const { error: productError } = await supabase.from('products').insert([{
                     store_id: store.id, title, description: desc, price, stock, category, image_url: imageUrl,
-                    is_hot: false, is_boosted: false, sales: 0 // Init sales à 0
+                    is_hot: false, is_boosted: false, sales: 0 
                 }]);
 
                 if (productError) throw productError;
@@ -1040,7 +1063,6 @@
         window.showSellerDashboard = () => { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); loadSellerStats(); loadSellerOrders(); loadSellerProducts(); }
         window.showCheckout = () => { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); }
 
-        // CORRECTION MENU MOBILE ET PANIER
         window.toggleCart = () => {
             const drawer = document.getElementById('cart-drawer');
             const content = document.getElementById('cart-content');
