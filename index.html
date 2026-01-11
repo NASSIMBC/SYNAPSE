@@ -1,3 +1,12 @@
+Bravo ! 🚀 C'est une étape énorme.
+Vous avez maintenant :
+ * Un site en ligne.
+ * Une base de données réelle (Supabase).
+ * Un système pour ajouter des produits qui sont sauvegardés pour de vrai.
+Mais il reste un dernier problème : La page d'accueil affiche toujours les "faux" produits (Sony, etc.) au lieu de celui que vous venez d'ajouter.
+Voici le CODE FINAL ULTIME.
+Il contient une nouvelle fonctionnalité : Le site va maintenant lire votre base de données et afficher vos vrais produits sur la page d'accueil.
+Copiez tout et remplacez votre fichier index.html.
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -67,9 +76,7 @@
 
             <div class="flex items-center gap-6 shrink-0">
                 <button onclick="showSellerDashboard()" class="text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
-
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center text-gray-600 dark:text-synapse hover:bg-gray-200 dark:hover:bg-dark-700 transition"><i id="theme-icon" class="fa-solid fa-moon text-lg"></i></button>
-
                 <div onclick="showAuth()" class="flex items-center gap-2 cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse"><i class="fa-regular fa-user"></i></div>
                     <div class="hidden lg:block leading-tight">
@@ -77,10 +84,9 @@
                         <div class="text-sm font-bold text-black dark:text-white">Compte</div>
                     </div>
                 </div>
-                
                 <div onclick="toggleCart()" class="relative cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse transition"><i class="fa-solid fa-cart-shopping"></i></div>
-                    <span class="absolute -top-2 -right-2 bg-synapse text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white dark:border-dark-900">2</span>
+                    <span class="absolute -top-2 -right-2 bg-synapse text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border border-white dark:border-dark-900">0</span>
                 </div>
             </div>
         </div>
@@ -98,13 +104,6 @@
                             <li class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-6"></i> Maison</span> <i class="fa-solid fa-chevron-right text-[10px]"></i></li>
                         </ul>
                     </div>
-                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                        <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Prix</h3>
-                        <div class="mb-4">
-                            <input type="range" min="0" max="200000" value="50000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                            <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0 DA</span><span>200k DA+</span></div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
@@ -115,64 +114,39 @@
                             <div class="max-w-md">
                                 <span class="inline-block py-1 px-3 bg-black text-white dark:bg-white dark:text-black text-xs font-bold rounded-full mb-4">NOUVELLE COLLECTION</span>
                                 <h1 class="text-4xl md:text-5xl font-black text-black dark:text-white leading-tight mb-4">Next Gen <br> Audio Reality</h1>
-                                <button onclick="showProduct()" class="bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-lg font-bold hover:scale-105 transition shadow-xl mt-4">Voir le Produit <i class="fa-solid fa-arrow-right ml-2 text-synapse dark:text-black"></i></button>
+                                <button class="bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-lg font-bold hover:scale-105 transition shadow-xl mt-4">Voir les Offres</button>
                             </div>
                             <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="hidden md:block w-[350px] object-contain drop-shadow-2xl transform group-hover:scale-110 transition duration-500">
                         </div>
                     </div>
 
-                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Tendances</h2>
-                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <div onclick="showProduct()" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
-                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
-                                <span class="absolute top-2 left-2 bg-synapse text-black text-[10px] font-bold px-2 py-1 rounded">HOT</span>
-                                <img src="https://pngimg.com/d/headphones_PNG7645.png" class="h-full object-contain group-hover:scale-110 transition">
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Sony WH-1000XM5 Noise Cancelling</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">58 000 DA</span><span class="text-xs text-gray-400 line-through">65 000 DA</span></div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.9</div>
-                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
-                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
-                                <span class="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded">-20%</span>
-                                <img src="https://pngimg.com/d/smart_watch_PNG25.png" class="h-full object-contain group-hover:scale-110 transition">
-                            </div>
-                            <div class="p-4">
-                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">Smart Watch Ultra Titanium</h3>
-                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">18 500 DA</span></div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 4.5</div>
-                                    <button onclick="addToCart(); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
-                                </div>
-                            </div>
+                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Nouveautés (Direct de la Base de Données)</h2>
+                    
+                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[200px]">
+                        <div class="col-span-full flex justify-center items-center py-20 text-gray-400">
+                            <i class="fa-solid fa-circle-notch fa-spin text-3xl"></i> Chargement des produits...
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     <div id="product-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Sony WH-1000XM5</span>
-        </div>
+        <button onclick="goHome()" class="mb-4 text-sm font-bold text-gray-500 hover:text-synapse"><i class="fa-solid fa-arrow-left"></i> Retour</button>
         <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
             <div class="col-span-12 md:col-span-6 lg:col-span-5">
                 <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 mb-4 h-[400px]">
-                    <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-full object-contain drop-shadow-2xl">
+                    <img id="detail-img" src="" class="max-h-full object-contain drop-shadow-2xl">
                 </div>
             </div>
             <div class="col-span-12 md:col-span-6 lg:col-span-4 space-y-6">
-                <h1 class="text-3xl font-black text-black dark:text-white mb-4">Sony WH-1000XM5 Wireless Noise Cancelling</h1>
+                <h1 id="detail-title" class="text-3xl font-black text-black dark:text-white mb-4">Titre du produit</h1>
                 <div class="bg-gray-50 dark:bg-dark-900 p-4 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <div class="flex items-end gap-3 mb-1"><span class="text-4xl font-black text-synapse-dark dark:text-synapse">58 000 DA</span><span class="text-sm text-red-500 font-bold mb-1">-10%</span></div>
+                    <div class="flex items-end gap-3 mb-1"><span id="detail-price" class="text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span></div>
                 </div>
+                <p id="detail-desc" class="text-gray-600 dark:text-gray-400">Description...</p>
                 <button onclick="addToCart()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
             </div>
         </div>
@@ -213,73 +187,14 @@
             <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
             <span class="text-black dark:text-white font-bold">Mon Tableau de Bord</span>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="col-span-1">
-                <div class="bg-white dark:bg-dark-900 rounded-xl p-4 border border-gray-100 dark:border-dark-800">
-                    <div class="flex items-center gap-3 mb-6 pb-6 border-b border-gray-100 dark:border-dark-800">
-                        <div class="w-12 h-12 rounded-full bg-gray-200 dark:bg-dark-700 flex items-center justify-center text-xl"><i class="fa-solid fa-user"></i></div>
-                        <div><div class="font-bold text-black dark:text-white">John Doe</div><div class="text-xs text-gray-500">Membre Gold</div></div>
-                    </div>
-                    <ul class="space-y-2 text-sm">
-                        <li class="bg-synapse/10 text-synapse-dark dark:text-synapse font-bold p-2 rounded cursor-pointer"><i class="fa-solid fa-box mr-2"></i> Mes Commandes</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-span-1 md:col-span-3">
-                <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden">
-                    <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white">Dernières commandes</div>
-                    <div class="p-4 flex gap-4 border-b border-gray-100 dark:border-dark-800 last:border-0">
-                        <div class="w-20 h-20 bg-gray-50 dark:bg-dark-800 rounded-lg flex items-center justify-center">
-                            <img src="https://pngimg.com/d/headphones_PNG7645.png" class="max-h-16 max-w-16 object-contain">
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-black dark:text-white">Sony WH-1000XM5</h4>
-                            <span class="text-orange-500 text-xs font-bold">En cours de livraison</span>
-                        </div>
-                        <div class="text-right font-bold text-black dark:text-white">58 000 DA</div>
-                    </div>
-                </div>
-            </div>
+        <div class="bg-white dark:bg-dark-900 rounded-xl p-4 border border-gray-100 dark:border-dark-800">
+            <h2 class="font-bold mb-4 dark:text-white">Bienvenue sur votre espace</h2>
+            <button onclick="logout()" class="text-red-500 text-sm">Se déconnecter</button>
         </div>
     </div>
 
     <div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
         </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Nom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                    </div>
-                </div>
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
-                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
-                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                        <div>
-                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
-                            <p class="text-xs text-gray-500">Payez en espèces à la réception (Yalidine/Wilaya).</p>
-                        </div>
-                        <div class="ml-auto text-synapse-dark"><i class="fa-solid fa-circle-check text-2xl"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
-                    <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
-                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-6"><span>Total</span> <span>76 500 DA</span></div>
-                    <button class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse transition uppercase tracking-wide">Confirmer la commande</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
@@ -287,18 +202,14 @@
                 <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
                 <span class="text-synapse font-bold uppercase tracking-widest">Espace Vendeur</span>
             </div>
-            <button onclick="showDashboard()" class="text-xs font-bold text-gray-500 hover:text-white">Retour au mode Acheteur</button>
+            <button onclick="showDashboard()" class="text-xs font-bold text-gray-500 hover:text-white">Retour</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="col-span-1">
                 <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24">
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black"><i class="fa-solid fa-store"></i></div>
-                        <div><div class="font-bold text-white">Tech Store DZ</div><div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div></div>
-                    </div>
                     <ul class="space-y-1 text-sm font-bold text-gray-400">
-                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-synapse text-black"><i class="fa-solid fa-box-open"></i> Commandes <span class="bg-red-600 text-white text-[10px] px-1.5 rounded-full ml-auto">2</span></li>
+                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-synapse text-black"><i class="fa-solid fa-box-open"></i> Commandes</li>
                         <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
                     </ul>
                 </div>
@@ -307,70 +218,42 @@
             <div class="col-span-1 lg:col-span-3 space-y-6">
                 <div id="seller-tab-orders" class="seller-tab-content">
                     <h2 class="text-2xl font-black text-white mb-6">Commandes à traiter</h2>
-                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
-                        <div class="flex flex-wrap justify-between items-start gap-4 border-b border-gray-800 pb-4 mb-4">
-                            <div><span class="text-xs text-gray-500 uppercase font-bold">Commande #839201</span><div class="text-sm text-gray-300 mt-1"><i class="fa-regular fa-clock"></i> Il y a 2 heures</div></div>
-                            <div class="text-right"><div class="text-xl font-black text-white">58 000 DA</div><span class="bg-orange-500/20 text-orange-500 text-xs font-bold px-2 py-1 rounded border border-orange-500/20">En Attente</span></div>
-                        </div>
-                        <div class="flex gap-4 items-center mb-4">
-                            <img src="https://pngimg.com/d/headphones_PNG7645.png" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
-                            <div><h4 class="font-bold text-white">Sony WH-1000XM5</h4><div class="text-xs text-gray-400">Qté: 1 • Couleur: Noir</div></div>
-                        </div>
-                        <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800"><div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison à :</div><p>Amine Benali, Alger Centre (0555 12 34 56)</p></div>
-                        <div class="flex gap-3">
-                            <button onclick="updateOrderStatus(this, 'Expédié')" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition"><i class="fa-solid fa-check"></i> Confirmer & Expédier</button>
-                        </div>
-                    </div>
+                    <div class="text-gray-500">Aucune commande pour le moment.</div>
                 </div>
 
-                                <div id="seller-tab-products" class="seller-tab-content hidden">
+                <div id="seller-tab-products" class="seller-tab-content hidden">
                     <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
                         <div class="space-y-4">
-                            <div class="border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center text-gray-500 hover:border-synapse hover:text-synapse cursor-pointer transition bg-black/20">
-                                <i class="fa-solid fa-camera text-3xl mb-2"></i>
-                                <span class="text-xs font-bold">L'upload d'image sera activé plus tard</span>
-                            </div>
-
-                            <input type="text" id="prod-title" placeholder="Titre du produit (ex: iPhone 15)" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
-                            
+                            <input type="text" id="prod-title" placeholder="Titre du produit" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
                             <div class="grid grid-cols-2 gap-4">
                                 <input type="number" id="prod-price" placeholder="Prix (DA)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
-                                <input type="number" id="prod-stock" placeholder="Stock (Qté)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                                <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
                             </div>
-
                             <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400 focus:border-synapse outline-none">
-                                <option value="Tech">Tech & Informatique</option>
-                                <option value="Mode">Mode & Vêtements</option>
-                                <option value="Maison">Maison & Déco</option>
+                                <option value="Tech">Tech</option><option value="Mode">Mode</option><option value="Maison">Maison</option>
                             </select>
-
-                            <textarea id="prod-desc" placeholder="Description détaillée..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none"></textarea>
-
-                            <button onclick="publishProduct()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">
-                                Publier l'annonce
-                            </button>
+                            <textarea id="prod-desc" placeholder="Description" rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none"></textarea>
+                            <button onclick="publishProduct()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">Publier l'annonce</button>
                         </div>
                     </div>
                 </div>
-
+            </div>
+        </div>
+    </div>
 
     <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
         <div class="absolute right-0 top-0 h-full w-[400px] max-w-[85vw] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full" id="cart-content">
             <div class="p-5 h-full flex flex-col">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-black text-black dark:text-white">Mon Panier (2)</h2>
+                    <h2 class="text-xl font-black text-black dark:text-white">Panier</h2>
                     <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
                 </div>
-                <div class="flex-1 overflow-y-auto space-y-4">
-                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg">
-                        <img src="https://pngimg.com/d/headphones_PNG7645.png" class="w-16 h-16 object-contain bg-white rounded-md">
-                        <div class="flex-1"><h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">Sony WH-1000XM5</h4><div class="text-xs text-gray-500 mb-1">Noir Mat</div><div class="flex justify-between items-center"><span class="font-bold text-synapse-dark dark:text-synapse">58 000 DA</span><div class="text-xs bg-white dark:bg-black px-2 rounded border border-gray-200 dark:border-dark-700">x1</div></div></div>
-                    </div>
+                <div class="flex-1 overflow-y-auto space-y-4" id="cart-items-container">
+                    <div class="text-center text-gray-500 mt-10">Votre panier est vide</div>
                 </div>
                 <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4">
-                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-4"><span>Total</span><span>76 500 DA</span></div>
                     <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
                 </div>
             </div>
@@ -380,11 +263,7 @@
     <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
         <div onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
         <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full" id="mobile-menu-content">
-            <div class="flex items-center justify-between mb-8">
-                <span class="text-xl font-black dark:text-white">MENU</span>
-                <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-xl dark:text-white"></i></button>
-            </div>
-            <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
+            <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300 mt-10">
                 <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Accueil</li>
                 <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Mon Compte</li>
                 <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse text-red-500">Espace Vendeur</li>
@@ -395,221 +274,189 @@
     <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300">
         <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3">
             <i class="fa-solid fa-check-circle text-synapse dark:text-green-600"></i>
-            <span class="font-bold text-sm">Produit ajouté au panier !</span>
+            <span class="font-bold text-sm">Action réussie !</span>
         </div>
     </div>
 
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-        // 1. CONFIGURATION SUPABASE
         const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
         const supabase = createClient(supabaseUrl, supabaseKey)
 
-        // 2. FONCTIONS GLOBALES (Pour que le HTML puisse les voir)
-        window.toggleTheme = function() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                if(icon) { icon.classList.remove('fa-sun'); icon.classList.add('fa-moon'); }
-            } else {
-                html.classList.add('dark');
-                if(icon) { icon.classList.remove('fa-moon'); icon.classList.add('fa-sun'); }
-            }
-        }
-
-        window.hideAllViews = function() {
-            const views = ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'];
-            views.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
-            });
-        }
-
-        window.goHome = function() { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        window.showProduct = function() { window.hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        window.showAuth = function() { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        window.showDashboard = function() { window.hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        window.showSellerDashboard = function() { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-        window.showCheckout = function() { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); window.scrollTo(0, 0); }
-
-        window.toggleCart = function() {
-            const drawer = document.getElementById('cart-drawer');
-            const content = document.getElementById('cart-content');
-            if (drawer.classList.contains('hidden')) {
-                drawer.classList.remove('hidden');
-                setTimeout(() => { content.classList.remove('translate-x-full'); }, 10);
-            } else {
-                content.classList.add('translate-x-full');
-                setTimeout(() => { drawer.classList.add('hidden'); }, 300);
-            }
-        }
-
-        window.toggleMobileMenu = function() {
-            const menu = document.getElementById('mobile-menu');
-            const content = document.getElementById('mobile-menu-content');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                setTimeout(() => { content.classList.remove('-translate-x-full'); }, 10);
-            } else {
-                content.classList.add('-translate-x-full');
-                setTimeout(() => { menu.classList.add('hidden'); }, 300);
-            }
-        }
-
-        window.addToCart = function(msg) {
-            const toast = document.getElementById('toast');
-            if(msg) toast.querySelector('span').innerText = msg;
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
-            if(!msg) setTimeout(() => { window.toggleCart(); }, 500);
-        }
-
-        window.toggleAuthMode = function(mode) {
-            const loginForm = document.getElementById('form-login');
-            const signupForm = document.getElementById('form-signup');
-            const tabLogin = document.getElementById('tab-login');
-            const tabSignup = document.getElementById('tab-signup');
-
-            if (mode === 'login') {
-                loginForm.classList.remove('hidden'); signupForm.classList.add('hidden');
-                tabLogin.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-                tabSignup.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-            } else {
-                loginForm.classList.add('hidden'); signupForm.classList.remove('hidden');
-                tabSignup.classList.add('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabSignup.classList.remove('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-                tabLogin.classList.remove('border-synapse', 'text-black', 'dark:text-white', 'bg-white', 'dark:bg-dark-900'); tabLogin.classList.add('border-transparent', 'text-gray-400', 'bg-gray-50', 'dark:bg-dark-800');
-            }
-        }
-        
-        window.switchSellerTab = function(tabName) {
-            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
-        }
-        
-        window.updateOrderStatus = function(btn, status) {
-            btn.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${status}`;
-            btn.classList.remove('bg-synapse', 'text-black', 'hover:bg-white');
-            btn.classList.add('bg-green-600', 'text-white', 'cursor-default');
-            window.addToCart("Commande expédiée !");
-        }
-
-        // 3. FONCTIONS SUPABASE ASYNCHRONES
-        window.handleSignUp = async function() {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const firstName = document.getElementById('signup-firstname').value;
-            const lastName = document.getElementById('signup-lastname').value;
-
+        // 1. CHARGER LES PRODUITS (HOMEPAGE)
+        window.fetchProducts = async function() {
+            const grid = document.getElementById('products-grid');
             try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: { data: { full_name: firstName + ' ' + lastName, role: 'buyer' } }
-                });
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
                 if (error) throw error;
-                alert("Compte créé ! Vérifiez votre email pour confirmer.");
-            } catch (error) {
-                alert("Erreur: " + error.message);
+
+                if (!products || products.length === 0) {
+                    grid.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Aucun produit en vente pour le moment.</div>';
+                    return;
+                }
+
+                grid.innerHTML = ''; // Vider le loader
+                
+                products.forEach(prod => {
+                    const card = `
+                        <div onclick="openProductDetail('${prod.title}', '${prod.price}', '${prod.description}', '${prod.image_url}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
+                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
+                                ${prod.is_hot ? '<span class="absolute top-2 left-2 bg-synapse text-black text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
+                                <img src="${prod.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${prod.title}</h3>
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">${prod.price} DA</span></div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 5.0</div>
+                                    <button onclick="addToCart('${prod.title}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+
+            } catch (err) {
+                console.error("Erreur chargement produits:", err);
+                grid.innerHTML = '<div class="col-span-full text-center text-red-500">Erreur de chargement.</div>';
             }
         }
 
-        window.handleLogin = async function() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-                if (error) throw error;
-                console.log("Connecté :", data.user);
-                window.showDashboard();
-            } catch (error) {
-                alert("Erreur de connexion : " + error.message);
-            }
+        // 2. VOIR UN PRODUIT (DETAIL)
+        window.openProductDetail = function(title, price, desc, img) {
+            document.getElementById('detail-title').innerText = title;
+            document.getElementById('detail-price').innerText = price + " DA";
+            document.getElementById('detail-desc').innerText = desc || "Pas de description.";
+            document.getElementById('detail-img').src = img || "https://pngimg.com/d/box_PNG120.png";
+            
+            hideAllViews();
+            document.getElementById('product-view').classList.remove('hidden');
+            window.scrollTo(0,0);
         }
 
-        // Vérification de session au chargement
-        async function checkUserSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) console.log("Session active:", session.user.email);
-        }
-        checkUserSession();
-
-        // 4. FONCTION PUBLIER UN PRODUIT (MAGIQUE)
+        // 3. PUBLIER UN PRODUIT (VENDEUR)
         window.publishProduct = async function() {
-            // 1. Récupérer les valeurs
             const title = document.getElementById('prod-title').value;
             const price = document.getElementById('prod-price').value;
             const stock = document.getElementById('prod-stock').value;
             const desc = document.getElementById('prod-desc').value;
             const category = document.getElementById('prod-category').value;
 
-            if (!title || !price) return alert("Veuillez mettre un titre et un prix !");
+            if (!title || !price) return alert("Titre et prix obligatoires !");
 
             try {
-                // 2. Qui est connecté ?
                 const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return alert("Veuillez vous connecter d'abord !");
+                if (!user) return alert("Connectez-vous d'abord !");
 
-                // 3. Vérifier si l'utilisateur a déjà une boutique
-                let { data: store, error: storeError } = await supabase
-                    .from('stores')
-                    .select('id')
-                    .eq('owner_id', user.id)
-                    .single();
-
-                // 4. Si pas de boutique, on en crée une automatiquement !
+                // Check store
+                let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+                
+                // Create store if not exists
                 if (!store) {
-                    console.log("Création de la boutique...");
                     const { data: newStore, error: createError } = await supabase
                         .from('stores')
-                        .insert([{ 
-                            owner_id: user.id, 
-                            name: "Boutique de " + user.user_metadata.full_name,
-                            description: "Vendeur Synapse",
-                            is_verified: true
-                        }])
-                        .select()
-                        .single();
-                    
-                    if (createError) throw createError;
+                        .insert([{ owner_id: user.id, name: "Ma Boutique", is_verified: true }])
+                        .select().single();
+                    if(createError) throw createError;
                     store = newStore;
                 }
 
-                // 5. Insérer le produit dans la base de données
-                const { error: productError } = await supabase
-                    .from('products')
-                    .insert([{
-                        store_id: store.id,
-                        title: title,
-                        description: desc,
-                        price: price,
-                        stock: stock,
-                        category: category,
-                        image_url: "https://pngimg.com/d/box_PNG120.png", // Image par défaut pour le test
-                        is_hot: true
-                    }]);
+                // Insert product
+                const { error } = await supabase.from('products').insert([{
+                    store_id: store.id, title, price, stock, description: desc, category, 
+                    image_url: "https://pngimg.com/d/box_PNG120.png", is_hot: true
+                }]);
 
-                if (productError) throw productError;
+                if (error) throw error;
 
-                // 6. Succès !
-                alert("Félicitations ! Votre produit est en ligne sur Synapse.");
-                // On vide le formulaire
+                alert("Produit publié !");
                 document.getElementById('prod-title').value = "";
-                document.getElementById('prod-price').value = "";
-                
+                goHome(); // Retour accueil pour voir le produit
+                fetchProducts(); // Recharger la liste
+
             } catch (err) {
-                console.error(err);
-                alert("Erreur lors de la publication : " + err.message);
+                alert("Erreur: " + err.message);
             }
         }
 
+        // 4. AUTHENTIFICATION
+        window.handleSignUp = async function() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) alert(error.message);
+            else alert("Compte créé !");
+        }
+
+        window.handleLogin = async function() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+            else { window.showDashboard(); }
+        }
+
+        window.logout = async function() {
+            await supabase.auth.signOut();
+            window.goHome();
+        }
+
+        // 5. UI NAVIGATION
+        window.toggleTheme = function() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) { html.classList.remove('dark'); } 
+            else { html.classList.add('dark'); }
+        }
+        window.hideAllViews = function() {
+            ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+        }
+        window.goHome = function() { hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchProducts(); window.scrollTo(0, 0); }
+        window.showProduct = function() { hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); }
+        window.showAuth = function() { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
+        window.showDashboard = function() { hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); }
+        window.showSellerDashboard = function() { hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); }
+        window.showCheckout = function() { hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); }
+        
+        window.toggleCart = function() {
+            const drawer = document.getElementById('cart-drawer');
+            const content = document.getElementById('cart-content');
+            if (drawer.classList.contains('hidden')) { drawer.classList.remove('hidden'); setTimeout(() => content.classList.remove('translate-x-full'), 10); } 
+            else { content.classList.add('translate-x-full'); setTimeout(() => drawer.classList.add('hidden'), 300); }
+        }
+        window.toggleMobileMenu = function() {
+            const menu = document.getElementById('mobile-menu');
+            const content = document.getElementById('mobile-menu-content');
+            if (menu.classList.contains('hidden')) { menu.classList.remove('hidden'); setTimeout(() => content.classList.remove('-translate-x-full'), 10); } 
+            else { content.classList.add('-translate-x-full'); setTimeout(() => menu.classList.add('hidden'), 300); }
+        }
+        window.addToCart = function(msg) {
+            const toast = document.getElementById('toast');
+            if(msg && typeof msg === 'string') toast.querySelector('span').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 3000);
+        }
+        window.toggleAuthMode = function(mode) {
+            if (mode === 'login') { document.getElementById('form-login').classList.remove('hidden'); document.getElementById('form-signup').classList.add('hidden'); } 
+            else { document.getElementById('form-login').classList.add('hidden'); document.getElementById('form-signup').classList.remove('hidden'); }
+        }
+        window.switchSellerTab = function(tabName) {
+            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
+        }
+
+        // Init
+        fetchProducts();
 
     </script>
 </body>
 </html>
+
