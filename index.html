@@ -438,9 +438,10 @@
         </div>
     </div>
 
-    <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
+   <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
-        <div class="absolute right-0 top-0 h-full w-full md:w-[400px] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full" id="cart-content">
+        
+        <div class="absolute right-0 top-0 h-full w-full md:w-[400px] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full z-50" id="cart-content">
             <div class="p-5 h-full flex flex-col">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-black text-black dark:text-white">Mon Panier</h2>
@@ -455,9 +456,10 @@
         </div>
     </div>
 
-    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
+   <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
         <div onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full" id="mobile-menu-content">
+        
+        <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full z-50" id="mobile-menu-content">
             <div class="flex items-center justify-between mb-8">
                 <span class="text-2xl font-black dark:text-white tracking-tighter">SYNAPSE</span>
                 <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-2xl dark:text-white"></i></button>
@@ -800,10 +802,6 @@
             document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
             document.getElementById('detail-id').value = id;
             
-            // On retire les étoiles ici aussi
-            // document.getElementById('detail-stars').innerHTML = ''; 
-            // document.getElementById('detail-rating-text').innerText = '';
-
             if(storeId) {
                  const { data: store } = await supabase.from('stores').select('owner_id').eq('id', storeId).maybeSingle();
                  if(store) document.getElementById('detail-store-id').value = store.owner_id;
@@ -1041,8 +1039,32 @@
         window.showDashboard = () => { window.hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); loadProfile(); }
         window.showSellerDashboard = () => { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); loadSellerStats(); loadSellerOrders(); loadSellerProducts(); }
         window.showCheckout = () => { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); }
-        window.toggleCart = () => document.getElementById('cart-drawer').classList.toggle('hidden');
-        window.toggleMobileMenu = () => document.getElementById('mobile-menu').classList.toggle('hidden');
+
+        // CORRECTION MENU MOBILE ET PANIER
+        window.toggleCart = () => {
+            const drawer = document.getElementById('cart-drawer');
+            const content = document.getElementById('cart-content');
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                setTimeout(() => { content.classList.remove('translate-x-full'); }, 50);
+            } else {
+                content.classList.add('translate-x-full');
+                setTimeout(() => { drawer.classList.add('hidden'); }, 300);
+            }
+        }
+
+        window.toggleMobileMenu = () => {
+            const menu = document.getElementById('mobile-menu');
+            const content = document.getElementById('mobile-menu-content');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => { content.classList.remove('-translate-x-full'); }, 50);
+            } else {
+                content.classList.add('-translate-x-full');
+                setTimeout(() => { menu.classList.add('hidden'); }, 300);
+            }
+        }
+        
         window.toggleAuthMode = (m) => { document.getElementById('form-login').classList.toggle('hidden', m!=='login'); document.getElementById('form-signup').classList.toggle('hidden', m==='login'); }
         window.switchSellerTab = (t) => { document.querySelectorAll('.seller-tab-content').forEach(e=>e.classList.add('hidden')); document.getElementById('seller-tab-'+t).classList.remove('hidden'); }
         window.previewImage = (i) => { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = (e) => { document.getElementById('image-preview').src = e.target.result; document.getElementById('image-preview').classList.remove('hidden'); document.getElementById('upload-placeholder').classList.add('hidden'); }; r.readAsDataURL(i.files[0]); } }
