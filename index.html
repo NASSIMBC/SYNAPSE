@@ -238,6 +238,22 @@
                 </div>
                 
                 <p id="detail-desc" class="text-gray-500 dark:text-gray-400">Description...</p>
+
+                <div class="bg-gray-100 dark:bg-dark-800 p-4 rounded-xl mb-4 border border-gray-200 dark:border-gray-700">
+    <div class="flex justify-between items-center mb-2">
+        <h3 class="font-bold text-sm text-black dark:text-white">Avis du produit</h3>
+        <span id="product-avg-rating" class="text-xs font-bold text-synapse">0.0 / 5 (0 avis)</span>
+    </div>
+    
+    <div class="flex items-center gap-1 justify-center py-2" id="product-star-input">
+        <button onclick="rateProduct(1)" class="text-2xl text-gray-300 hover:text-yellow-400 transition transform hover:scale-110"><i class="fa-solid fa-star"></i></button>
+        <button onclick="rateProduct(2)" class="text-2xl text-gray-300 hover:text-yellow-400 transition transform hover:scale-110"><i class="fa-solid fa-star"></i></button>
+        <button onclick="rateProduct(3)" class="text-2xl text-gray-300 hover:text-yellow-400 transition transform hover:scale-110"><i class="fa-solid fa-star"></i></button>
+        <button onclick="rateProduct(4)" class="text-2xl text-gray-300 hover:text-yellow-400 transition transform hover:scale-110"><i class="fa-solid fa-star"></i></button>
+        <button onclick="rateProduct(5)" class="text-2xl text-gray-300 hover:text-yellow-400 transition transform hover:scale-110"><i class="fa-solid fa-star"></i></button>
+    </div>
+    <p class="text-[10px] text-center text-gray-500">Notez ce produit pour aider la communauté</p>
+</div>
                 
                 <div class="flex gap-4">
                     <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="flex-1 bg-synapse text-black font-bold py-4 rounded-lg hover:bg-white hover:text-black hover:shadow-lg transition uppercase tracking-wide">Ajouter au panier</button>
@@ -1172,8 +1188,10 @@
             if(storeId) {
                  const { data: store } = await supabase.from('stores').select('owner_id').eq('id', storeId).single();
                  if(store) document.getElementById('detail-store-id').value = store.owner_id;
+                loadProductRating(id);
             }
 
+            
             hideAllViews();
             document.getElementById('product-view').classList.remove('hidden');
             window.scrollTo(0,0);
@@ -1258,7 +1276,77 @@
 
         // Init
         fetchAllData();
+// --- SYSTÈME DE NOTE PRODUIT ---
 
+// 1. Envoyer une note
+window.rateProduct = async function(stars) {
+    const productId = document.getElementById('detail-id').value;
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if(!user) return alert("Veuillez vous connecter pour noter un produit !");
+    if(!productId) return alert("Erreur produit.");
+
+    // Vérifier si l'utilisateur a déjà noté (optionnel, ici on écrase ou on ajoute)
+    // On insère le vote
+    const { error } = await supabase.from('product_reviews').insert([
+        { product_id: productId, user_id: user.id, rating: stars }
+    ]);
+
+    if(error) {
+        alert("Erreur lors du vote : " + error.message);
+    } else {
+        showToast(`Vous avez donné ${stars} étoiles !`);
+        // On recharge la moyenne immédiatement
+        loadProductRating(productId);
+    }
+}
+
+// 2. Charger et Calculer la moyenne
+async function loadProductRating(productId) {
+    // Reset visuel à 0
+    document.getElementById('product-avg-rating').innerText = "0.0 / 5 (0 avis)";
+    resetStarColors();
+
+    const { data: reviews } = await supabase
+        .from('product_reviews')
+        .select('rating')
+        .eq('product_id', productId);
+
+    if (reviews && reviews.length > 0) {
+        // Calcul mathématique
+        const total = reviews.reduce((sum, r) => sum + r.rating, 0);
+        const average = (total / reviews.length).toFixed(1); // 1 chiffre après la virgule
+        
+        // Mise à jour du texte
+        document.getElementById('product-avg-rating').innerText = `${average} / 5 (${reviews.length} avis)`;
+        
+        // Colorier les étoiles selon la moyenne (visuel)
+        highlightStars(Math.round(average));
+    }
+}
+
+// Fonctions utilitaires pour le style des étoiles
+function highlightStars(count) {
+    const buttons = document.getElementById('product-star-input').getElementsByTagName('button');
+    for (let i = 0; i < buttons.length; i++) {
+        if (i < count) {
+            buttons[i].classList.remove('text-gray-300');
+            buttons[i].classList.add('text-yellow-400');
+        } else {
+            buttons[i].classList.add('text-gray-300');
+            buttons[i].classList.remove('text-yellow-400');
+        }
+    }
+}
+
+function resetStarColors() {
+    const buttons = document.getElementById('product-star-input').getElementsByTagName('button');
+    for (let btn of buttons) {
+        btn.classList.add('text-gray-300');
+        btn.classList.remove('text-yellow-400');
+    }
+}
+        
     </script>
 </body>
 </html>
