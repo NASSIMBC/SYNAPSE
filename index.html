@@ -30,13 +30,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-dark-950 dark:text-gray-200 flex flex-col min-h-screen transition-colors duration-300">
 
-    <div class="bg-dark-950 text-gray-400 text-xs py-2 hidden md:block border-b border-gray-800">
-        <div class="container mx-auto px-4 flex justify-between">
-            <div class="flex space-x-6"><a href="#" class="hover:text-synapse">Vendre</a><a href="#" class="hover:text-synapse">Aide</a></div>
-            <div>Livraison 58 Wilayas 🇩🇿</div>
-        </div>
-    </div>
-
     <header class="bg-white dark:bg-dark-900 sticky top-0 z-50 shadow-sm border-b border-gray-100 dark:border-dark-800">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl"><i class="fa-solid fa-bars"></i></button>
@@ -44,12 +37,14 @@
                 <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-black font-bold text-xl">S</div>
                 <span class="text-2xl font-black tracking-tighter group-hover:text-synapse transition">SYNAPSE</span>
             </a>
+            
             <div class="flex-1 max-w-2xl hidden md:block relative">
                 <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
                     <input type="text" id="search-input" placeholder="Rechercher..." class="w-full px-5 bg-transparent outline-none text-sm font-medium">
                     <button onclick="handleSearch()" class="bg-synapse h-full px-6 text-black hover:bg-black hover:text-synapse transition"><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
             </div>
+
             <div class="flex items-center gap-4">
                 <button onclick="showSellerDashboard()" class="hidden md:block text-xs bg-red-600 text-white px-3 py-1.5 rounded font-bold hover:scale-105 transition shadow-lg">ESPACE VENDEUR</button>
                 <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 flex items-center justify-center"><i id="theme-icon" class="fa-solid fa-moon"></i></button>
@@ -64,50 +59,29 @@
 
     <div id="home-view" class="block container mx-auto px-4 mt-6 space-y-12 mb-20 animate-fade-in-up">
         
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
-                <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold mb-4 text-sm uppercase text-gray-400">Catégories</h3>
-                    <ul class="space-y-2 text-sm font-medium">
-                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-mobile-screen w-6"></i> Téléphonie</li>
-                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-laptop w-6"></i> Informatique</li>
-                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-shirt w-6"></i> Mode</li>
-                        <li class="hover:text-synapse cursor-pointer"><i class="fa-solid fa-gamepad w-6"></i> Gaming</li>
-                    </ul>
+        <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[300px] bg-gradient-to-r from-synapse via-lime-400 to-green-400">
+            <div class="absolute inset-0 bg-black/10"></div>
+            <div class="relative z-10 h-full flex items-center justify-between px-10">
+                <div class="text-black">
+                    <span class="bg-black text-white text-xs font-bold px-3 py-1 rounded-full">PROMO</span>
+                    <h1 class="text-5xl font-black mt-2 leading-tight">Soldes <br>D'Hiver</h1>
+                    <button class="mt-4 bg-white text-black px-6 py-2 rounded-lg font-bold hover:scale-105 transition">Découvrir</button>
                 </div>
-                <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold mb-4 text-sm">Prix</h3>
-                    <input type="range" class="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                    <div class="flex justify-between text-xs mt-2 text-gray-500"><span>0 DA</span><span>500k+</span></div>
-                </div>
+                <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="h-[120%] object-contain -rotate-12 translate-y-4">
             </div>
+        </div>
 
-            <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                <div class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[300px] bg-gradient-to-r from-synapse via-lime-400 to-green-400">
-                    <div class="absolute inset-0 bg-black/10"></div>
-                    <div class="relative z-10 h-full flex items-center justify-between px-10">
-                        <div class="text-black">
-                            <span class="bg-black text-white text-xs font-bold px-3 py-1 rounded-full">PROMO</span>
-                            <h1 class="text-5xl font-black mt-2 leading-tight">Soldes <br>D'Hiver</h1>
-                            <button class="mt-4 bg-white text-black px-6 py-2 rounded-lg font-bold hover:scale-105 transition">Découvrir</button>
-                        </div>
-                        <img src="https://assets.stickpng.com/images/5f58c7e63b156900045163a3.png" class="h-[120%] object-contain -rotate-12 translate-y-4">
-                    </div>
-                </div>
+        <div id="boosted-section" class="hidden mb-8">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Offres Flash</h2>
+            <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
 
-                <div id="boosted-section" class="hidden mb-8">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Offres Flash</h2>
-                    <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-end mb-6">
-                        <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-fire text-orange-500"></i> Derniers Ajouts</h2>
-                    </div>
-                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        <div class="col-span-full loader"></div>
-                    </div>
-                </div>
+        <div>
+            <div class="flex justify-between items-end mb-6">
+                <h2 class="text-xl font-bold flex items-center gap-2"><i class="fa-solid fa-fire text-orange-500"></i> Derniers Ajouts</h2>
+            </div>
+            <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="col-span-full loader"></div>
             </div>
         </div>
     </div>
@@ -115,7 +89,7 @@
     <div id="product-view" class="hidden container mx-auto px-4 mt-6 animate-fade-in-up">
         <button onclick="goHome()" class="mb-4 text-sm font-bold text-gray-500 hover:text-synapse"><i class="fa-solid fa-arrow-left"></i> Retour</button>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 h-[400px] flex items-center justify-center">
+            <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 h-[400px] flex items-center justify-center border border-gray-100 dark:border-dark-800">
                 <img id="detail-img" class="max-h-full max-w-full object-contain drop-shadow-2xl">
             </div>
             <div>
@@ -132,6 +106,45 @@
         </div>
     </div>
 
+    <div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Nom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                        <input type="text" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
+                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
+                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <div>
+                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
+                            <p class="text-xs text-gray-500">Payez en espèces à la réception (Yalidine/Wilaya).</p>
+                        </div>
+                        <div class="ml-auto text-synapse-dark"><i class="fa-solid fa-circle-check text-2xl"></i></div>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
+                    <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
+                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-6"><span>Total</span> <span id="checkout-total">0 DA</span></div>
+                    <button onclick="confirmOrder()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse transition uppercase tracking-wide">Confirmer la commande</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-black text-synapse">ESPACE VENDEUR</h1>
@@ -142,8 +155,8 @@
             <div class="col-span-1">
                 <div class="bg-dark-900 border border-gray-800 rounded-xl p-4 sticky top-24">
                     <div class="mb-6 pb-6 border-b border-gray-800">
-                        <div class="text-gray-400 text-xs uppercase font-bold">Chiffre d'affaires</div>
-                        <div class="text-2xl font-black text-white mt-1" id="stat-revenue">0 DA</div>
+                        <div class="text-gray-400 text-xs uppercase font-bold">Statut</div>
+                        <div class="text-2xl font-black text-white mt-1">Actif</div>
                     </div>
                     <ul class="space-y-2 text-sm font-bold text-gray-400">
                         <li onclick="switchSellerTab('products')" class="seller-tab-btn p-3 rounded-lg cursor-pointer bg-synapse text-black flex items-center gap-2"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
@@ -183,7 +196,6 @@
                 
                 <div id="seller-tab-orders" class="seller-tab-content hidden">
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6 text-center text-gray-500">
-                        <i class="fa-solid fa-box-open text-4xl mb-2 opacity-50"></i>
                         <p>Aucune commande pour le moment.</p>
                     </div>
                 </div>
@@ -201,57 +213,134 @@
         </div>
     </div>
 
-    <div id="checkout-view" class="hidden container mx-auto px-4 mt-6"><div class="text-center text-2xl font-bold dark:text-white">Page Paiement (À venir)</div></div>
     <div id="dashboard-view" class="hidden container mx-auto px-4 mt-6"><div class="text-center text-2xl font-bold dark:text-white">Mon Compte (À venir)</div></div>
+
+    <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
+        <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
+        <div class="absolute right-0 top-0 h-full w-[400px] max-w-[85vw] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full" id="cart-content">
+            <div class="p-5 h-full flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-black text-black dark:text-white">Panier</h2>
+                    <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="flex-1 overflow-y-auto space-y-4">
+                    <div class="text-center text-gray-500 mt-10">Produit ajouté ! <br> (Panier simplifié pour démo)</div>
+                </div>
+                <div class="border-t border-gray-200 dark:border-dark-800 pt-4 mt-4">
+                    <button onclick="showCheckout(); toggleCart()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white hover:shadow-lg transition">Commander</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
+        <div onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+        <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full" id="mobile-menu-content">
+            <div class="flex items-center justify-between mb-8">
+                <span class="text-xl font-black dark:text-white">MENU</span>
+                <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-xl dark:text-white"></i></button>
+            </div>
+            <ul class="space-y-6 text-lg font-bold text-gray-700 dark:text-gray-300">
+                <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Accueil</li>
+                <li onclick="showAuth(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse">Mon Compte</li>
+                <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse text-red-500">Espace Vendeur</li>
+            </ul>
+        </div>
+    </div>
 
     <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300">
         <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg shadow-2xl flex items-center gap-3">
             <i class="fa-solid fa-check-circle text-synapse dark:text-green-600"></i>
-            <span class="font-bold text-sm">Succès !</span>
+            <span class="font-bold text-sm">Action réussie !</span>
         </div>
     </div>
 
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
-        const supabase = createClient(supabaseUrl, supabaseKey)
+    <script>
+        // --- 1. INITIALISATION SUPABASE (GLOBAL) ---
+        let supabase;
+        try {
+            const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
+            supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+            console.log("Supabase OK");
+        } catch (e) {
+            console.error("Supabase Error", e);
+            alert("Erreur connexion base de données");
+        }
 
-        // --- DONNÉES DE SECOURS (Si la DB est vide ou plante) ---
+        // --- 2. DONNÉES DE SECOURS (Si DB vide) ---
         const MOCK_PRODUCTS = [
             { title: "Sony WH-1000XM5", price: 58000, image_url: "https://pngimg.com/d/headphones_PNG7645.png", description: "Le meilleur casque à réduction de bruit." },
             { title: "Apple Watch Ultra", price: 120000, image_url: "https://pngimg.com/d/smart_watch_PNG25.png", description: "Pour les aventuriers extrêmes." },
-            { title: "Drone DJI Mini 3", price: 95000, image_url: "https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png", description: "4K HDR, Léger et compact." },
-            { title: "iPhone 15 Pro", price: 250000, image_url: "https://assets.stickpng.com/images/65046279930c832e0e092672.png", description: "Titane. Si puissant." }
+            { title: "Drone DJI Mini 3", price: 95000, image_url: "https://freepngimg.com/thumb/drone/2-2-drone-png-picture.png", description: "4K HDR, Léger et compact." }
         ];
 
-        // --- GLOBAL FUNCTIONS ---
-        window.toggleTheme = () => document.documentElement.classList.toggle('dark');
-        window.hideAllViews = () => document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add('hidden'));
-        window.goHome = () => { hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchAllData(); window.scrollTo(0,0); }
-        window.showAuth = () => { hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
-        window.showSellerDashboard = () => { hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); }
-        window.switchSellerTab = (tab) => {
-            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`seller-tab-${tab}`).classList.remove('hidden');
-        }
+        // --- 3. FONCTIONS D'INTERFACE (Globales) ---
+        window.toggleTheme = function() { document.documentElement.classList.toggle('dark'); }
         
-        // --- 1. RECHERCHE INTELLIGENTE ---
-        window.handleSearch = async () => {
-            const term = document.getElementById('search-input').value.toLowerCase();
-            const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
-            // Si pas de résultats DB, on filtre les mocks
-            if (!data || data.length === 0) {
-                const mocks = MOCK_PRODUCTS.filter(p => p.title.toLowerCase().includes(term));
-                renderGrid('products-grid', mocks.length ? mocks : []);
+        window.hideAllViews = function() {
+            const views = ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'];
+            views.forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        window.goHome = function() { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); window.fetchAllData(); window.scrollTo(0, 0); }
+        window.showProduct = function() { window.hideAllViews(); document.getElementById('product-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+        window.showAuth = function() { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
+        window.showDashboard = function() { window.hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); }
+        window.showSellerDashboard = function() { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); }
+        window.showCheckout = function() { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); window.scrollTo(0, 0); }
+
+        window.toggleCart = function() {
+            const drawer = document.getElementById('cart-drawer');
+            const content = document.getElementById('cart-content');
+            if (drawer.classList.contains('hidden')) {
+                drawer.classList.remove('hidden');
+                setTimeout(() => { content.classList.remove('translate-x-full'); }, 10);
             } else {
-                renderGrid('products-grid', data);
+                content.classList.add('translate-x-full');
+                setTimeout(() => { drawer.classList.add('hidden'); }, 300);
             }
         }
 
-        // --- 2. UPLOAD & PUBLICATION ---
-        window.previewImage = (input) => {
+        window.toggleMobileMenu = function() {
+            const menu = document.getElementById('mobile-menu');
+            const content = document.getElementById('mobile-menu-content');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => { content.classList.remove('-translate-x-full'); }, 10);
+            } else {
+                content.classList.add('-translate-x-full');
+                setTimeout(() => { menu.classList.add('hidden'); }, 300);
+            }
+        }
+
+        window.addToCart = function(productTitle) {
+            const toast = document.getElementById('toast');
+            toast.querySelector('span').innerText = "Ajouté au panier !";
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
+            
+            // Mise à jour compteur (Simulé)
+            const count = document.getElementById('cart-count');
+            count.innerText = parseInt(count.innerText) + 1;
+            
+            // Si on vient de la vue détail
+            if(!productTitle) setTimeout(() => { window.toggleCart(); }, 500);
+        }
+
+        window.confirmOrder = function() {
+            alert("Merci ! Votre commande a été enregistrée.");
+            window.goHome();
+        }
+
+        window.switchSellerTab = function(tabName) {
+            document.querySelectorAll('.seller-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('seller-tab-' + tabName).classList.remove('hidden');
+        }
+
+        window.previewImage = function(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -263,47 +352,105 @@
             }
         }
 
-        window.publishProduct = async () => {
+        // --- 4. LOGIQUE MÉTIER ---
+
+        window.fetchAllData = async function() {
+            const grid = document.getElementById('products-grid');
+            try {
+                const { data: products, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+                
+                // Si la base est vide ou erreur, on met les Mocks
+                const displayProducts = (products && products.length > 0) ? products : MOCK_PRODUCTS;
+                
+                grid.innerHTML = '';
+                displayProducts.forEach(p => {
+                    const card = `
+                        <div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse">
+                            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
+                                ${p.is_hot ? '<span class="absolute top-2 left-2 bg-synapse text-black text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
+                                <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
+                                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span></div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 5.0</div>
+                                    <button onclick="addToCart('${p.title}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += card;
+                });
+
+                // Gérer les boostés
+                const boosted = displayProducts.filter(p => p.is_boosted);
+                if(boosted.length > 0) {
+                    document.getElementById('boosted-section').classList.remove('hidden');
+                    const bGrid = document.getElementById('boosted-grid');
+                    bGrid.innerHTML = '';
+                    boosted.forEach(p => {
+                        bGrid.innerHTML += `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                grid.innerHTML = '<div class="text-center text-red-500">Erreur de chargement.</div>';
+            }
+        }
+
+        window.openDetail = function(t, p, d, i) {
+            document.getElementById('detail-title').innerText = t;
+            document.getElementById('detail-price').innerText = p + " DA";
+            document.getElementById('checkout-total').innerText = p + " DA"; // MAJ Total Checkout
+            document.getElementById('detail-desc').innerText = d || "Pas de description.";
+            document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
+            window.hideAllViews();
+            document.getElementById('product-view').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        window.publishProduct = async function() {
             const btn = document.getElementById('btn-publish');
             btn.innerText = "Patientez..."; btn.disabled = true;
+
+            const title = document.getElementById('prod-title').value;
+            const price = document.getElementById('prod-price').value;
+            const isHot = document.getElementById('prod-hot').checked;
+            const isBoosted = document.getElementById('prod-boost').checked;
+            const file = document.getElementById('prod-image').files[0];
 
             try {
                 const { data: { user } } = await supabase.auth.getUser();
                 if(!user) throw new Error("Connectez-vous d'abord !");
 
-                const title = document.getElementById('prod-title').value;
-                const price = document.getElementById('prod-price').value;
-                const file = document.getElementById('prod-image').files[0];
-                const desc = document.getElementById('prod-desc').value;
-                const isHot = document.getElementById('prod-hot').checked;
-                const isBoosted = document.getElementById('prod-boost').checked;
-
-                // 1. Upload Image
+                // Upload Image
                 let imageUrl = "https://pngimg.com/d/box_PNG120.png";
                 if (file) {
                     const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
-                    const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
-                    if (!uploadError) {
+                    const { error: upErr } = await supabase.storage.from('products').upload(fileName, file);
+                    if(!upErr) {
                         const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
                         imageUrl = publicUrl.publicUrl;
                     }
                 }
 
-                // 2. Store & Product
+                // Store check
                 let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
                 if (!store) {
                     const { data: newStore } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Ma Boutique" }]).select().single();
                     store = newStore;
                 }
 
+                // Insert
                 const { error } = await supabase.from('products').insert([{
-                    store_id: store.id, title, price, image_url: imageUrl, description: desc, is_hot: isHot, is_boosted: isBoosted
+                    store_id: store.id, title, price, image_url: imageUrl, is_hot: isHot, is_boosted: isBoosted
                 }]);
 
                 if(error) throw error;
                 alert("Publié !");
-                btn.innerText = "Publier"; btn.disabled = false;
-                goHome();
+                window.goHome();
 
             } catch (err) {
                 alert("Erreur: " + err.message);
@@ -311,70 +458,15 @@
             }
         }
 
-        // --- 3. FETCH DATA (AVEC FALLBACK) ---
-        async function fetchAllData() {
-            try {
-                const { data: products, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-                
-                // SI ERREUR OU VIDE -> UTILISER LES MOCKS (SECOURS)
-                if (error || !products || products.length === 0) {
-                    console.warn("Utilisation des données de démo");
-                    renderGrid('products-grid', MOCK_PRODUCTS);
-                    renderGrid('hot-grid', MOCK_PRODUCTS.slice(0,2)); // Juste pour l'exemple
-                } else {
-                    // VRAIES DONNÉES
-                    renderGrid('products-grid', products);
-                    
-                    const hot = products.filter(p => p.is_hot);
-                    renderGrid('hot-grid', hot.length ? hot : products.slice(0,4));
-
-                    const boosted = products.filter(p => p.is_boosted);
-                    if(boosted.length > 0) {
-                        document.getElementById('boosted-section').classList.remove('hidden');
-                        renderGrid('boosted-grid', boosted, true);
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-                renderGrid('products-grid', MOCK_PRODUCTS); // Toujours afficher quelque chose
-            }
-        }
-
-        // --- HELPER RENDU ---
-        function renderGrid(containerId, products, isBoostedLayout = false) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            if(!products || products.length === 0) return;
-
-            products.forEach(p => {
-                const card = isBoostedLayout 
-                ? `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`
-                : `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden border border-gray-100 dark:border-dark-800 cursor-pointer hover:shadow-xl transition group relative">
-                    ${p.is_hot ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
-                    <div class="h-48 p-4 flex items-center justify-center bg-gray-50 dark:bg-dark-800"><img src="${p.image_url}" class="h-full object-contain group-hover:scale-110 transition duration-500"></div>
-                    <div class="p-4"><h3 class="font-bold text-sm truncate dark:text-gray-200">${p.title}</h3><div class="font-black mt-1 text-lg dark:text-white">${p.price} DA</div></div>
-                   </div>`;
-                container.innerHTML += card;
-            });
-        }
-
-        window.openDetail = (t, p, d, i) => {
-            document.getElementById('detail-title').innerText = t;
-            document.getElementById('detail-price').innerText = p + " DA";
-            document.getElementById('detail-desc').innerText = d || "Aucune description.";
-            document.getElementById('detail-img').src = i;
-            hideAllViews(); document.getElementById('product-view').classList.remove('hidden');
-        }
-
-        window.handleLogin = async () => {
+        window.handleLogin = async function() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message); else goHome();
+            if (error) alert(error.message); else window.goHome();
         }
 
-        // Init
-        fetchAllData();
+        // Démarrage
+        window.fetchAllData();
 
     </script>
 </body>
