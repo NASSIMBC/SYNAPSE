@@ -133,7 +133,7 @@
                          <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                     </div>
 
-                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Tendances</h2>
+                    <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot)</h2>
                     <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 min-h-[100px] mb-8"></div>
 
                     <h2 class="text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts (Vos Produits)</h2>
@@ -412,7 +412,6 @@
             setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 3000);
         }
 
-        // FONCTION AJOUTÉE : SUPPRESSION PANIER
         window.removeFromCart = function(index) {
             window.myCart.splice(index, 1);
             updateCartUI();
@@ -455,7 +454,7 @@
             if(totalCheckout) totalCheckout.innerText = formattedTotal;
         }
 
-        // --- GESTION PROFIL (FONCTION CORRIGÉE & AJOUTÉE) ---
+        // --- GESTION PROFIL ---
         window.loadProfile = async function() {
             const { data: { user } } = await supabase.auth.getUser();
             if(user) {
@@ -471,7 +470,6 @@
             }
         }
 
-        // CETTE FONCTION MANQUAIT DANS LE DERNIER BLOC :
         window.saveProfile = async function() {
             const name = document.getElementById('profile-name').value;
             const phone = document.getElementById('profile-phone').value;
@@ -527,7 +525,6 @@
             } catch(e) { alert("Erreur commande: " + e.message); }
         }
 
-        // UI & NAVIGATION
         window.toggleTheme = function() {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -648,10 +645,11 @@
             }
         }
 
-        // --- FETCH DATA MODIFIÉ POUR SEPARER HOT ET DERNIERS AJOUTS ---
+        // --- FETCH DATA MODIFIÉ AVEC LOGIQUE "HOT" INTELLIGENTE ---
         async function fetchAllData() {
-            // 1. Hot Products (Seulement si is_hot = true)
-            const { data: hot } = await supabase.from('products').select('*').eq('is_hot', true).limit(4);
+            // 1. Hot Products : Basé sur le nombre de VUES (view_count)
+            // On prend les 4 produits les plus vus
+            const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(4);
             
             // 2. Boosted
             const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
@@ -664,13 +662,13 @@
                 recommended = recos;
             }
             
-            // 4. TOUS les produits (Derniers ajouts - Triés par date)
+            // 4. Derniers Ajouts (All Products)
             const { data: all } = await supabase.from('products').select('*').order('created_at', { ascending: false });
 
-            // Remplir les grilles SÉPARÉMENT
-            renderGrid('products-grid', all); // Les derniers ajouts vont ici
+            // Rendu
+            renderGrid('products-grid', all); // Les derniers ajouts
             
-            if(hot && hot.length > 0) renderGrid('hot-grid', hot); // Les hot vont dans leur propre grille
+            if(hot && hot.length > 0) renderGrid('hot-grid', hot); // Les plus vus
             
             if(boosted && boosted.length > 0) {
                 document.getElementById('boosted-section').classList.remove('hidden');
@@ -691,11 +689,12 @@
             }
             products.forEach(p => {
                 let card;
+                // ON PASSE L'ID DU PRODUIT DANS L'ONCLICK POUR COMPTER LES VUES
                 if(isBoostedLayout) {
-                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
+                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-gradient-to-r from-synapse to-black p-1 rounded-xl cursor-pointer hover:scale-105 transition"><div class="bg-white dark:bg-dark-900 rounded-lg p-4 flex gap-4 h-full items-center"><img src="${p.image_url}" class="w-24 h-24 object-contain bg-white rounded"><div><span class="bg-red-500 text-white text-[10px] px-2 rounded font-bold">BOOSTÉ</span><h3 class="font-bold mt-1 text-black dark:text-white">${p.title}</h3><div class="text-xl font-black text-synapse-dark dark:text-synapse">${p.price} DA</div></div></div></div>`;
                 } else {
-                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse relative">
-                        ${p.is_hot ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
+                     card = `<div onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 hover:border-synapse dark:hover:border-synapse relative">
+                        ${p.view_count > 10 ? '<span class="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[10px] font-bold px-2 py-1 rounded">HOT</span>' : ''}
                         <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
                             <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
                         </div>
@@ -703,7 +702,7 @@
                             <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
                             <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span></div>
                             <div class="flex items-center justify-between">
-                                <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-star text-synapse"></i> 5.0</div>
+                                <div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-eye text-synapse"></i> ${p.view_count || 0}</div>
                                 <button onclick="addToCart('${p.title}', '${p.price}', '${p.image_url}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
                             </div>
                         </div>
@@ -713,7 +712,9 @@
             });
         }
 
-        window.openDetail = function(t, p, d, i) {
+        // --- NOUVEAU: FONCTION POUR OUVRIR ET COMPTER LES VUES ---
+        window.openDetail = async function(t, p, d, i, id) {
+            // Affichage UI (Immédiat)
             document.getElementById('detail-title').innerText = t;
             document.getElementById('detail-price').innerText = p + " DA";
             document.getElementById('detail-desc').innerText = (d && d !== 'undefined') ? d : "Pas de description.";
@@ -721,112 +722,21 @@
             hideAllViews();
             document.getElementById('product-view').classList.remove('hidden');
             window.scrollTo(0,0);
-        }
 
-        async function loadSellerStats() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) return;
-            const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
-            if(store) {
-                const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', store.id);
-                document.getElementById('stat-products').innerText = count || 0;
+            // Appel Supabase pour incrémenter la vue (+1)
+            if(id) {
+                await supabase.rpc('increment_views', { row_id: id });
             }
         }
 
-        window.handleSignUp = async function() {
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const firstName = document.getElementById('signup-firstname').value;
-            const lastName = document.getElementById('signup-lastname').value;
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email, password: password,
-                    options: { data: { full_name: firstName + ' ' + lastName, role: 'buyer' } }
-                });
-                if (error) throw error;
-                alert("Compte créé !");
-            } catch (error) { alert("Erreur: " + error.message); }
-        }
-
-        window.handleLogin = async function() {
+        window.handleLogin = async () => {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                console.log("Connecté");
-                window.showDashboard();
-            } catch (error) { alert("Erreur: " + error.message); }
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message); else goHome();
         }
 
-        async function checkUserSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                console.log("Session OK");
-                loadProfile();
-            }
-        }
-        checkUserSession();
-
-        window.publishProduct = async function() {
-            const btn = document.getElementById('btn-publish');
-            btn.innerText = "Publication..."; btn.disabled = true;
-
-            const title = document.getElementById('prod-title').value;
-            const price = document.getElementById('prod-price').value;
-            const stock = document.getElementById('prod-stock').value;
-            const desc = document.getElementById('prod-desc').value;
-            const category = document.getElementById('prod-category').value;
-            const file = document.getElementById('prod-image').files[0];
-
-            if (!title || !price) {
-                alert("Veuillez mettre un titre et un prix !");
-                btn.innerText = "Publier l'annonce"; btn.disabled = false;
-                return;
-            }
-
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return alert("Veuillez vous connecter d'abord !");
-
-                let imageUrl = "https://pngimg.com/d/box_PNG120.png";
-                if(file) {
-                    const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
-                    const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
-                    if(uploadError) console.log("Upload fail", uploadError);
-                    else {
-                        const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-                        imageUrl = publicUrl.publicUrl;
-                    }
-                }
-
-                let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
-                if (!store) {
-                    const { data: newStore } = await supabase.from('stores').insert([{ 
-                        owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name
-                    }]).select().single();
-                    store = newStore;
-                }
-
-                const { error: productError } = await supabase.from('products').insert([{
-                    store_id: store.id, title, description: desc, price, stock, category, image_url: imageUrl,
-                    is_hot: false, is_boosted: false
-                }]);
-
-                if (productError) throw productError;
-
-                alert("Produit publié !");
-                goHome(); 
-                await fetchAllData(); 
-                
-            } catch (err) {
-                console.error(err);
-                alert("Erreur : " + err.message);
-                btn.innerText = "Publier l'annonce"; btn.disabled = false;
-            }
-        }
-
-        // Init Data
+        // Init
         fetchAllData();
 
     </script>
