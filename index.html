@@ -323,23 +323,37 @@
                     </div>
                 </div>
 
-                <div id="seller-tab-products" class="seller-tab-content hidden">
+                                <div id="seller-tab-products" class="seller-tab-content hidden">
                     <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
                         <div class="space-y-4">
-                            <div class="border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center text-gray-500 hover:border-synapse hover:text-synapse cursor-pointer transition bg-black/20"><i class="fa-solid fa-camera text-3xl mb-2"></i><span class="text-xs font-bold">Ajouter des photos</span></div>
-                            <input type="text" placeholder="Titre du produit" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="number" placeholder="Prix (DA)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
-                                <input type="number" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                            <div class="border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center text-gray-500 hover:border-synapse hover:text-synapse cursor-pointer transition bg-black/20">
+                                <i class="fa-solid fa-camera text-3xl mb-2"></i>
+                                <span class="text-xs font-bold">L'upload d'image sera activé plus tard</span>
                             </div>
-                            <button class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">Publier l'annonce</button>
+
+                            <input type="text" id="prod-title" placeholder="Titre du produit (ex: iPhone 15)" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="number" id="prod-price" placeholder="Prix (DA)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                                <input type="number" id="prod-stock" placeholder="Stock (Qté)" class="p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none">
+                            </div>
+
+                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400 focus:border-synapse outline-none">
+                                <option value="Tech">Tech & Informatique</option>
+                                <option value="Mode">Mode & Vêtements</option>
+                                <option value="Maison">Maison & Déco</option>
+                            </select>
+
+                            <textarea id="prod-desc" placeholder="Description détaillée..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white focus:border-synapse outline-none"></textarea>
+
+                            <button onclick="publishProduct()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition shadow-lg">
+                                Publier l'annonce
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+
 
     <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
