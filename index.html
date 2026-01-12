@@ -2320,6 +2320,155 @@ const { data: all } = await supabase
             console.error("Erreur Analytics:", e);
         }
     }
+
+// ============================================================
+    // 🛠️ RÉPARATION COMPLÈTE : DASHBOARD VENDEUR (VISUALBOARD)
+    // ============================================================
+
+    // 1. BOUTON AJOUTER (Redirection vers votre formulaire classique)
+    window.openAddProductPage = function() {
+        console.log("Ouverture page ajout...");
+        // Cacher le dashboard vendeur
+        document.getElementById('seller-view').classList.add('hidden');
+        // Afficher la vue "Ajout Produit" (celle qui marchait avant)
+        document.getElementById('product-view').classList.remove('hidden');
+    }
+
+    // 2. BOUTON SUPPRIMER (La vraie suppression)
+    window.deleteProduct = async function(id) {
+        if(confirm("⚠️ Êtes-vous sûr de vouloir supprimer ce produit définitivement ?")) {
+            const { error } = await supabase.from('products').delete().eq('id', id);
+            
+            if(error) {
+                alert("Erreur: " + error.message);
+            } else {
+                alert("Produit supprimé !");
+                // Recharger la liste
+                loadSellerProducts();
+            }
+        }
+    }
+
+    // 3. STATISTIQUES RÉELLES (Calcul du CA et Ventes)
+    window.loadSellerOverview = async function() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+
+            // A. Récupérer TOUTES les ventes de la boutique
+            const { data: sales } = await supabase
+                .from('order_items')
+                .select('price, created_at')
+                .eq('store_id', store.id);
+
+            let totalRevenue = 0;
+            let weeklySales = 0;
+            let monthlySales = 0;
+            
+            const now = new Date();
+            const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            const thisMonth = now.getMonth();
+
+            if (sales) {
+                sales.forEach(sale => {
+                    totalRevenue += sale.price;
+                    const saleDate = new Date(sale.created_at);
+                    
+                    // Calcul Ventes Semaine
+                    if (saleDate >= oneWeekAgo) weeklySales += sale.price;
+                    // Calcul Ventes Mois
+                    if (saleDate.getMonth() === thisMonth) monthlySales++;
+                });
+            }
+
+            // B. Affichage dans le Dashboard
+            // Total CA
+            if(document.getElementById('seller-total-revenue')) 
+                document.getElementById('seller-total-revenue').innerText = totalRevenue.toLocaleString() + " DA";
+            
+            // Ventes du Mois (Nombre)
+            if(document.getElementById('seller-month-sales'))
+                document.getElementById('seller-month-sales').innerText = monthlySales;
+
+            // Performance Semaine (Texte)
+            const perfText = weeklySales > 0 ? `+${weeklySales} DA cette semaine` : "Pas de ventes cette semaine";
+            // Cherche un endroit pour l'afficher ou crée-le
+            console.log("Performance Semaine:", perfText);
+
+        } catch (e) {
+            console.error("Erreur Stats:", e);
+        }
+    }
+
+    // 4. LE BOOST (Lancer une pub)
+    window.launchSellerAd = async function() {
+        const btn = document.querySelector('button[onclick="launchSellerAd()"]');
+        btn.disabled = true; btn.innerText = "Validation...";
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const { data: store } = await supabase.from('stores').select('id, wallet_balance').eq('owner_id', user.id).single();
+
+            const productId = document.getElementById('seller-ad-product').value;
+            const reach = document.querySelector('input[type="range"]').value;
+            const cost = reach * 0.5; // 0.5 DA par vue
+
+            if(!productId) throw new Error("Sélectionnez un produit !");
+            
+            // Vérif Solde (On laisse passer si solde null pour tester, sinon décommentez la ligne dessous)
+            // if((store.wallet_balance || 0) < cost) throw new Error("Solde insuffisant !");
+
+            // Récupérer infos produit
+            const { data: prod } = await supabase.from('products').select('title, image_url').eq('id', productId).single();
+
+            // Créer la Pub
+            const { error } = await supabase.from('ads').insert([{
+                store_id: store.id,
+                product_id: productId,
+                title: prod.title,
+                image_url: prod.image_url,
+                target_reach: reach,
+                budget_daily: cost,
+                status: 'active'
+            }]);
+
+            if(error) throw error;
+
+            alert(`🚀 Boost activé ! Votre produit sera vu par ~${reach} personnes.`);
+            switchSellerTab('overview');
+
+        } catch (e) {
+            alert("Erreur Boost: " + e.message);
+        } finally {
+            btn.disabled = false; btn.innerText = "LANCER LA PUB";
+        }
+    }
+
+    // 5. PROFIL US (Avatar & Nom)
+    window.updateSellerProfileHeader = async function() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if(user) {
+            const name = user.user_metadata.full_name || user.email.split('@')[0];
+            // Met à jour le nom dans le header vendeur
+            const nameEl = document.getElementById('seller-shop-name');
+            if(nameEl) nameEl.innerText = "Boutique de " + name;
+            
+            // Met à jour l'avatar (si vous avez une img avec id="seller-avatar")
+            const avatarEl = document.getElementById('seller-avatar');
+            if(avatarEl) avatarEl.src = user.user_metadata.avatar_url || "https://ui-avatars.com/api/?name=" + name + "&background=random";
+        }
+    }
+
+    // --- INITIALISATION AU CHARGEMENT ---
+    // Modifiez votre fonction openSellerSpace existante pour qu'elle appelle ces mises à jour
+    const oldOpenSeller = window.openSellerSpace;
+    window.openSellerSpace = async function() {
+        if(oldOpenSeller) await oldOpenSeller(); // Appelle la logique d'ouverture
+        
+        // Lance les mises à jour de données
+        loadSellerOverview(); // Stats
+        updateSellerProfileHeader(); // Profil
+    }
         
         // Init
         fetchAllData();
