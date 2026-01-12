@@ -461,14 +461,38 @@
                             </div>
                             
                             <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
-                                <option value="Tech">Tech</option>
-                                <option value="Mode">Mode</option>
-                                <option value="Maison">Maison</option>
-                                <option value="Beauté">Beauté</option>
-                                <option value="Sport">Sport</option>
-                                <option value="Auto">Auto</option>
-                                <option value="Jouets">Jouets</option>
-                            </select>
+    <option value="" disabled selected>Choisir une catégorie...</option>
+    
+    <optgroup label="Mode Femme">
+        <option value="Robes">Robes</option>
+        <option value="Chemisiers">Chemisiers</option>
+        <option value="Jeans Femme">Jeans Femme</option>
+    </optgroup>
+
+    <optgroup label="Mode Homme">
+        <option value="T-Shirts">T-Shirts</option>
+        <option value="Vestes">Vestes</option>
+        <option value="Pantalons">Pantalons</option>
+    </optgroup>
+
+    <optgroup label="High-Tech">
+        <option value="Smartphones">Smartphones</option>
+        <option value="Laptops">Ordinateurs Portables</option>
+        <option value="Composants">Composants PC</option>
+        <option value="Périphériques">Claviers/Souris</option>
+        <option value="Electronique">Autre Electronique</option>
+    </optgroup>
+
+    <optgroup label="Autres">
+        <option value="Maison">Maison & Jardin</option>
+        <option value="Beauté">Beauté & Santé</option>
+        <option value="Sport">Sport</option>
+        <option value="Auto">Auto & Moto</option>
+        <option value="Jouets">Jouets</option>
+        <option value="Bijoux">Bijoux & Montres</option>
+        <option value="Sacs">Sacs & Bagages</option>
+    </optgroup>
+</select>
                             
                             <textarea id="prod-desc" placeholder="Description..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
                             
