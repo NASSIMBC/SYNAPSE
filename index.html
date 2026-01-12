@@ -909,15 +909,13 @@
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
-        // --- GESTION VENDEUR ---
-      // Remplacez toute la fonction window.publishProduct par celle-ci :
+      // --- FONCTION PUBLICATION CORRIGÉE (Nettoyage des noms de fichiers) ---
     window.publishProduct = async function() {
         const btn = document.getElementById('btn-publish');
-        // On récupère le bon ID (pluriel) défini dans votre nouveau HTML
         const imageFiles = document.getElementById('prod-images').files;
         const digitalFile = document.getElementById('prod-file').files[0];
-
-        if (imageFiles.length === 0) return alert("Ajoutez au moins une image !");
+        
+        if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
         
         btn.innerText = "Envoi..."; btn.disabled = true;
 
@@ -925,32 +923,48 @@
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Connectez-vous !");
 
-            // 1. Upload des images (Boucle)
+            // 1. Upload des images (Boucle avec NETTOYAGE)
             let uploadedUrls = [];
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
-                const fileName = `${Date.now()}_${i}_${file.name.replace(/\s/g, '')}`;
-                await supabase.storage.from('products').upload(fileName, file);
+                
+                // 👇 LE SECRET EST ICI : On enlève les accents et les caractères bizarres 👇
+                const cleanName = file.name
+                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents (é -> e)
+                    .replace(/[^a-zA-Z0-9.-]/g, "_");                 // Remplace ( ) et autres par _
+                
+                const fileName = `${Date.now()}_${i}_${cleanName}`;
+                
+                // Envoi
+                const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
+                
+                if(upError) {
+                    console.error("Erreur upload:", upError);
+                    throw new Error("Erreur upload image: " + cleanName);
+                }
+                
                 const { data } = supabase.storage.from('products').getPublicUrl(fileName);
                 uploadedUrls.push(data.publicUrl);
             }
 
-            // 2. Upload fichier numérique (Optionnel)
+            // 2. Upload fichier numérique (Avec nettoyage aussi)
             let digitalPath = null;
             if(digitalFile) {
-                const fName = `secure_${Date.now()}_${digitalFile.name.replace(/\s/g, '')}`;
+                const cleanFile = digitalFile.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.-]/g, "_");
+                const fName = `secure_${Date.now()}_${cleanFile}`;
+                
                 await supabase.storage.from('digital_vault').upload(fName, digitalFile);
                 digitalPath = fName;
             }
 
-            // 3. Création boutique si n'existe pas
+            // 3. Création/Récupération boutique
             let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
             if (!store) { 
                 const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
                 store = data; 
             }
 
-            // 4. Insert en base
+            // 4. Insertion en Base
             const title = document.getElementById('prod-title').value;
             const price = document.getElementById('prod-price').value;
             const stock = document.getElementById('prod-stock').value;
@@ -960,20 +974,21 @@
             await supabase.from('products').insert([{
                 store_id: store.id, title, description: desc, price, stock, category,
                 image_url: uploadedUrls[0], // Image principale
-                images: uploadedUrls,       // Galerie complète
+                images: uploadedUrls,       // Galerie
                 digital_file: digitalPath,
                 is_hot: false, is_boosted: false, sales: 0
             }]);
 
-            alert("Produit publié !");
+            alert("✅ Produit publié avec succès !");
             window.goHome();
+            await fetchAllData();
+
         } catch (err) {
             alert("Erreur : " + err.message);
         } finally {
             btn.innerText = "Publier"; btn.disabled = false;
         }
     }
-
         window.loadSellerProducts = async function() {
             const list = document.getElementById('seller-products-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
