@@ -864,7 +864,11 @@
                 }
             }
             
-            const { data: all } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+           // Vérifiez que vous avez bien .order('created_at', { ascending: false })
+const { data: all } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false }); // false = du plus récent au plus vieux
 
             renderGrid('products-grid', all);
             if(hot && hot.length > 0) renderGrid('hot-grid', hot);
@@ -1571,9 +1575,9 @@
             cancelUpload();
         } 
 
-       window.loadBuyerOrders = async function() {
+      window.loadBuyerOrders = async function() {
         const container = document.getElementById('buyer-orders-container');
-        if(!container) return; // Sécurité si le HTML n'est pas prêt
+        if(!container) return;
 
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) {
@@ -1583,7 +1587,6 @@
 
         container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
 
-        // Récupération des commandes
         const { data: orders, error } = await supabase
             .from('order_items')
             .select('*, order:orders(*), product:products(*)')
@@ -1592,7 +1595,7 @@
 
         if(error) {
             console.error(error);
-            container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur de chargement.</div>';
+            container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur chargement.</div>';
             return;
         }
 
@@ -1602,8 +1605,8 @@
                 const status = item.order ? item.order.status : 'Inconnu';
                 let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
                 
-                // 👇 LA CORRECTION EST ICI 👇
-                // On force l'ID à devenir du texte (String) avant de le couper (slice)
+                // 👇 C'EST CETTE LIGNE QUI CORRIGE L'ERREUR 👇
+                // On ajoute String(...) pour convertir le chiffre en texte
                 const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
                 
                 const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
@@ -1623,7 +1626,7 @@
                 </div>`;
             });
         } else {
-            container.innerHTML = '<div class="p-10 text-center text-gray-500">Vous n\'avez pas encore de commandes.</div>';
+            container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
         }
     }
 
