@@ -776,18 +776,69 @@
             }
         }
 
-        async function loadMyMessages(userId) {
+      window.loadMyMessages = async function(userId) {
             const list = document.getElementById('my-messages-list');
-            const { data: msgs } = await supabase.from('messages').select('*').eq('receiver_id', userId).order('created_at', { ascending: false });
-            
-            if(msgs && msgs.length > 0) {
-                list.innerHTML = '';
-                msgs.forEach(m => {
-                    list.innerHTML += `<div class="p-2 bg-gray-50 dark:bg-black rounded border border-gray-200 dark:border-gray-800"><div class="font-bold text-synapse text-[10px]">Message reçu</div><div>${m.content}</div></div>`;
-                });
-            } else {
-                list.innerHTML = '<div class="text-gray-400">Aucun message.</div>';
+            list.innerHTML = '<div class="text-center py-2"><span class="loader w-4 h-4"></span></div>';
+
+            // 1. Récupérer les messages reçus
+            const { data: msgs, error } = await supabase
+                .from('messages')
+                .select('*')
+                .eq('receiver_id', userId)
+                .order('created_at', { ascending: false });
+
+            if(error || !msgs || msgs.length === 0) {
+                list.innerHTML = '<div class="text-gray-400 text-center italic">Aucun message reçu.</div>';
+                return;
             }
+
+            // 2. Récupérer les noms des expéditeurs (Pour savoir QUI a écrit)
+            const senderIds = msgs.map(m => m.sender_id);
+            const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', senderIds);
+            
+            // Création d'un dictionnaire pour retrouver les noms rapidement
+            const namesMap = {};
+            if(profiles) profiles.forEach(p => { namesMap[p.id] = p.full_name || 'Utilisateur inconnu'; });
+
+            // 3. Afficher les messages avec le bouton RÉPONDRE
+            list.innerHTML = '';
+            msgs.forEach(m => {
+                const name = namesMap[m.sender_id] || 'Utilisateur';
+                const time = new Date(m.created_at).toLocaleDateString();
+                
+                // On prépare les données pour la réponse
+                // On échappe les guillemets pour éviter les bugs
+                const safeName = name.replace(/'/g, "\\'"); 
+
+                list.innerHTML += `
+                <div class="p-3 bg-gray-50 dark:bg-black rounded-lg border border-gray-200 dark:border-gray-800 mb-2">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-bold text-synapse text-xs">${name}</span>
+                        <span class="text-[10px] text-gray-400">${time}</span>
+                    </div>
+                    <p class="text-xs text-gray-600 dark:text-gray-300 mb-2">${m.content}</p>
+                    
+                    <button onclick="openReplyModal('${m.sender_id}', '${safeName}')" class="w-full bg-white dark:bg-dark-800 border border-gray-200 dark:border-gray-700 text-xs font-bold py-1 rounded hover:bg-synapse hover:text-black transition">
+                        <i class="fa-solid fa-reply"></i> Répondre
+                    </button>
+                </div>`;
+            });
+        }
+
+        // --- FONCTION POUR RÉPONDRE ---
+        window.openReplyModal = function(senderId, senderName) {
+            // 1. On "détourne" l'input caché qui sert à stocker l'ID du destinataire
+            // On met l'ID de la personne qui nous a écrit à la place de l'ID du vendeur
+            document.getElementById('detail-store-id').value = senderId;
+            
+            // 2. On change le titre pour que ce soit clair
+            // (Optionnel : vous pouvez ajouter un ID au titre h3 dans le HTML pour le cibler proprement, 
+            // mais ici on laisse le titre par défaut "Envoyer un message")
+            
+            // 3. On vide le champ texte et on ouvre la modale
+            document.getElementById('msg-content').value = "";
+            document.getElementById('msg-content').placeholder = "Réponse pour " + senderName + "...";
+            document.getElementById('message-modal').classList.remove('hidden');
         }
 
         // --- 7. RECHERCHE & FILTRES ---
