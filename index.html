@@ -1142,7 +1142,7 @@ const { data: all } = await supabase
             }
         }
 
-        async function loadSellerOrders() {
+       async function loadSellerOrders() {
             const list = document.getElementById('seller-orders-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
             try {
@@ -1151,59 +1151,98 @@ const { data: all } = await supabase
                 const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
                 if(!store) { list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>'; return; }
 
-                const { data: items } = await supabase.from('order_items').select('*, product:products(*), order:orders(*)').eq('product.store_id', store.id).order('created_at', { ascending: false });
-                const myItems = items ? items.filter(i => i.product && i.product.store_id === store.id) : [];
+                // NOTE: On garde !inner pour filtrer vos produits uniquement
+                const { data: items } = await supabase
+                    .from('order_items')
+                    .select('*, order:orders(*), product:products!inner(*)') 
+                    .eq('product.store_id', store.id)
+                    .order('created_at', { ascending: false });
 
-                if(!myItems.length) { list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucune commande.</div>'; return; }
+                if(!items || items.length === 0) { 
+                    list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucune commande.</div>'; 
+                    return; 
+                }
 
                 list.innerHTML = '';
-                myItems.forEach(item => {
-                    const status = item.order.status; 
+                items.forEach(item => {
+                    // ICI : On regarde le statut de L'ARTICLE, pas de la commande
+                    const status = item.status || 'en_attente'; 
+                    
                     let buttonsHtml = '';
-                    if (status === 'en_attente') buttonsHtml = `<button onclick="updateOrderStatus(${item.order_id}, 'en_livraison')" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition"><i class="fa-solid fa-truck"></i> Expédier</button>`;
-                    else if (status === 'en_livraison') buttonsHtml = `<div class="flex gap-2"><button onclick="updateOrderStatus(${item.order_id}, 'livre', ${item.price}, ${store.id}, ${item.product.id})" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition"><i class="fa-solid fa-check"></i> Livré</button><button onclick="updateOrderStatus(${item.order_id}, 'annule')" class="flex-1 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition"><i class="fa-solid fa-xmark"></i> Annuler</button></div>`;
-                    else if(status === 'livre') buttonsHtml = `<div class="text-green-500 font-bold text-center"><i class="fa-solid fa-circle-check"></i> Terminé</div>`;
-
-                    if (status !== 'annule') {
-                        list.innerHTML += `
-                        <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
-                            <div class="flex justify-between items-start border-b border-gray-800 pb-4 mb-4">
-                                <div><span class="text-xs text-gray-500 uppercase font-bold">Commande #${item.order_id}</span><div class="text-sm text-gray-300 mt-1">${new Date(item.created_at).toLocaleDateString()}</div></div>
-                                <div class="text-right"><div class="text-xl font-black text-white">${item.price} DA</div><span class="bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded">${status}</span></div>
-                            </div>
-                            <div class="flex gap-4 items-center mb-4"><img src="${item.product.image_url}" class="w-16 h-16 bg-white rounded-lg object-contain p-1"><div><h4 class="font-bold text-white">${item.product.title}</h4><div class="text-xs text-gray-400">Qté: ${item.quantity}</div></div></div>
-                            <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800"><div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison :</div><p>${item.order.shipping_address || 'Non spécifiée'}</p></div>
-                            ${buttonsHtml}
+                    // NOTE : On passe item.id (l'ID de la ligne) au lieu de item.order_id
+                    if (status === 'en_attente') {
+                        buttonsHtml = `<button onclick="updateOrderItemStatus('${item.id}', 'en_livraison')" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition"><i class="fa-solid fa-truck"></i> Expédier cet article</button>`;
+                    } else if (status === 'en_livraison') {
+                        buttonsHtml = `<div class="flex gap-2">
+                            <button onclick="updateOrderItemStatus('${item.id}', 'livre', ${item.price}, ${store.id}, ${item.product.id})" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition"><i class="fa-solid fa-check"></i> Livré</button>
+                            <button onclick="updateOrderItemStatus('${item.id}', 'annule')" class="flex-1 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition"><i class="fa-solid fa-xmark"></i> Annuler</button>
                         </div>`;
+                    } else if(status === 'livre') {
+                        buttonsHtml = `<div class="text-green-500 font-bold text-center"><i class="fa-solid fa-circle-check"></i> Terminé</div>`;
+                    } else if(status === 'annule') {
+                        buttonsHtml = `<div class="text-red-500 font-bold text-center"><i class="fa-solid fa-ban"></i> Annulé</div>`;
                     }
+
+                    list.innerHTML += `
+                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
+                        <div class="flex justify-between items-start border-b border-gray-800 pb-4 mb-4">
+                            <div>
+                                <span class="text-xs text-gray-500 uppercase font-bold">Commande #${String(item.order_id).slice(0,8)}</span>
+                                <div class="text-sm text-gray-300 mt-1">${new Date(item.created_at).toLocaleDateString()}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-black text-white">${item.price} DA</div>
+                                <span class="bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded border border-gray-700">${status}</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-center mb-4">
+                            <img src="${item.product.image_url}" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
+                            <div>
+                                <h4 class="font-bold text-white">${item.product.title}</h4>
+                                <div class="text-xs text-gray-400">Qté: ${item.quantity}</div>
+                            </div>
+                        </div>
+                        <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800">
+                            <div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison :</div>
+                            <p>${item.order.shipping_address || 'Non spécifiée'}</p>
+                        </div>
+                        ${buttonsHtml}
+                    </div>`;
                 });
             } catch(e) { console.error(e); }
         }
 
-        window.updateOrderStatus = async function(orderId, newStatus, amount = 0, storeId = 0, productId = 0) {
-            if(newStatus === 'annule') {
-                const { error } = await supabase.from('orders').delete().eq('id', orderId);
-                if(!error) { showToast("Commande annulée."); loadSellerOrders(); }
-            } else {
-                const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
-                if(!error) {
-                    if(newStatus === 'livre' && amount > 0 && storeId > 0) { 
-                        // 1. Ajouter Revenu
-                        await supabase.rpc('add_revenue', { store_id_param: storeId, amount: amount }); 
-                        
-                        // 2. Incrémenter Ventes Produit
-                        if(productId > 0) {
-                            const { data: prod } = await supabase.from('products').select('sales').eq('id', productId).single();
-                            const currentSales = prod ? (prod.sales || 0) : 0;
-                            await supabase.from('products').update({ sales: currentSales + 1 }).eq('id', productId);
-                        }
+       // NOUVELLE FONCTION : Met à jour un article précis
+        window.updateOrderItemStatus = async function(itemId, newStatus, amount = 0, storeId = 0, productId = 0) {
+            
+            // Mise à jour de la table ORDER_ITEMS (et non orders)
+            const { error } = await supabase
+                .from('order_items')
+                .update({ status: newStatus })
+                .eq('id', itemId); // On cible l'ID unique de l'article
 
-                        showToast("Livré ! Vente comptabilisée."); 
-                    } else { 
-                        showToast("Statut mis à jour."); 
+            if(error) {
+                alert("Erreur: " + error.message);
+            } else {
+                // Logique financière (si livré)
+                if(newStatus === 'livre' && amount > 0 && storeId > 0) { 
+                    await supabase.rpc('add_revenue', { store_id_param: storeId, amount: amount }); 
+                    
+                    if(productId > 0) {
+                        const { data: prod } = await supabase.from('products').select('sales').eq('id', productId).single();
+                        const currentSales = prod ? (prod.sales || 0) : 0;
+                        await supabase.from('products').update({ sales: currentSales + 1 }).eq('id', productId);
                     }
-                    loadSellerOrders(); loadSellerStats();
+                    showToast("Article livré ! Vente comptabilisée."); 
+                } else if (newStatus === 'annule') {
+                    showToast("Article annulé.");
+                } else { 
+                    showToast("Statut de l'article mis à jour."); 
                 }
+                
+                // Recharger la liste pour voir le changement sur CET article seulement
+                loadSellerOrders(); 
+                loadSellerStats();
             }
         }
 
@@ -1599,43 +1638,38 @@ const { data: all } = await supabase
             cancelUpload();
         } 
 
-    window.loadBuyerOrders = async function() {
+    wwindow.loadBuyerOrders = async function() {
         const container = document.getElementById('buyer-orders-container');
-        // Sécurité : si l'élément n'existe pas (page non chargée), on arrête tout pour éviter le crash
         if(!container) return;
 
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) {
-            container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous pour voir vos commandes.</div>';
+            container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
             return;
         }
 
         container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
 
-        // Récupération des commandes
         const { data: orders, error } = await supabase
             .from('order_items')
             .select('*, order:orders(*), product:products(*)')
             .eq('order.user_id', user.id)
             .order('created_at', { ascending: false });
 
-        if(error) {
-            console.error("Erreur commandes:", error);
-            container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur de chargement.</div>';
-            return;
-        }
-
         if(orders && orders.length > 0) {
             container.innerHTML = '';
             orders.forEach(item => {
-                const status = item.order ? item.order.status : 'Inconnu';
-                let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
+                // ICI : On lit le statut de l'article
+                const status = item.status || 'en_attente';
                 
-                // 👇 C'EST CETTE LIGNE EXACTEMENT QUI EMPÊCHE LE BUG 👇
-                // On utilise String() pour transformer le chiffre (15) en texte ("15")
+                let color = 'bg-gray-100 text-gray-600';
+                let statusText = 'En attente';
+
+                if(status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
+                if(status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Terminé'; }
+                if(status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
+
                 const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
-                
-                // Sécurisation du titre (échappement des apostrophes)
                 const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
                 const safeImg = item.product ? item.product.image_url : '';
 
@@ -1645,7 +1679,7 @@ const { data: all } = await supabase
                     <div class="flex-1 text-center md:text-left">
                         <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
                         <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${statusText}</span>
                     </div>
                     <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
                         <i class="fa-solid fa-comments"></i> Chat & Fichiers
@@ -1653,7 +1687,7 @@ const { data: all } = await supabase
                 </div>`;
             });
         } else {
-            container.innerHTML = '<div class="p-10 text-center text-gray-500">Vous n\'avez pas encore passé de commande.</div>';
+            container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
         }
     }
 
