@@ -576,6 +576,127 @@
         </div>
     </div>
 
+<div id="seller-view" class="hidden flex h-screen bg-gray-50 dark:bg-black fixed inset-0 z-[9999] overflow-hidden">
+        
+        <div class="w-64 bg-white dark:bg-dark-900 border-r border-gray-100 dark:border-dark-800 flex flex-col hidden md:flex">
+            <div class="p-6 flex items-center gap-3">
+                <div class="w-8 h-8 bg-synapse text-black rounded flex items-center justify-center font-black text-xs">PRO</div>
+                <span class="font-bold text-lg tracking-tighter dark:text-white">ESPACE VENDEUR</span>
+            </div>
+            
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <p class="text-[10px] font-bold text-gray-400 uppercase px-4 mb-2">Gestion Boutique</p>
+                
+                <button onclick="switchSellerTab('overview')" class="seller-nav-btn w-full text-left px-4 py-3 rounded-xl bg-synapse text-black font-bold flex items-center gap-3 shadow-lg shadow-synapse/20">
+                    <i class="fa-solid fa-chart-line"></i> Vue d'ensemble
+                </button>
+                
+                <button onclick="switchSellerTab('products')" class="seller-nav-btn w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-800 font-medium flex items-center gap-3 transition">
+                    <i class="fa-solid fa-box"></i> Mes Produits
+                </button>
+                
+                <button onclick="switchSellerTab('orders')" class="seller-nav-btn w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-800 font-medium flex items-center gap-3 transition">
+                    <i class="fa-solid fa-truck-fast"></i> Commandes Reçues
+                </button>
+                
+                <p class="text-[10px] font-bold text-gray-400 uppercase px-4 mb-2 mt-6">Marketing & Finance</p>
+                
+                <button onclick="switchSellerTab('ads')" class="seller-nav-btn w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-800 font-medium flex items-center gap-3 transition">
+                    <i class="fa-solid fa-bullhorn text-yellow-500"></i> Publicités (Ads)
+                </button>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100 dark:border-dark-800">
+                <button onclick="window.goHome()" class="w-full text-left px-4 py-2 text-xs font-bold text-gray-400 hover:text-black dark:hover:text-white"><i class="fa-solid fa-arrow-left"></i> Quitter le mode Vendeur</button>
+            </div>
+        </div>
+
+        <div class="flex-1 flex flex-col overflow-hidden relative">
+            
+            <header class="h-16 bg-white dark:bg-dark-900 border-b border-gray-100 dark:border-dark-800 flex justify-between items-center px-6">
+                <div class="font-bold text-lg dark:text-white md:hidden">Menu Vendeur</div>
+                <div class="ml-auto flex items-center gap-6">
+                    <div class="text-right">
+                        <div id="seller-shop-name" class="font-bold text-sm dark:text-white">Ma Boutique</div>
+                        <div id="seller-wallet-balance" class="text-xs text-synapse font-black">Portefeuille: 0 DA</div>
+                    </div>
+                </div>
+            </header>
+
+            <main id="seller-content" class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-black">
+                
+                <div id="seller-view-overview" class="seller-section animate-fade-in-up space-y-6">
+                    <div class="bg-black rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl border border-gray-800">
+                        <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div>
+                                <p class="text-gray-400 text-xs uppercase font-bold mb-1">Chiffre d'affaires (Total)</p>
+                                <h2 class="text-4xl font-black text-synapse" id="seller-total-revenue">0 DA</h2>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-xs uppercase font-bold mb-1">Ventes ce mois</p>
+                                <h2 class="text-4xl font-black text-white" id="seller-month-sales">0</h2>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-xs uppercase font-bold mb-1">Portefeuille Pubs</p>
+                                <button onclick="switchSellerTab('ads')" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition">Recharger</button>
+                            </div>
+                        </div>
+                        <div class="absolute right-0 bottom-0 w-64 h-64 bg-synapse opacity-10 blur-[80px]"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 bg-white dark:bg-dark-900 p-6 rounded-2xl border border-gray-100 dark:border-dark-800">
+                            <h3 class="font-bold dark:text-white mb-4">Activité Récente</h3>
+                            <div id="seller-recent-activity" class="space-y-3 text-sm text-gray-500">Chargement...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="seller-view-products" class="seller-section hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-black dark:text-white">Inventaire</h2>
+                        <button onclick="document.getElementById('product-view').classList.remove('hidden'); document.getElementById('seller-view').classList.add('hidden');" class="bg-synapse text-black px-4 py-2 rounded-lg font-bold hover:bg-white transition">
+                            <i class="fa-solid fa-plus"></i> Ajouter Produit
+                        </button>
+                    </div>
+                    <div id="seller-products-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+
+                <div id="seller-view-orders" class="seller-section hidden space-y-6">
+                    <h2 class="text-2xl font-black dark:text-white">Commandes à expédier</h2>
+                    <div id="seller-orders-list" class="space-y-4"></div>
+                </div>
+
+                <div id="seller-view-ads" class="seller-section hidden space-y-6">
+                    <div class="bg-gray-900 rounded-2xl p-8 border border-gray-800">
+                        <h2 class="text-2xl font-black text-white mb-4">Manager Publicité</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="text-gray-400 text-xs font-bold block mb-2">Produit à booster</label>
+                                <select id="seller-ad-product" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-white mb-4"></select>
+                                
+                                <label class="text-gray-400 text-xs font-bold block mb-2">Audience cible</label>
+                                <input type="range" min="1000" max="50000" step="1000" class="w-full accent-synapse" oninput="updateAdPrice(this.value)">
+                                <div class="flex justify-between text-white font-bold mt-2">
+                                    <span id="ad-reach-txt">25 000 Personnes</span>
+                                    <span id="ad-price-txt" class="text-synapse">12 500 DA</span>
+                                </div>
+                                <button onclick="launchSellerAd()" class="w-full bg-synapse text-black font-black py-3 rounded-xl mt-6 hover:scale-[1.02] transition">LANCER LA PUB</button>
+                            </div>
+                            <div class="bg-black rounded-xl p-4 flex items-center justify-center border border-gray-800">
+                                <div class="text-center text-gray-500">
+                                    <i class="fa-solid fa-mobile-screen text-4xl mb-2"></i>
+                                    <p>Aperçu Mobile</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+    
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -1883,6 +2004,276 @@ const { data: all } = await supabase
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
+// ============================================================
+    // 👑 LOGIQUE COMPLÈTE DU COCKPIT VENDEUR (VISUALBOARD)
+    // ============================================================
+
+    // 1. OUVERTURE DE L'ESPACE VENDEUR
+    window.openSellerSpace = async function() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) {
+            alert("Connectez-vous pour accéder à votre boutique.");
+            return window.handleAccountClick(); // Ouvre la connexion
+        }
+
+        // Vérifier/Créer la boutique
+        let { data: store } = await supabase.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
+        
+        if(!store) {
+            // Cadeau de bienvenue : 5000 DA offerts
+            const { data: newStore, error } = await supabase.from('stores').insert([{ 
+                owner_id: user.id, 
+                name: "Boutique de " + (user.user_metadata.full_name || "Vendeur"),
+                wallet_balance: 5000 
+            }]).select().single();
+            
+            if(error) {
+                console.error(error);
+                return alert("Erreur lors de la création de la boutique.");
+            }
+            store = newStore;
+        }
+
+        // Mise à jour de l'interface
+        document.getElementById('seller-shop-name').innerText = store.name;
+        document.getElementById('seller-wallet-balance').innerText = "Solde: " + (store.wallet_balance || 0).toLocaleString() + " DA";
+        document.getElementById('seller-total-revenue').innerText = (store.wallet_balance || 0).toLocaleString() + " DA"; // Simulation revenue = solde pour l'exemple
+
+        // Afficher la vue Vendeur
+        document.getElementById('home-view').classList.add('hidden');
+        document.getElementById('dashboard-view').classList.add('hidden');
+        document.getElementById('seller-view').classList.remove('hidden');
+        
+        // Charger l'onglet par défaut
+        switchSellerTab('overview');
+    }
+
+    // 2. NAVIGATION ENTRE ONGLETS
+    window.switchSellerTab = function(tabName) {
+        // Cacher toutes les sections
+        document.querySelectorAll('.seller-section').forEach(el => el.classList.add('hidden'));
+        // Afficher la cible
+        const target = document.getElementById('seller-view-' + tabName);
+        if(target) target.classList.remove('hidden');
+
+        // Gérer le style des boutons (Gris -> Actif)
+        document.querySelectorAll('.seller-nav-btn').forEach(btn => {
+            btn.classList.remove('bg-synapse', 'text-black', 'shadow-lg');
+            btn.classList.add('text-gray-500');
+        });
+        
+        // Trouver le bouton cliqué (astuce via l'attribut onclick)
+        const activeBtn = document.querySelector(`button[onclick="switchSellerTab('${tabName}')"]`);
+        if(activeBtn) {
+            activeBtn.classList.remove('text-gray-500');
+            activeBtn.classList.add('bg-synapse', 'text-black', 'shadow-lg');
+        }
+
+        // Charger les données fraîches
+        if(tabName === 'overview') loadSellerOverview();
+        if(tabName === 'products') loadSellerProducts();
+        if(tabName === 'orders') loadSellerOrders();
+        if(tabName === 'ads') prepareSellerAds();
+    }
+
+    // 3. FONCTIONNALITÉS : PRODUITS
+    // A. Charger la liste
+    async function loadSellerProducts() {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+        
+        const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id).order('created_at', {ascending: false});
+        const container = document.getElementById('seller-products-list');
+        container.innerHTML = '';
+
+        if(products.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Aucun produit. Cliquez sur "Ajouter" !</div>';
+            return;
+        }
+
+        products.forEach(p => {
+            container.innerHTML += `
+            <div class="bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 rounded-xl p-4 flex gap-4 items-center shadow-sm hover:shadow-md transition">
+                <img src="${p.image_url}" class="w-20 h-20 rounded-lg object-cover bg-gray-50">
+                <div class="flex-1 min-w-0">
+                    <h4 class="font-bold dark:text-white truncate text-sm">${p.title}</h4>
+                    <div class="text-xs text-gray-500 mb-2">${p.price} DA • Stock: ${p.stock}</div>
+                    <div class="flex gap-2">
+                        <button onclick="boostProductShortcut('${p.id}')" class="text-[10px] bg-yellow-500/10 text-yellow-500 px-3 py-1.5 rounded font-bold hover:bg-yellow-500 hover:text-black transition flex items-center gap-1">
+                            <i class="fa-solid fa-rocket"></i> Booster
+                        </button>
+                        <button onclick="deleteProduct('${p.id}')" class="text-[10px] bg-red-500/10 text-red-500 px-3 py-1.5 rounded font-bold hover:bg-red-500 hover:text-white transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    // B. Supprimer un produit
+    window.deleteProduct = async function(id) {
+        if(confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) {
+            const { error } = await supabase.from('products').delete().eq('id', id);
+            if(error) alert("Erreur suppression: " + error.message);
+            else {
+                loadSellerProducts(); // Recharger la liste
+                alert("Produit supprimé !");
+            }
+        }
+    }
+
+    // C. Raccourci "Booster" depuis la liste
+    window.boostProductShortcut = function(id) {
+        switchSellerTab('ads'); // Aller dans l'onglet Pubs
+        // Attendre que l'onglet charge puis sélectionner le produit
+        setTimeout(() => {
+            const select = document.getElementById('seller-ad-product');
+            if(select) {
+                select.value = id;
+                // Animation visuelle pour montrer qu'il est sélectionné
+                select.classList.add('ring-2', 'ring-yellow-500');
+                setTimeout(() => select.classList.remove('ring-2', 'ring-yellow-500'), 1000);
+            }
+        }, 500);
+    }
+
+    // 4. FONCTIONNALITÉS : COMMANDES (GESTION)
+    async function loadSellerOrders() {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+
+        const { data: items } = await supabase
+            .from('order_items')
+            .select('*, order:orders(*), product:products(*)')
+            .eq('store_id', store.id)
+            .order('created_at', { ascending: false });
+
+        const container = document.getElementById('seller-orders-list');
+        container.innerHTML = '';
+
+        if(items && items.length > 0) {
+            items.forEach(item => {
+                const status = item.order ? item.order.status : 'En attente';
+                const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
+                
+                // Bouton d'action selon le statut
+                let actionBtn = '';
+                if(status === 'livre') {
+                    actionBtn = `<span class="text-green-500 text-xs font-bold"><i class="fa-solid fa-check"></i> Terminé</span>`;
+                } else {
+                    actionBtn = `<button onclick="openOrderChat('${item.order_id}', '${item.product.title.replace(/'/g, "\\'")}')" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-synapse hover:text-black transition">Gérer & Chat</button>`;
+                }
+
+                container.innerHTML += `
+                <div class="bg-white dark:bg-dark-900 border-l-4 border-synapse rounded-r-xl p-4 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 mb-2">
+                    <div class="flex items-center gap-4 w-full">
+                        <div class="bg-gray-100 p-3 rounded-lg"><i class="fa-solid fa-box text-gray-500"></i></div>
+                        <div>
+                            <div class="font-bold dark:text-white">Commande #${safeOrderId}</div>
+                            <div class="text-xs text-gray-500">${item.product.title} • <span class="font-bold text-synapse">${item.price} DA</span></div>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-auto text-right">
+                         ${actionBtn}
+                    </div>
+                </div>`;
+            });
+        } else {
+            container.innerHTML = '<div class="text-center text-gray-500 py-10">Aucune commande reçue pour le moment.</div>';
+        }
+    }
+
+    // 5. FONCTIONNALITÉS : PUBLICITÉS (ADS)
+    // A. Préparer le formulaire
+    window.prepareSellerAds = async function() {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+        
+        // Charger les produits dans le Select
+        const { data: products } = await supabase.from('products').select('id, title').eq('store_id', store.id);
+        const select = document.getElementById('seller-ad-product');
+        select.innerHTML = '';
+        products.forEach(p => {
+            select.innerHTML += `<option value="${p.id}">${p.title}</option>`;
+        });
+
+        // Mettre à jour les prix par défaut
+        updateAdPrice(document.querySelector('input[type="range"]').value);
+    }
+
+    // B. Mise à jour dynamique du prix (Slider)
+    window.updateAdPrice = function(val) {
+        document.getElementById('ad-reach-txt').innerText = parseInt(val).toLocaleString() + " Personnes";
+        // Formule : 0.5 DA par personne
+        document.getElementById('ad-price-txt').innerText = (val * 0.5).toLocaleString() + " DA";
+    }
+
+    // C. LANCER LA PUB (Le vrai code qui débit)
+    window.launchSellerAd = async function() {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: store } = await supabase.from('stores').select('id, wallet_balance').eq('owner_id', user.id).single();
+
+        const productId = document.getElementById('seller-ad-product').value;
+        const reach = document.querySelector('input[type="range"]').value; // Valeur du slider
+        const cost = reach * 0.5;
+
+        // 1. Vérifier le solde
+        if((store.wallet_balance || 0) < cost) {
+            return alert("Solde insuffisant (" + store.wallet_balance + " DA). Rechargez votre compte !");
+        }
+
+        if(!productId) return alert("Veuillez sélectionner un produit.");
+
+        if(confirm(`Confirmer la campagne pour ${cost} DA ?`)) {
+            // 2. Récupérer l'image du produit
+            const { data: prod } = await supabase.from('products').select('image_url, title').eq('id', productId).single();
+
+            // 3. Créer la Pub
+            const { error } = await supabase.from('ads').insert([{
+                store_id: store.id,
+                product_id: productId,
+                title: "Sponsorisé: " + prod.title,
+                image_url: prod.image_url,
+                placement: 'feed', // Dans le fil d'actu
+                status: 'active',
+                budget_daily: cost, // Pour l'historique
+                target_reach: reach
+            }]);
+
+            if(error) {
+                alert("Erreur technique : " + error.message);
+            } else {
+                // 4. Débiter le portefeuille
+                const newBalance = store.wallet_balance - cost;
+                await supabase.from('stores').update({ wallet_balance: newBalance }).eq('id', store.id);
+                
+                // 5. Feedback
+                document.getElementById('seller-wallet-balance').innerText = "Solde: " + newBalance.toLocaleString() + " DA";
+                alert("🚀 Publicité lancée avec succès ! Votre produit est maintenant mis en avant.");
+                switchSellerTab('overview'); // Retour au dashboard
+            }
+        }
+    }
+
+    // 6. GESTION DU MODAL "AJOUTER PRODUIT"
+    // (Au cas où tu aurais perdu le code du modal, ceci le force à s'ouvrir)
+    window.openAddProductModal = function() {
+        // On essaie d'ouvrir la modale existante
+        const modal = document.getElementById('product-modal'); // Assure-toi que ton ID HTML est bien 'product-modal'
+        if(modal) {
+            modal.classList.remove('hidden');
+        } else {
+            // Si le modal n'existe pas, on redirige vers l'ancien formulaire s'il existe
+            const oldForm = document.getElementById('seller-tab-products');
+            if(oldForm && !oldForm.classList.contains('hidden')) {
+                alert("Utilisez le formulaire ci-dessous pour ajouter un produit.");
+            } else {
+                alert("Erreur: Le formulaire d'ajout est introuvable. Vérifiez votre HTML.");
+            }
+        }
+    }
+        
         // Init
         fetchAllData();
 
