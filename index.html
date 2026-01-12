@@ -910,58 +910,69 @@
         }
 
         // --- GESTION VENDEUR ---
-        window.publishProduct = async function() {
-            const btn = document.getElementById('btn-publish');
-            btn.innerText = "Publication..."; btn.disabled = true;
+      // Remplacez toute la fonction window.publishProduct par celle-ci :
+    window.publishProduct = async function() {
+        const btn = document.getElementById('btn-publish');
+        // On récupère le bon ID (pluriel) défini dans votre nouveau HTML
+        const imageFiles = document.getElementById('prod-images').files;
+        const digitalFile = document.getElementById('prod-file').files[0];
 
+        if (imageFiles.length === 0) return alert("Ajoutez au moins une image !");
+        
+        btn.innerText = "Envoi..."; btn.disabled = true;
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Connectez-vous !");
+
+            // 1. Upload des images (Boucle)
+            let uploadedUrls = [];
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                const fileName = `${Date.now()}_${i}_${file.name.replace(/\s/g, '')}`;
+                await supabase.storage.from('products').upload(fileName, file);
+                const { data } = supabase.storage.from('products').getPublicUrl(fileName);
+                uploadedUrls.push(data.publicUrl);
+            }
+
+            // 2. Upload fichier numérique (Optionnel)
+            let digitalPath = null;
+            if(digitalFile) {
+                const fName = `secure_${Date.now()}_${digitalFile.name.replace(/\s/g, '')}`;
+                await supabase.storage.from('digital_vault').upload(fName, digitalFile);
+                digitalPath = fName;
+            }
+
+            // 3. Création boutique si n'existe pas
+            let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+            if (!store) { 
+                const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
+                store = data; 
+            }
+
+            // 4. Insert en base
             const title = document.getElementById('prod-title').value;
             const price = document.getElementById('prod-price').value;
             const stock = document.getElementById('prod-stock').value;
             const desc = document.getElementById('prod-desc').value;
             const category = document.getElementById('prod-category').value;
-            const file = document.getElementById('prod-image').files[0];
 
-            if (!title || !price) {
-                alert("Titre et prix obligatoires !");
-                btn.innerText = "Publier l'annonce"; btn.disabled = false;
-                return;
-            }
+            await supabase.from('products').insert([{
+                store_id: store.id, title, description: desc, price, stock, category,
+                image_url: uploadedUrls[0], // Image principale
+                images: uploadedUrls,       // Galerie complète
+                digital_file: digitalPath,
+                is_hot: false, is_boosted: false, sales: 0
+            }]);
 
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) return alert("Connectez-vous !");
-
-                let imageUrl = "https://pngimg.com/d/box_PNG120.png";
-                if(file) {
-                    const fileName = `${Date.now()}_${file.name.replace(/\s/g, '')}`;
-                    const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
-                    if(!uploadError) {
-                        const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-                        imageUrl = publicUrl.publicUrl;
-                    }
-                }
-
-                let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-                if (!store) {
-                    const { data: newStore } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single();
-                    store = newStore;
-                }
-
-                const { error: productError } = await supabase.from('products').insert([{
-                    store_id: store.id, title, description: desc, price, stock, category, image_url: imageUrl,
-                    is_hot: false, is_boosted: false, sales: 0 
-                }]);
-
-                if (productError) throw productError;
-
-                alert("Produit publié !");
-                window.goHome(); 
-                await fetchAllData(); 
-            } catch (err) {
-                alert("Erreur : " + err.message);
-                btn.innerText = "Publier l'annonce"; btn.disabled = false;
-            }
+            alert("Produit publié !");
+            window.goHome();
+        } catch (err) {
+            alert("Erreur : " + err.message);
+        } finally {
+            btn.innerText = "Publier"; btn.disabled = false;
         }
+    }
 
         window.loadSellerProducts = async function() {
             const list = document.getElementById('seller-products-list');
@@ -1128,7 +1139,13 @@
 
         // --- UI UTILS ---
         window.toggleTheme = () => document.documentElement.classList.toggle('dark');
-        window.hideAllViews = () => ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
+       // Remplacez votre ligne window.hideAllViews par ceci :
+    window.hideAllViews = () => {
+        ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden'); // La sécurité est ici
+        });
+    }
         window.goHome = () => { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchAllData(); window.scrollTo(0,0); }
         window.showAuth = () => { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
       window.showDashboard = async () => { 
@@ -1469,53 +1486,61 @@
             cancelUpload();
         } 
 
-       // --- 1. CORRECTION DU DASHBOARD (Fonction manquante) ---
-        window.loadBuyerOrders = async function() {
-            const container = document.getElementById('buyer-orders-container');
-            // Sécurité si l'élément n'existe pas dans le HTML
-            if(!container) return; 
+       window.loadBuyerOrders = async function() {
+        const container = document.getElementById('buyer-orders-container');
+        if(!container) return; // Sécurité si le HTML n'est pas prêt
 
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) {
-                container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous pour voir vos commandes.</div>';
-                return;
-            }
-
-            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
-
-            // Récupération des commandes
-            const { data: orders, error } = await supabase
-                .from('order_items')
-                .select('*, order:orders(*), product:products(*)')
-                .eq('order.user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if(error) {
-                console.error(error);
-                container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur de chargement.</div>';
-                return;
-            }
-
-            if(orders && orders.length > 0) {
-                container.innerHTML = '';
-                orders.forEach(item => {
-                    const status = item.order.status;
-                    let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
-                    
-                    container.innerHTML += `
-                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex gap-4 items-center mb-4">
-                        <img src="${item.product.image_url}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-sm text-black dark:text-white">${item.product.title}</h4>
-                            <div class="text-xs text-gray-500 mb-1">${item.price} DA</div>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
-                        </div>
-                    </div>`;
-                });
-            } else {
-                container.innerHTML = '<div class="p-10 text-center text-gray-500">Vous n\'avez pas encore de commandes.</div>';
-            }
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) {
+            container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous pour voir vos commandes.</div>';
+            return;
         }
+
+        container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
+
+        // Récupération des commandes
+        const { data: orders, error } = await supabase
+            .from('order_items')
+            .select('*, order:orders(*), product:products(*)')
+            .eq('order.user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if(error) {
+            console.error(error);
+            container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur de chargement.</div>';
+            return;
+        }
+
+        if(orders && orders.length > 0) {
+            container.innerHTML = '';
+            orders.forEach(item => {
+                const status = item.order ? item.order.status : 'Inconnu';
+                let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
+                
+                // 👇 LA CORRECTION EST ICI 👇
+                // On force l'ID à devenir du texte (String) avant de le couper (slice)
+                const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
+                
+                const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
+                const safeImg = item.product ? item.product.image_url : '';
+
+                container.innerHTML += `
+                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
+                    <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
+                    <div class="flex-1 text-center md:text-left">
+                        <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
+                        <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
+                    </div>
+                    <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-comments"></i> Chat & Fichiers
+                    </button>
+                </div>`;
+            });
+        } else {
+            container.innerHTML = '<div class="p-10 text-center text-gray-500">Vous n\'avez pas encore de commandes.</div>';
+        }
+    }
 
         // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
@@ -1600,19 +1625,18 @@
         
     }
 
-        // --- 1. PREVISUALISATION VENDEUR (Compteur) ---
-        window.previewMultipleImages = function(input) {
-            const count = input.files.length;
-            const text = document.getElementById('upload-text');
-            const badge = document.getElementById('preview-count');
-            
-            if(count > 0) {
-                if(count > 10) { alert("Maximum 10 photos !"); input.value = ""; return; }
-                text.innerText = count + " photo(s) sélectionnée(s)";
-                badge.innerText = count;
-                badge.classList.remove('hidden');
-            }
+       // Ajoutez cette fonction n'importe où dans votre script (ex: après les utils UI)
+    window.previewMultipleImages = function(input) {
+        const count = input.files ? input.files.length : 0;
+        const badge = document.getElementById('preview-count');
+        const text = document.getElementById('upload-text');
+        
+        if(count > 0 && badge) {
+            badge.innerText = count + " photos";
+            badge.classList.remove('hidden');
+            text.innerText = count + " fichiers prêts";
         }
+    }
 
         // --- 2. PUBLICATION PRODUIT (Support Multiple Images) ---
         window.publishProduct = async function() {
