@@ -2209,6 +2209,118 @@ const { data: all } = await supabase
         switchDashView('overview'); // Charger la vue par défaut
     }
 
+        // =========================================================
+    // 🔧 MOTEUR DU DASHBOARD "VISUALBOARD" (RÉPARÉ)
+    // =========================================================
+
+    // 1. DÉMARRAGE ET OUVERTURE
+    window.openSellerSpace = async function() {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if(!user) {
+            // Si pas connecté, on redirige vers le login
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            return;
+        }
+
+        // Vérifier si la boutique existe, sinon on la crée
+        let { data: store } = await supabase.from('stores').select('*').eq('owner_id', user.id).maybeSingle();
+        
+        if(!store) {
+            // Création automatique
+            const { data: newStore } = await supabase.from('stores').insert([{ 
+                owner_id: user.id, 
+                name: "Ma Boutique",
+                wallet_balance: 5000 
+            }]).select().single();
+            store = newStore;
+        }
+
+        // Afficher le Header
+        if(document.getElementById('seller-shop-name')) document.getElementById('seller-shop-name').innerText = store.name;
+        if(document.getElementById('seller-wallet-balance')) document.getElementById('seller-wallet-balance').innerText = (store.wallet_balance || 0) + " DA";
+
+        // BASCULER L'AFFICHAGE (Cacher le reste, Montrer le Vendeur)
+        document.getElementById('home-view').classList.add('hidden');
+        const oldDash = document.getElementById('dashboard-view');
+        if(oldDash) oldDash.classList.add('hidden'); // Cacher le vieux dash
+        
+        document.getElementById('seller-view').classList.remove('hidden'); // Afficher le nouveau
+        
+        // Lancer l'onglet par défaut
+        switchSellerTab('overview');
+    }
+
+    // 2. SYSTÈME D'ONGLETS (Navigation)
+    window.switchSellerTab = function(tabName) {
+        console.log("Changement onglet vers : " + tabName);
+        
+        // A. Cacher toutes les sections du vendeur
+        document.querySelectorAll('.seller-section').forEach(el => el.classList.add('hidden'));
+        
+        // B. Afficher la section demandée
+        const target = document.getElementById('seller-view-' + tabName);
+        if(target) {
+            target.classList.remove('hidden');
+        } else {
+            console.error("Section introuvable : seller-view-" + tabName);
+            return;
+        }
+
+        // C. Mettre à jour les boutons (Gris vs Couleur)
+        document.querySelectorAll('.seller-nav-btn').forEach(btn => {
+            btn.classList.remove('bg-synapse', 'text-black', 'shadow-lg');
+            btn.classList.add('text-gray-500');
+        });
+        
+        // Trouver le bouton cliqué pour l'allumer
+        // (On cherche n'importe quel bouton qui appelle cette fonction avec ce nom)
+        const activeBtns = document.querySelectorAll(`button[onclick*="'${tabName}'"]`);
+        activeBtns.forEach(btn => {
+             if(btn.classList.contains('seller-nav-btn')) {
+                 btn.classList.remove('text-gray-500');
+                 btn.classList.add('bg-synapse', 'text-black', 'shadow-lg');
+             }
+        });
+
+        // D. Charger les données (Analytics, Produits, etc.)
+        if(tabName === 'overview') loadSellerStatsSafe();
+        if(tabName === 'products') loadSellerProducts();
+        if(tabName === 'orders') loadSellerOrders();
+    }
+
+    // 3. CHARGEMENT ANALYTICS (Sécurisé pour ne pas planter)
+    async function loadSellerStatsSafe() {
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const { data: store } = await supabase.from('stores').select('id, wallet_balance').eq('owner_id', user.id).single();
+            
+            // Calculer le chiffre d'affaires réel
+            const { data: items } = await supabase.from('order_items').select('price').eq('store_id', store.id);
+            
+            let total = 0;
+            if(items) items.forEach(i => total += i.price);
+
+            // Mise à jour de l'affichage
+            if(document.getElementById('seller-total-revenue')) 
+                document.getElementById('seller-total-revenue').innerText = total.toLocaleString() + " DA";
+            
+            if(document.getElementById('seller-month-sales'))
+                document.getElementById('seller-month-sales').innerText = items ? items.length : 0;
+
+            // Charger l'activité récente
+            const activityDiv = document.getElementById('seller-recent-activity');
+            if(activityDiv) {
+                activityDiv.innerHTML = '<div class="text-xs text-gray-500">Tout est calme pour le moment.</div>';
+                // (Ici on pourrait charger les vraies commandes récentes)
+            }
+
+        } catch (e) {
+            console.error("Erreur Analytics:", e);
+        }
+    }
+        
         // Init
         fetchAllData();
 
