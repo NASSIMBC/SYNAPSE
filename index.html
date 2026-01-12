@@ -217,7 +217,7 @@
 
             <div class="lg:col-span-5 space-y-6">
                 <input type="hidden" id="detail-id">
-                <input type="hidden" id="detail-store-id">
+               <input type="hidden" id="detail-store-id">
                 <input type="hidden" id="detail-category-hidden"> 
                 <div>
                     <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white leading-tight mb-2">Titre Produit</h1>
@@ -1575,7 +1575,7 @@ const { data: all } = await supabase
             cancelUpload();
         } 
 
-      window.loadBuyerOrders = async function() {
+    window.loadBuyerOrders = async function() {
         const container = document.getElementById('buyer-orders-container');
         if(!container) return;
 
@@ -1594,7 +1594,6 @@ const { data: all } = await supabase
             .order('created_at', { ascending: false });
 
         if(error) {
-            console.error(error);
             container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur chargement.</div>';
             return;
         }
@@ -1605,8 +1604,8 @@ const { data: all } = await supabase
                 const status = item.order ? item.order.status : 'Inconnu';
                 let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
                 
-                // 👇 C'EST CETTE LIGNE QUI CORRIGE L'ERREUR 👇
-                // On ajoute String(...) pour convertir le chiffre en texte
+                // --- CORRECTION ICI ---
+                // On utilise String() pour être sûr que c'est du texte
                 const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
                 
                 const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
