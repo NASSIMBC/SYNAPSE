@@ -909,7 +909,6 @@
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
-      // --- FONCTION PUBLICATION CORRIGÉE (Nettoyage des noms de fichiers) ---
     window.publishProduct = async function() {
         const btn = document.getElementById('btn-publish');
         const imageFiles = document.getElementById('prod-images').files;
@@ -923,48 +922,49 @@
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Connectez-vous !");
 
-            // 1. Upload des images (Boucle avec NETTOYAGE)
+            // 1. Upload des images (Boucle)
             let uploadedUrls = [];
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
                 
-                // 👇 LE SECRET EST ICI : On enlève les accents et les caractères bizarres 👇
-                const cleanName = file.name
-                    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Enlève les accents (é -> e)
-                    .replace(/[^a-zA-Z0-9.-]/g, "_");                 // Remplace ( ) et autres par _
+                // --- METHODE NUCLÉAIRE ---
+                // On récupère juste l'extension (ex: .jpg)
+                const fileExt = file.name.split('.').pop();
+                // On crée un nom aléatoire (ex: 176823_0_a8z9e.jpg)
+                // Plus d'accents, plus de parenthèses, plus de problèmes.
+                const randomStr = Math.random().toString(36).substring(2, 10);
+                const fileName = `${Date.now()}_${i}_${randomStr}.${fileExt}`;
                 
-                const fileName = `${Date.now()}_${i}_${cleanName}`;
-                
-                // Envoi
                 const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
                 
                 if(upError) {
-                    console.error("Erreur upload:", upError);
-                    throw new Error("Erreur upload image: " + cleanName);
+                    console.error(upError);
+                    throw new Error("Erreur upload image. Réessayez.");
                 }
                 
                 const { data } = supabase.storage.from('products').getPublicUrl(fileName);
                 uploadedUrls.push(data.publicUrl);
             }
 
-            // 2. Upload fichier numérique (Avec nettoyage aussi)
+            // 2. Upload fichier numérique (Optionnel - Même protection)
             let digitalPath = null;
             if(digitalFile) {
-                const cleanFile = digitalFile.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9.-]/g, "_");
-                const fName = `secure_${Date.now()}_${cleanFile}`;
+                const ext = digitalFile.name.split('.').pop();
+                const randomStr = Math.random().toString(36).substring(2, 10);
+                const fName = `secure_${Date.now()}_${randomStr}.${ext}`;
                 
                 await supabase.storage.from('digital_vault').upload(fName, digitalFile);
                 digitalPath = fName;
             }
 
-            // 3. Création/Récupération boutique
+            // 3. Boutique
             let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
             if (!store) { 
                 const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
                 store = data; 
             }
 
-            // 4. Insertion en Base
+            // 4. Insertion
             const title = document.getElementById('prod-title').value;
             const price = document.getElementById('prod-price').value;
             const stock = document.getElementById('prod-stock').value;
@@ -973,13 +973,13 @@
 
             await supabase.from('products').insert([{
                 store_id: store.id, title, description: desc, price, stock, category,
-                image_url: uploadedUrls[0], // Image principale
-                images: uploadedUrls,       // Galerie
+                image_url: uploadedUrls[0], 
+                images: uploadedUrls,       
                 digital_file: digitalPath,
                 is_hot: false, is_boosted: false, sales: 0
             }]);
 
-            alert("✅ Produit publié avec succès !");
+            alert("✅ Produit publié !");
             window.goHome();
             await fetchAllData();
 
