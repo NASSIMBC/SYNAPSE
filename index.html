@@ -1192,7 +1192,15 @@
         window.hideAllViews = () => ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view'].forEach(id => document.getElementById(id).classList.add('hidden'));
         window.goHome = () => { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchAllData(); window.scrollTo(0,0); }
         window.showAuth = () => { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
-        window.showDashboard = () => { window.hideAllViews(); document.getElementById('dashboard-view').classList.remove('hidden'); loadProfile(); }
+      window.showDashboard = async () => { 
+            window.hideAllViews(); 
+            document.getElementById('dashboard-view').classList.remove('hidden'); 
+            
+            // CHARGEMENT DES DONNÉES
+            loadProfile(); 
+            // 👇 C'EST CETTE LIGNE QUI MANQUAIT POUR AFFICHER LES COMMANDES 👇
+            await loadBuyerOrders(); 
+        }
         window.showSellerDashboard = () => { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); loadSellerStats(); loadSellerOrders(); loadSellerProducts(); }
         window.showCheckout = () => { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); }
 
@@ -1366,20 +1374,32 @@
 
 // --- GESTION DES COMMANDES & CHAT INTELLIGENT ---
 
-        async function loadBuyerOrders() {
+      async function loadBuyerOrders() {
+            // On cible l'ID exact que vous avez mis dans le HTML
             const container = document.getElementById('buyer-orders-container');
+            
+            // Sécurité : si le HTML n'est pas encore chargé ou ID incorrect
+            if(!container) {
+                console.error("Erreur: Impossible de trouver la div 'buyer-orders-container'");
+                return;
+            }
+
             const { data: { user } } = await supabase.auth.getUser();
             if(!user) return;
 
-            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
+            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span><br><span class="text-xs text-gray-400">Récupération des commandes...</span></div>';
 
-            // On récupère les commandes (achat ou vente)
-            // Note: Pour simplifier la démo, on prend là où l'user est acheteur.
-            const { data: orders } = await supabase
+            // Récupération des commandes
+            const { data: orders, error } = await supabase
                 .from('order_items')
                 .select('*, order:orders(*), product:products(*)')
                 .eq('order.user_id', user.id)
                 .order('created_at', { ascending: false });
+
+            if(error) {
+                container.innerHTML = '<div class="text-red-500 text-center p-4">Erreur de connexion.</div>';
+                return;
+            }
 
             if(orders && orders.length > 0) {
                 container.innerHTML = '';
@@ -1391,6 +1411,9 @@
                     if(status === 'en_livraison') { statusColor = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
                     if(status === 'livre') { statusColor = 'bg-green-100 text-green-600'; statusText = 'Terminé'; }
 
+                    // On échappe les apostrophes pour le titre dans le onclick
+                    const safeTitle = item.product.title.replace(/'/g, "\\'");
+
                     container.innerHTML += `
                     <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center">
                         <img src="${item.product.image_url}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
@@ -1399,13 +1422,13 @@
                             <div class="text-xs text-gray-500 mb-1">Commande #${item.order_id.slice(0,8)} • ${item.price} DA</div>
                             <span class="text-[10px] font-bold px-2 py-1 rounded ${statusColor}">${statusText}</span>
                         </div>
-                        <button onclick="openOrderChat('${item.order_id}', '${item.product.title}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
+                        <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
                             <i class="fa-solid fa-comments"></i> Ouvrir Chat & Fichiers
                         </button>
                     </div>`;
                 });
             } else {
-                container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande trouvée.</div>';
+                container.innerHTML = '<div class="p-10 text-center text-gray-500 border border-dashed border-gray-300 rounded-xl">Vous n\'avez pas encore passé de commande.</div>';
             }
         }
 
