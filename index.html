@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
 
     <script>
         tailwind.config = {
@@ -99,7 +101,6 @@
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800 h-[600px] overflow-y-auto scrollbar-hide">
                         <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
                         <div class="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            
                             <details class="group">
                                 <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5"></i> Mode Femme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
                                 <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
@@ -108,7 +109,6 @@
                                     <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jeans Femme')">Jeans</li>
                                 </ul>
                             </details>
-
                             <details class="group">
                                 <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-shirt w-5"></i> Mode Homme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
                                 <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
@@ -117,7 +117,6 @@
                                     <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Pantalons')">Pantalons</li>
                                 </ul>
                             </details>
-
                             <details class="group">
                                 <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5"></i> Téléphonie</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
                                 <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
@@ -126,7 +125,6 @@
                                     <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires')">Accessoires</li>
                                 </ul>
                             </details>
-
                             <details class="group">
                                 <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5"></i> Ordi & Bureau</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
                                 <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
@@ -135,14 +133,9 @@
                                     <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Périphériques')">Claviers/Souris</li>
                                 </ul>
                             </details>
-
                             <li onclick="filterByCategory('Electronique')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-plug w-5"></i> Electronique</span></li>
-                            <li onclick="filterByCategory('Bijoux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gem w-5"></i> Bijoux & Montres</span></li>
                             <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
-                            <li onclick="filterByCategory('Sacs')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-bag-shopping w-5"></i> Sacs & Bagages</span></li>
-                            <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gamepad w-5"></i> Jouets & Loisirs</span></li>
-                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sports</span></li>
-                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
+                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sport</span></li>
                             <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-5"></i> Auto & Moto</span></li>
                         </div>
                     </div>
@@ -161,14 +154,14 @@
 
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
                     <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
+                        <div id="banner-bg" class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
                             <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
                         </div>
                         <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
-                            <div class="max-w-lg">
-                                <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
-                                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
-                                <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
+                            <div class="max-w-lg" id="banner-content">
+                                <span id="banner-tag" class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
+                                <h1 id="banner-title" class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
+                                <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Découvrir</button>
                             </div>
                         </div>
                     </div>
@@ -216,10 +209,10 @@
             <div class="lg:col-span-5 space-y-6">
                 <input type="hidden" id="detail-id">
                 <input type="hidden" id="detail-store-id">
-                <input type="hidden" id="detail-category-hidden"> <div>
+                <input type="hidden" id="detail-category-hidden"> 
+                <div>
                     <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white leading-tight mb-2">Titre Produit</h1>
-                    <div id="detail-sales-badge" class="inline-flex items-center gap-1 bg-gray-100 dark:bg-dark-800 px-2 py-1 rounded text-xs text-gray-500 font-bold">
-                        </div>
+                    <div id="detail-sales-badge" class="inline-flex items-center gap-1 bg-gray-100 dark:bg-dark-800 px-2 py-1 rounded text-xs text-gray-500 font-bold"></div>
                 </div>
 
                 <div class="bg-gray-50 dark:bg-dark-900 p-5 rounded-2xl border border-gray-100 dark:border-dark-800 flex justify-between items-center">
@@ -247,7 +240,7 @@
                         <div class="text-xs text-gray-400 uppercase font-bold">Vendu par</div>
                         <div id="detail-seller-name" class="font-bold text-black dark:text-white text-lg leading-none">Nom Boutique</div>
                     </div>
-                   <button id="btn-seller-profile" class="text-xs font-bold text-synapse hover:underline">Voir la boutique</button>
+                    <button id="btn-seller-profile" class="text-xs font-bold text-synapse hover:underline">Voir la boutique</button>
                 </div>
 
                 <div class="pt-4 border-t border-gray-100 dark:border-dark-800">
@@ -268,7 +261,6 @@
 
         <div class="mt-12 bg-gray-50 dark:bg-dark-900 rounded-2xl p-6 md:p-8">
             <h2 class="text-xl font-bold text-black dark:text-white mb-6">Avis & Questions</h2>
-            
             <div class="flex gap-4 mb-8">
                 <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-dark-700 flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-user"></i></div>
                 <div class="flex-1">
@@ -278,9 +270,7 @@
                     </div>
                 </div>
             </div>
-
-            <div id="comments-list" class="space-y-6">
-                </div>
+            <div id="comments-list" class="space-y-6"></div>
         </div>
     </div>
 
@@ -312,7 +302,6 @@
                     <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Mot de passe</label><input type="password" id="login-password" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
                     <button type="button" onclick="handleLogin()" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-black hover:text-synapse transition shadow-lg mt-2">SE CONNECTER</button>
                 </form>
-
                 <form id="form-signup" class="space-y-4 hidden">
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1">Prénom</label><input type="text" id="signup-firstname" class="w-full p-3 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg outline-none focus:border-synapse dark:text-white"></div>
@@ -326,103 +315,65 @@
         </div>
     </div>
 
-   <div id="dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+    <div id="dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
             <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
             <span class="text-black dark:text-white font-bold">Mon Profil & Commandes</span>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            
             <div class="col-span-1">
                 <div class="bg-white dark:bg-dark-900 rounded-xl p-6 border border-gray-100 dark:border-dark-800 text-center sticky top-24">
-                    <div class="w-20 h-20 rounded-full bg-synapse mx-auto flex items-center justify-center text-3xl font-black mb-4 text-black">
-                        <i class="fa-regular fa-user"></i>
-                    </div>
+                    <div class="w-20 h-20 rounded-full bg-synapse mx-auto flex items-center justify-center text-3xl font-black mb-4 text-black"><i class="fa-regular fa-user"></i></div>
                     <div class="space-y-4">
                         <input type="text" id="profile-name" placeholder="Nom Complet" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white font-bold">
                         <input type="text" id="profile-phone" placeholder="Téléphone" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
                         <input type="text" id="profile-wilaya" placeholder="Wilaya" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
                         <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2 hover:opacity-80 w-full">Sauvegarder</button>
                     </div>
-                    
                     <div class="mt-6 pt-6 border-t border-gray-100 dark:border-dark-800">
                          <h3 class="font-bold text-sm mb-3 dark:text-white flex items-center justify-center gap-2"><i class="fa-solid fa-bell"></i> Notifications</h3>
-                         <div id="my-messages-list" class="space-y-2 max-h-40 overflow-y-auto text-xs text-left">
-                            <div class="text-gray-400 text-center">Rien à signaler.</div>
-                        </div>
+                         <div id="my-messages-list" class="space-y-2 max-h-40 overflow-y-auto text-xs text-left"><div class="text-gray-400 text-center">Rien à signaler.</div></div>
                     </div>
                 </div>
             </div>
-
             <div class="col-span-1 md:col-span-3">
                 <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden min-h-[400px]">
                     <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white flex justify-between items-center">
                         <span>Historique & Suivi</span>
                         <button onclick="loadBuyerOrders()" class="text-xs text-synapse hover:underline"><i class="fa-solid fa-rotate"></i> Actualiser</button>
                     </div>
-                    
-                    <div id="buyer-orders-container" class="p-4 space-y-4">
-                        <div class="p-10 text-center text-gray-500">Chargement de vos commandes...</div>
-                    </div>
+                    <div id="buyer-orders-container" class="p-4 space-y-4"><div class="p-10 text-center text-gray-500">Chargement de vos commandes...</div></div>
                 </div>
             </div>
         </div>
-
+        
         <div id="chat-modal" class="hidden fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm">
             <div class="bg-white dark:bg-dark-900 w-full max-w-2xl h-[85vh] rounded-2xl flex flex-col shadow-2xl border border-gray-200 dark:border-dark-700 relative overflow-hidden">
-                
                 <div class="p-4 border-b border-gray-100 dark:border-dark-800 flex justify-between items-center bg-gray-50 dark:bg-black/40">
-                    <div>
-                        <h3 class="font-bold text-black dark:text-white flex items-center gap-2">
-                            <i class="fa-solid fa-shield-cat text-synapse"></i> Transaction Sécurisée
-                        </h3>
-                        <p class="text-[10px] text-gray-500">IA de surveillance active • Fichiers en quarantaine</p>
-                    </div>
-                    <button onclick="closeChat()" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-dark-700 hover:bg-red-500 hover:text-white transition flex items-center justify-center">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
+                    <div><h3 class="font-bold text-black dark:text-white flex items-center gap-2"><i class="fa-solid fa-shield-cat text-synapse"></i> Transaction Sécurisée</h3><p class="text-[10px] text-gray-500">IA de surveillance active • Fichiers en quarantaine</p></div>
+                    <button onclick="closeChat()" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-dark-700 hover:bg-red-500 hover:text-white transition flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-black/80 scrollbar-hide">
-                    </div>
-
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-black/80 scrollbar-hide"></div>
                 <div class="p-4 border-t border-gray-100 dark:border-dark-800 bg-white dark:bg-dark-900">
                     <div class="flex gap-2 mb-3 overflow-x-auto pb-2">
-                        <label class="cursor-pointer bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:opacity-80 transition whitespace-nowrap">
-                            <input type="file" id="chat-upload-product" class="hidden" onchange="prepareUpload('product')">
-                            <i class="fa-solid fa-gift"></i> Livrer Produit (Vendeur)
-                        </label>
-                        <label class="cursor-pointer bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:opacity-80 transition whitespace-nowrap">
-                            <input type="file" id="chat-upload-proof" class="hidden" onchange="prepareUpload('proof')">
-                            <i class="fa-solid fa-receipt"></i> Preuve Paiement (Acheteur)
-                        </label>
+                        <label class="cursor-pointer bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:opacity-80 transition whitespace-nowrap"><input type="file" id="chat-upload-product" class="hidden" onchange="prepareUpload('product')"><i class="fa-solid fa-gift"></i> Livrer Produit (Vendeur)</label>
+                        <label class="cursor-pointer bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-600 dark:text-green-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:opacity-80 transition whitespace-nowrap"><input type="file" id="chat-upload-proof" class="hidden" onchange="prepareUpload('proof')"><i class="fa-solid fa-receipt"></i> Preuve Paiement (Acheteur)</label>
                     </div>
-
                     <div id="upload-preview" class="hidden mb-2 p-2 bg-gray-100 dark:bg-dark-800 rounded-lg border border-synapse text-xs flex justify-between items-center dark:text-white">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-file-arrow-up text-synapse"></i>
-                            <span id="preview-name" class="font-bold">Fichier...</span>
-                            <span id="preview-type" class="text-[10px] bg-synapse text-black px-1 rounded">TYPE</span>
-                        </div>
+                        <div class="flex items-center gap-2"><i class="fa-solid fa-file-arrow-up text-synapse"></i><span id="preview-name" class="font-bold">Fichier...</span><span id="preview-type" class="text-[10px] bg-synapse text-black px-1 rounded">TYPE</span></div>
                         <button onclick="cancelUpload()" class="text-gray-500 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
                     </div>
-
                     <div class="flex gap-2">
                         <input type="text" id="chat-input" placeholder="Écrivez un message..." class="flex-1 bg-gray-100 dark:bg-dark-800 border border-transparent focus:border-synapse rounded-xl px-4 py-3 outline-none dark:text-white text-sm transition">
-                        <button onclick="sendChatMessage()" id="btn-send-chat" class="bg-synapse text-black w-12 rounded-xl font-bold hover:bg-black hover:text-synapse transition flex items-center justify-center shadow-lg shadow-synapse/20">
-                            <i class="fa-solid fa-paper-plane"></i>
-                        </button>
+                        <button onclick="sendChatMessage()" id="btn-send-chat" class="bg-synapse text-black w-12 rounded-xl font-bold hover:bg-black hover:text-synapse transition flex items-center justify-center shadow-lg shadow-synapse/20"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
-        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6"><span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i> <span class="text-black dark:text-white font-bold">Paiement sécurisé</span></div>
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 space-y-6">
                 <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
@@ -437,10 +388,7 @@
                     <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
                     <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
                         <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                        <div>
-                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
-                            <p class="text-xs text-gray-500">Payez en espèces à la réception.</p>
-                        </div>
+                        <div><h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4><p class="text-xs text-gray-500">Payez en espèces à la réception.</p></div>
                     </div>
                 </div>
             </div>
@@ -456,31 +404,17 @@
 
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-2 text-xs text-gray-500">
-                <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                <span class="text-synapse font-bold uppercase tracking-widest">Espace Vendeur</span>
-            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-500"><span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i> <span class="text-synapse font-bold uppercase tracking-widest">Espace Vendeur</span></div>
             <button onclick="showDashboard()" class="text-xs font-bold text-gray-500 hover:text-white">Retour au mode Acheteur</button>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
-                <div class="text-gray-400 text-xs font-bold uppercase">Produits en ligne</div>
-                <div class="text-2xl font-black text-white" id="stat-products">0</div>
-            </div>
-            <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
-                <div class="text-gray-400 text-xs font-bold uppercase">Chiffre d'affaires</div>
-                <div class="text-2xl font-black text-white text-synapse" id="stat-revenue">0 DA</div>
-            </div>
+            <div class="bg-dark-900 border border-gray-800 rounded-xl p-4"><div class="text-gray-400 text-xs font-bold uppercase">Produits en ligne</div><div class="text-2xl font-black text-white" id="stat-products">0</div></div>
+            <div class="bg-dark-900 border border-gray-800 rounded-xl p-4"><div class="text-gray-400 text-xs font-bold uppercase">Chiffre d'affaires</div><div class="text-2xl font-black text-white text-synapse" id="stat-revenue">0 DA</div></div>
         </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="col-span-1">
                 <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24">
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black"><i class="fa-solid fa-store"></i></div>
-                        <div><div class="font-bold text-white">Ma Boutique</div><div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div></div>
-                    </div>
+                    <div class="flex items-center gap-3 mb-8"><div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black"><i class="fa-solid fa-store"></i></div><div><div class="font-bold text-white">Ma Boutique</div><div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div></div></div>
                     <ul class="space-y-1 text-sm font-bold text-gray-400">
                         <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-synapse text-black"><i class="fa-solid fa-box-open"></i> Commandes</li>
                         <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
@@ -488,15 +422,11 @@
                     </ul>
                 </div>
             </div>
-
             <div class="col-span-1 lg:col-span-3 space-y-6">
                 <div id="seller-tab-orders" class="seller-tab-content">
                     <h2 class="text-2xl font-black text-white mb-6">Commandes à traiter</h2>
-                    <div id="seller-orders-list" class="space-y-4">
-                        <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement des commandes...</div>
-                    </div>
+                    <div id="seller-orders-list" class="space-y-4"><div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement des commandes...</div></div>
                 </div>
-
                 <div id="seller-tab-products" class="seller-tab-content hidden">
                     <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
@@ -504,25 +434,24 @@
                             <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
                                 <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(this)">
                                 <img id="image-preview" class="hidden h-full object-contain absolute inset-0 m-auto">
-                                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
-                                    <i class="fa-solid fa-cloud-arrow-up text-3xl mb-2"></i>
-                                    <span class="block text-xs font-bold">Cliquez pour uploader une image</span>
-                                </div>
+                                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none"><i class="fa-solid fa-cloud-arrow-up text-3xl mb-2"></i><span class="block text-xs font-bold">Cliquez pour uploader une image</span></div>
+                            </div>
+                            <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
+                                <label class="text-xs text-synapse font-bold uppercase mb-2 block"><i class="fa-solid fa-lock"></i> Fichier à vendre (Optionnel)</label>
+                                <input type="file" id="prod-file" class="text-xs text-gray-400 w-full">
+                                <p class="text-[10px] text-gray-500 mt-1">Fichier stocké dans le coffre-fort sécurisé.</p>
                             </div>
                             <input type="text" id="prod-title" placeholder="Titre" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
                             <div class="grid grid-cols-2 gap-4">
                                 <input type="number" id="prod-price" placeholder="Prix" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
                                 <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
                             </div>
-                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
-                                <option value="Tech">Tech</option><option value="Mode">Mode</option><option value="Maison">Maison</option><option value="Beauté">Beauté</option><option value="Sport">Sport</option><option value="Auto">Auto</option><option value="Jouets">Jouets</option>
-                            </select>
+                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400"><option value="Tech">Tech</option><option value="Mode">Mode</option><option value="Maison">Maison</option><option value="Beauté">Beauté</option><option value="Sport">Sport</option><option value="Auto">Auto</option><option value="Jouets">Jouets</option></select>
                             <textarea id="prod-desc" placeholder="Description..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
                             <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">Publier</button>
                         </div>
                     </div>
                 </div>
-
                 <div id="seller-tab-my-products" class="seller-tab-content hidden">
                     <h2 class="text-2xl font-black text-white mb-6">Mon Stock</h2>
                     <div id="seller-products-list" class="space-y-4"></div>
@@ -542,6 +471,12 @@
                     <input type="number" id="edit-prod-stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
                 </div>
                 <textarea id="edit-prod-desc" rows="3" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
+                
+                <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
+                    <label class="text-xs text-synapse font-bold uppercase mb-2 block"><i class="fa-solid fa-lock"></i> Mettre à jour le fichier</label>
+                    <input type="file" id="edit-prod-file" class="text-xs text-gray-400 w-full">
+                </div>
+
                 <div class="flex gap-2">
                     <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded-lg">Annuler</button>
                     <button onclick="saveProductChanges()" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg">Sauvegarder</button>
@@ -550,9 +485,8 @@
         </div>
     </div>
 
-   <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
+    <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
-        
         <div class="absolute right-0 top-0 h-full w-full md:w-[400px] bg-white dark:bg-dark-900 shadow-2xl transform transition-transform duration-300 translate-x-full z-50" id="cart-content">
             <div class="p-5 h-full flex flex-col">
                 <div class="flex items-center justify-between mb-6">
@@ -568,14 +502,10 @@
         </div>
     </div>
 
-   <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden lg:hidden">
         <div onclick="toggleMobileMenu()" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        
         <div class="absolute left-0 top-0 h-full w-[300px] bg-white dark:bg-dark-900 shadow-2xl p-6 transform transition-transform duration-300 -translate-x-full z-50" id="mobile-menu-content">
-            <div class="flex items-center justify-between mb-8">
-                <span class="text-2xl font-black dark:text-white tracking-tighter">SYNAPSE</span>
-                <button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-2xl dark:text-white"></i></button>
-            </div>
+            <div class="flex items-center justify-between mb-8"><span class="text-2xl font-black dark:text-white tracking-tighter">SYNAPSE</span><button onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark text-2xl dark:text-white"></i></button></div>
             <div class="mb-8">
                 <div class="flex items-center border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden bg-gray-50 dark:bg-dark-800 h-10">
                     <input type="text" id="mobile-search-input" onkeyup="if(event.key === 'Enter') handleSearchMobile()" placeholder="Rechercher..." class="w-full px-3 bg-transparent outline-none text-sm dark:text-white">
@@ -596,6 +526,7 @@
             <span class="font-bold text-sm">Action réussie !</span>
         </div>
     </div>
+
 
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
