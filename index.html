@@ -925,50 +925,56 @@
             });
         }
 
-       window.openDetail = async function(t, p, d, i, id, storeId, category) {
+     window.openDetail = async function(t, p, d, i, id, storeId, category) {
+            // 1. Remplissage des infos de base
             document.getElementById('detail-title').innerText = t;
             document.getElementById('detail-price').innerText = p + " DA";
             document.getElementById('detail-desc').innerText = d || "Pas de description.";
             document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
+            
+            // Remplissage des IDs cachés (TRES IMPORTANT POUR LE PANIER ET MESSAGES)
             document.getElementById('detail-id').value = id;
             document.getElementById('detail-category-hidden').value = category;
 
-            // Affichage des ventes
-            // On fait un fetch rapide pour avoir le chiffre exact à jour
+            // 2. Affichage des ventes (Compteur)
             const { data: prodData } = await supabase.from('products').select('sales').eq('id', id).single();
-            const sales = prodData ? prodData.sales : 0;
-            document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
+            const badge = document.getElementById('detail-sales-badge');
+            if(badge) badge.innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${prodData ? prodData.sales : 0} ventes`;
 
-          // Charger Infos Vendeur (CORRIGÉ & ACTIF)
+            // 3. GESTION DU VENDEUR (C'est la partie que vous cherchiez !)
             const btnSeller = document.getElementById('btn-seller-profile');
             
             if(storeId) {
                  const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
                  if(store) {
-                     document.getElementById('detail-store-id').value = store.owner_id;
+                     // ICI : On met l'ID du vendeur dans l'input caché pour pouvoir lui envoyer un message
+                     document.getElementById('detail-store-id').value = store.owner_id; 
                      document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
                      
-                     // ACTIVER LE CLIC SUR LE BOUTON
-                     btnSeller.style.display = 'block';
-                     btnSeller.onclick = function() { filterByStore(storeId); };
+                     // On active le bouton "Voir boutique"
+                     if(btnSeller) {
+                        btnSeller.style.display = 'block';
+                        btnSeller.onclick = function() { filterByStore(storeId); };
+                     }
                  }
             } else {
+                // Si pas de boutique (Vente par Synapse direct)
                 document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
-                btnSeller.style.display = 'none'; // On cache le bouton si c'est Synapse
+                if(btnSeller) btnSeller.style.display = 'none';
             }
 
-            // Charger Produits Similaires
+            // 4. Charger le reste (Similaires, Avis)
             loadSimilarProducts(category, id);
-
-            // Charger Commentaires
             loadComments(id);
 
+            // 5. Afficher la page
             window.hideAllViews();
             document.getElementById('product-view').classList.remove('hidden');
             window.scrollTo(0,0);
             
+            // Compteur de vues
             if(id) await supabase.rpc('increment_views', { row_id: id });
-        }
+        }}
 
         // --- GESTION VENDEUR ---
         window.publishProduct = async function() {
