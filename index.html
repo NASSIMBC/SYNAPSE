@@ -976,8 +976,9 @@
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
-   window.publishProduct = async function() {
-        console.log("🚀 Lancement de la publication (VERSION CORRIGÉE)"); // PREUVE QUE LE CODE EST À JOUR
+  window.publishProduct = async function() {
+        // 👇 CETTE ALERTE DOIT S'AFFICHER. SI NON = ANCIEN CODE
+        alert("📢 NOUVEAU CODE ACTIVÉ : Nettoyage du fichier en cours..."); 
 
         const btn = document.getElementById('btn-publish');
         const imageFiles = document.getElementById('prod-images').files;
@@ -996,19 +997,19 @@
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
                 
-                // --- RENOMMAGE FORCÉ ---
-                // On garde juste l'extension (jpg, png)
+                // --- RENOMMAGE FORCÉ (SÉCURITÉ MAXIMALE) ---
+                // On garde juste l'extension (ex: .jpg)
                 const fileExt = file.name.split('.').pop();
-                // On génère un nom 100% sûr (ex: img_123456789_55.jpg)
-                const safeName = `img_${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+                // On crée un nom aléatoire (ex: img_837482.jpg)
+                const safeName = `img_${Date.now()}_${Math.floor(Math.random() * 10000)}.${fileExt}`;
                 
-                console.log(`Transformation : ${file.name} -> ${safeName}`); // POUR VÉRIFIER DANS LA CONSOLE
+                console.log(`Ancien nom: ${file.name} -> Nouveau nom: ${safeName}`);
 
                 const { error: upError } = await supabase.storage.from('products').upload(safeName, file);
                 
                 if(upError) {
                     console.error("Erreur Supabase:", upError);
-                    throw new Error("Erreur upload. Vérifiez votre connexion.");
+                    throw new Error("Erreur upload. Vérifiez le nom du fichier.");
                 }
                 
                 const { data } = supabase.storage.from('products').getPublicUrl(safeName);
@@ -1019,7 +1020,7 @@
             let digitalPath = null;
             if(digitalFile) {
                 const ext = digitalFile.name.split('.').pop();
-                const safeName = `file_${Date.now()}_${Math.floor(Math.random() * 1000)}.${ext}`;
+                const safeName = `file_${Date.now()}_${Math.floor(Math.random() * 10000)}.${ext}`;
                 
                 await supabase.storage.from('digital_vault').upload(safeName, digitalFile);
                 digitalPath = safeName;
