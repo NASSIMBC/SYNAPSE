@@ -1601,6 +1601,7 @@ const { data: all } = await supabase
 
     window.loadBuyerOrders = async function() {
         const container = document.getElementById('buyer-orders-container');
+        // Sécurité : si l'élément n'existe pas (page non chargée), on arrête tout pour éviter le crash
         if(!container) return;
 
         const { data: { user } } = await supabase.auth.getUser();
@@ -1611,6 +1612,7 @@ const { data: all } = await supabase
 
         container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
 
+        // Récupération des commandes
         const { data: orders, error } = await supabase
             .from('order_items')
             .select('*, order:orders(*), product:products(*)')
@@ -1618,7 +1620,8 @@ const { data: all } = await supabase
             .order('created_at', { ascending: false });
 
         if(error) {
-            container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur chargement.</div>';
+            console.error("Erreur commandes:", error);
+            container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur de chargement.</div>';
             return;
         }
 
@@ -1628,10 +1631,11 @@ const { data: all } = await supabase
                 const status = item.order ? item.order.status : 'Inconnu';
                 let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
                 
-                // --- CORRECTION ICI ---
-                // On utilise String() pour être sûr que c'est du texte
+                // 👇 C'EST CETTE LIGNE EXACTEMENT QUI EMPÊCHE LE BUG 👇
+                // On utilise String() pour transformer le chiffre (15) en texte ("15")
                 const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
                 
+                // Sécurisation du titre (échappement des apostrophes)
                 const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
                 const safeImg = item.product ? item.product.image_url : '';
 
@@ -1649,7 +1653,7 @@ const { data: all } = await supabase
                 </div>`;
             });
         } else {
-            container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
+            container.innerHTML = '<div class="p-10 text-center text-gray-500">Vous n\'avez pas encore passé de commande.</div>';
         }
     }
 
