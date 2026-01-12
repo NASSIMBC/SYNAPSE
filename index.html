@@ -210,8 +210,63 @@
             <div class="lg:col-span-7">
                 <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 h-[400px] sticky top-24">
                     <img id="detail-img" src="" class="max-h-full object-contain drop-shadow-2xl hover:scale-105 transition duration-500">
+                  <div id="product-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span id="detail-category-crumb" class="text-gray-400">Produit</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-black dark:text-white font-bold">Détail</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-7">
+                <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 h-[400px] sticky top-24">
+                    <img id="detail-img" src="" class="max-h-full object-contain drop-shadow-2xl hover:scale-105 transition duration-500">
                 </div>
             </div>
+
+            <div class="lg:col-span-5 space-y-6">
+                <input type="hidden" id="detail-id">
+                <input type="hidden" id="detail-store-id">
+                <input type="hidden" id="detail-category-hidden"> <div>
+                    <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white leading-tight mb-2">Titre Produit</h1>
+                    <div id="detail-sales-badge" class="inline-flex items-center gap-1 bg-gray-100 dark:bg-dark-800 px-2 py-1 rounded text-xs text-gray-500 font-bold">
+                        </div>
+                </div>
+
+                <div class="bg-gray-50 dark:bg-dark-900 p-5 rounded-2xl border border-gray-100 dark:border-dark-800 flex justify-between items-center">
+                    <span id="detail-price" class="text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span>
+                    <div class="text-right">
+                        <div class="text-xs text-gray-400 line-through">Prix marché</div>
+                        <div class="text-xs text-green-600 font-bold">Meilleur prix</div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="flex-1 bg-synapse text-black font-bold py-4 rounded-xl hover:bg-white hover:shadow-lg transition uppercase tracking-wide transform active:scale-95">
+                        Ajouter au panier
+                    </button>
+                    <button onclick="openMessageModal()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-5 rounded-xl font-bold hover:bg-gray-200 transition">
+                        <i class="fa-regular fa-envelope text-xl"></i>
+                    </button>
+                </div>
+
+                <div class="border border-gray-200 dark:border-dark-800 rounded-xl p-4 flex items-center gap-4 bg-white dark:bg-black/20">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 flex items-center justify-center text-xl font-bold text-gray-600">
+                        <i class="fa-solid fa-store"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-xs text-gray-400 uppercase font-bold">Vendu par</div>
+                        <div id="detail-seller-name" class="font-bold text-black dark:text-white text-lg leading-none">Nom Boutique</div>
+                    </div>
+                   <button id="btn-seller-profile" class="text-xs font-bold text-synapse hover:underline">Voir la boutique</button>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold text-black dark:text-white mb-2">Description</h3>
+                    <p id="detail-desc" class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">...</p>
+                </div>
+            </div>
+        </div>
 
             <div class="lg:col-span-5 space-y-6">
                 <input type="hidden" id="detail-id">
@@ -496,40 +551,51 @@
                         <div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Chargement des commandes...</div>
                     </div>
                 </div>
-
-                <div id="seller-tab-products" class="seller-tab-content hidden">
-                    <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
-                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
-                        <div class="space-y-4">
-                            <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
-                                <input type="file" id="prod-image" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewImage(this)">
-                                <img id="image-preview" class="hidden h-full object-contain absolute inset-0 m-auto">
-                                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
-                                    <i class="fa-solid fa-cloud-arrow-up text-3xl mb-2"></i>
-                                    <span class="block text-xs font-bold">Cliquez pour uploader une image</span>
-                                </div>
-                            </div>
-                            <input type="text" id="prod-title" placeholder="Titre" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="number" id="prod-price" placeholder="Prix" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                                <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                            </div>
-                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
-                                <option value="Tech">Tech</option><option value="Mode">Mode</option><option value="Maison">Maison</option><option value="Beauté">Beauté</option><option value="Sport">Sport</option><option value="Auto">Auto</option><option value="Jouets">Jouets</option>
-                            </select>
-                            <textarea id="prod-desc" placeholder="Description..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
-                            <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">Publier</button>
-                        </div>
-                    </div>
+<div id="seller-tab-products" class="seller-tab-content hidden">
+    <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
+    <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
+        <div class="space-y-4">
+            
+            <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
+                <input type="file" id="prod-images" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewMultipleImages(this)">
+                
+                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
+                    <i class="fa-solid fa-images text-3xl mb-2"></i>
+                    <span class="block text-xs font-bold" id="upload-text">Cliquez pour ajouter jusqu'à 10 photos</span>
                 </div>
-
-                <div id="seller-tab-my-products" class="seller-tab-content hidden">
-                    <h2 class="text-2xl font-black text-white mb-6">Mon Stock</h2>
-                    <div id="seller-products-list" class="space-y-4"></div>
-                </div>
+                
+                <div id="preview-count" class="hidden absolute bottom-2 bg-synapse text-black text-xs font-bold px-2 py-1 rounded">0 photos</div>
             </div>
+
+            <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
+                <label class="text-xs text-synapse font-bold uppercase mb-2 block"><i class="fa-solid fa-lock"></i> Fichier à vendre (Optionnel)</label>
+                <input type="file" id="prod-file" class="text-xs text-gray-400 w-full">
+                <p class="text-[10px] text-gray-500 mt-1">Fichier stocké dans le coffre-fort sécurisé.</p>
+            </div>
+
+            <input type="text" id="prod-title" placeholder="Titre" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
+            
+            <div class="grid grid-cols-2 gap-4">
+                <input type="number" id="prod-price" placeholder="Prix" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
+                <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
+            </div>
+            
+            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
+                <option value="Tech">Tech</option>
+                <option value="Mode">Mode</option>
+                <option value="Maison">Maison</option>
+                <option value="Beauté">Beauté</option>
+                <option value="Sport">Sport</option>
+                <option value="Auto">Auto</option>
+                <option value="Jouets">Jouets</option>
+            </select>
+            
+            <textarea id="prod-desc" placeholder="Description..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
+            
+            <button onclick="publishProduct()" id="btn-publish" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition">Publier</button>
         </div>
     </div>
+</div>
 
     <div id="edit-modal" class="hidden fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
         <div class="bg-dark-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
@@ -1709,6 +1775,151 @@
                 document.getElementById('message-modal').classList.add('hidden'); // Fermer la modale
                 document.getElementById('msg-content').value = ""; // Vider le champ
             }
+        
+    }
+
+        // --- 1. PREVISUALISATION VENDEUR (Compteur) ---
+        window.previewMultipleImages = function(input) {
+            const count = input.files.length;
+            const text = document.getElementById('upload-text');
+            const badge = document.getElementById('preview-count');
+            
+            if(count > 0) {
+                if(count > 10) { alert("Maximum 10 photos !"); input.value = ""; return; }
+                text.innerText = count + " photo(s) sélectionnée(s)";
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+            }
+        }
+
+        // --- 2. PUBLICATION PRODUIT (Support Multiple Images) ---
+        window.publishProduct = async function() {
+            const btn = document.getElementById('btn-publish');
+            const title = document.getElementById('prod-title').value;
+            const price = document.getElementById('prod-price').value;
+            const stock = document.getElementById('prod-stock').value;
+            const desc = document.getElementById('prod-desc').value;
+            const category = document.getElementById('prod-category').value;
+            
+            // On récupère la liste des fichiers
+            const imageFiles = document.getElementById('prod-images').files;
+            const digitalFile = document.getElementById('prod-file').files[0];
+
+            if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
+            
+            btn.innerText = "Envoi des photos..."; btn.disabled = true;
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error("Connectez-vous !");
+
+                // A. Upload des images (Boucle)
+                let uploadedUrls = [];
+                for (let i = 0; i < imageFiles.length; i++) {
+                    const file = imageFiles[i];
+                    const fileName = `${Date.now()}_${i}_${file.name.replace(/\s/g, '')}`;
+                    
+                    const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
+                    if(upError) throw upError;
+                    
+                    const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
+                    uploadedUrls.push(publicUrl.publicUrl);
+                }
+
+                // B. Upload fichier digital (Optionnel)
+                let digitalPath = null;
+                if(digitalFile) {
+                    const fName = `secure_${Date.now()}_${digitalFile.name.replace(/\s/g, '')}`;
+                    await supabase.storage.from('digital_vault').upload(fName, digitalFile);
+                    digitalPath = fName;
+                }
+
+                // C. Récupérer ou créer boutique
+                let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+                if (!store) { 
+                    const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
+                    store = data; 
+                }
+
+                // D. Sauvegarde en base (On garde image_url pour la compatibilité, et on ajoute images pour la galerie)
+                await supabase.from('products').insert([{
+                    store_id: store.id,
+                    title, description: desc, price, stock, category,
+                    image_url: uploadedUrls[0], // La première image reste l'image principale
+                    images: uploadedUrls,       // On sauvegarde TOUTES les images ici
+                    digital_file: digitalPath,
+                    is_hot: false, is_boosted: false, sales: 0
+                }]);
+
+                alert("Produit publié avec " + uploadedUrls.length + " photos !");
+                window.goHome();
+                await fetchAllData();
+
+            } catch (err) {
+                alert("Erreur : " + err.message);
+            } finally {
+                btn.innerText = "Publier"; btn.disabled = false;
+            }
+        }
+
+        // --- 3. AFFICHAGE DETAIL (Galerie) ---
+        // Remplacez votre ancienne fonction openDetail par celle-ci
+        window.openDetail = async function(t, p, d, i, id, storeId, category) {
+            document.getElementById('detail-title').innerText = t;
+            document.getElementById('detail-price').innerText = p + " DA";
+            document.getElementById('detail-desc').innerText = d || "Pas de description.";
+            
+            // Image par défaut
+            const mainImg = document.getElementById('detail-img');
+            mainImg.src = i || "https://pngimg.com/d/box_PNG120.png";
+            
+            document.getElementById('detail-id').value = id;
+            document.getElementById('detail-category-hidden').value = category;
+
+            // --- GESTION GALERIE ---
+            const galleryContainer = document.getElementById('detail-gallery');
+            galleryContainer.innerHTML = ''; // Reset
+
+            // On récupère le tableau d'images depuis la base
+            const { data: product } = await supabase.from('products').select('images').eq('id', id).single();
+            
+            // S'il y a plusieurs images, on crée les miniatures
+            if(product && product.images && product.images.length > 0) {
+                product.images.forEach(imgUrl => {
+                    galleryContainer.innerHTML += `
+                    <img src="${imgUrl}" 
+                         onclick="document.getElementById('detail-img').src = '${imgUrl}'" 
+                         class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-synapse hover:scale-105 transition">
+                    `;
+                });
+            } else {
+                // Sinon on met juste l'image principale en miniature
+                galleryContainer.innerHTML = `<img src="${i}" class="w-20 h-20 object-cover rounded-lg border border-synapse cursor-pointer">`;
+            }
+
+            // --- GESTION VENDEUR ---
+            const btnSeller = document.getElementById('btn-seller-profile');
+            if(storeId) {
+                 const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
+                 if(store) {
+                     document.getElementById('detail-store-id').value = store.owner_id; 
+                     document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
+                     if(btnSeller) { btnSeller.style.display = 'block'; btnSeller.onclick = function() { filterByStore(storeId); }; }
+                 }
+            } else {
+                document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
+                if(btnSeller) btnSeller.style.display = 'none';
+            }
+
+            // Charger le reste
+            loadSimilarProducts(category, id);
+            loadComments(id);
+
+            window.hideAllViews();
+            document.getElementById('product-view').classList.remove('hidden');
+            window.scrollTo(0,0);
+            
+            if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
         // Init
