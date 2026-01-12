@@ -1883,6 +1883,33 @@ const { data: all } = await supabase
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
+// --- FONCTION D'EXPÉDITION (RÉPARATION) ---
+    
+    window.markOrderShipped = async function(orderId) {
+        // 1. Demander confirmation
+        if(!confirm("Confirmer l'expédition de cette commande ?")) return;
+
+        // 2. Mettre à jour la base de données
+        const { error } = await supabase
+            .from('orders')
+            .update({ status: 'expedie' }) // On change le statut
+            .eq('id', orderId);
+
+        if(error) {
+            console.error("Erreur:", error);
+            alert("Erreur lors de la mise à jour : " + error.message);
+        } else {
+            // 3. Succès !
+            alert("✅ Commande marquée comme expédiée !");
+            
+            // 4. Actualiser la liste pour voir le changement
+            // Si tu es sur l'espace vendeur :
+            if(typeof loadSellerOrders === 'function') loadSellerOrders();
+            // Si tu testes depuis l'espace client (cas rare) :
+            if(typeof loadBuyerOrders === 'function') loadBuyerOrders();
+        }
+    }
+        
         // Init
         fetchAllData();
 
