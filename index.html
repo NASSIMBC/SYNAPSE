@@ -317,167 +317,40 @@
         </div>
     </div>
 
-   <div id="dashboard-view" class="hidden flex h-screen bg-gray-50 dark:bg-black fixed inset-0 z-[50] overflow-hidden">
-        
-        <div class="w-64 bg-white dark:bg-dark-900 border-r border-gray-100 dark:border-dark-800 flex flex-col hidden md:flex">
-            <div class="p-6 flex items-center gap-3">
-                <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center font-black">S</div>
-                <span class="font-bold text-xl tracking-tighter">SYNAPSE</span>
-            </div>
-            
-            <nav class="flex-1 px-4 space-y-2 mt-4">
-                <p class="text-[10px] font-bold text-gray-400 uppercase px-4 mb-2">Général</p>
-                <button onclick="switchDashView('overview')" class="dash-btn w-full text-left px-4 py-3 rounded-xl bg-synapse text-black font-bold flex items-center gap-3 shadow-lg shadow-synapse/20">
-                    <i class="fa-solid fa-chart-pie"></i> Vue d'ensemble
-                </button>
-                <button onclick="switchDashView('products')" class="dash-btn w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-800 font-medium flex items-center gap-3 transition">
-                    <i class="fa-solid fa-box"></i> Mes Produits
-                </button>
-                <button onclick="switchDashView('orders')" class="dash-btn w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-800 font-medium flex items-center gap-3 transition">
-                    <i class="fa-solid fa-bag-shopping"></i> Commandes
-                </button>
-                
-                <p class="text-[10px] font-bold text-gray-400 uppercase px-4 mb-2 mt-6">Marketing</p>
-                <button onclick="switchDashView('ads')" class="dash-btn w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-dark-800 font-medium flex items-center gap-3 transition">
-                    <i class="fa-solid fa-rocket text-yellow-500"></i> Booster & Pubs
-                </button>
-            </nav>
-
-            <div class="p-4 border-t border-gray-100 dark:border-dark-800">
-                <button onclick="goHome()" class="w-full text-left px-4 py-2 text-xs font-bold text-gray-400 hover:text-black dark:hover:text-white"><i class="fa-solid fa-arrow-left"></i> Retour Site</button>
-            </div>
+    <div id="dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-black dark:text-white font-bold">Mon Profil & Commandes</span>
         </div>
-
-        <div class="flex-1 flex flex-col overflow-hidden relative">
-            
-            <header class="h-16 bg-white dark:bg-dark-900 border-b border-gray-100 dark:border-dark-800 flex justify-between items-center px-6">
-                <div class="md:hidden font-bold">Menu</div> <div class="ml-auto flex items-center gap-4">
-                    <div class="text-right hidden md:block">
-                        <div id="dash-username" class="font-bold text-sm dark:text-white">Utilisateur</div>
-                        <div id="dash-wallet" class="text-xs text-synapse font-black">Solde: 0 DA</div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="col-span-1">
+                <div class="bg-white dark:bg-dark-900 rounded-xl p-6 border border-gray-100 dark:border-dark-800 text-center sticky top-24">
+                    <div class="w-20 h-20 rounded-full bg-synapse mx-auto flex items-center justify-center text-3xl font-black mb-4 text-black"><i class="fa-regular fa-user"></i></div>
+                    <div class="space-y-4">
+                        <input type="text" id="profile-name" placeholder="Nom Complet" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white font-bold">
+                        <input type="text" id="profile-phone" placeholder="Téléphone" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
+                        <input type="text" id="profile-wilaya" placeholder="Wilaya" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
+                        <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2 hover:opacity-80 w-full">Sauvegarder</button>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-dark-700 overflow-hidden">
-                        <img src="https://ui-avatars.com/api/?name=User" id="dash-avatar" class="w-full h-full object-cover">
-                    </div>
-                </div>
-            </header>
-
-            <main id="dash-content" class="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-black">
-                
-                <div id="view-overview" class="dash-section animate-fade-in-up space-y-6">
-                    
-                    <div class="bg-gradient-to-r from-green-900 to-black rounded-3xl p-8 text-white relative overflow-hidden shadow-2xl">
-                        <div class="relative z-10 max-w-lg">
-                            <h1 class="text-3xl font-black mb-2">Bonjour, <span id="welcome-name">Chef</span> 👋</h1>
-                            <p class="opacity-80 mb-6">Voici ce qui se passe sur votre boutique cette semaine.</p>
-                            <button onclick="switchDashView('products')" class="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-synapse transition">Gérer mes produits</button>
-                        </div>
-                        <div class="absolute right-0 bottom-0 w-64 h-64 bg-synapse opacity-20 blur-[100px]"></div>
-                        <img src="https://cdn-icons-png.flaticon.com/512/3081/3081648.png" class="absolute -right-5 -bottom-10 w-64 h-64 object-contain opacity-50 md:opacity-100">
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 bg-white dark:bg-dark-900 p-6 rounded-2xl border border-gray-100 dark:border-dark-800">
-                            <div class="flex justify-between items-end mb-6">
-                                <div>
-                                    <h3 class="font-bold text-lg dark:text-white">Ventes & Revenus</h3>
-                                    <p class="text-xs text-gray-400">Évolution sur les 7 derniers jours</p>
-                                </div>
-                                <div class="text-right">
-                                    <div class="text-2xl font-black text-synapse" id="total-revenue-display">0 DA</div>
-                                    <div class="text-xs text-green-500 font-bold">+12% vs semaine passée</div>
-                                </div>
-                            </div>
-                            <div class="h-48 flex items-end justify-between gap-2" id="sales-chart-bars">
-                                <div class="w-full h-full flex items-center justify-center text-gray-500 text-xs">Chargement des données...</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white dark:bg-dark-900 p-6 rounded-2xl border border-gray-100 dark:border-dark-800 flex flex-col items-center justify-center relative">
-                            <h3 class="font-bold text-lg dark:text-white mb-6 w-full text-left">Performance</h3>
-                            
-                            <div class="w-40 h-40 rounded-full relative" style="background: conic-gradient(#ccff00 0% 70%, #ff4444 70% 85%, #333 85% 100%);">
-                                <div class="absolute inset-4 bg-white dark:bg-dark-900 rounded-full flex flex-col items-center justify-center">
-                                    <span class="text-2xl font-black dark:text-white" id="total-sales-count">0</span>
-                                    <span class="text-[10px] text-gray-400 uppercase font-bold">Ventes</span>
-                                </div>
-                            </div>
-
-                            <div class="flex w-full justify-between mt-6 text-xs font-bold">
-                                <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-synapse"></div> Vendu (70%)</div>
-                                <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-red-500"></div> Retour (15%)</div>
-                                <div class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-gray-700"></div> Stock (15%)</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-dark-900 p-6 rounded-2xl border border-gray-100 dark:border-dark-800">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-lg dark:text-white">🔥 Tendances du Marché (Top Ventes Globales)</h3>
-                            <button class="text-xs font-bold text-synapse">Voir tout</button>
-                        </div>
-                        <div class="space-y-4" id="market-top-products">
-                            </div>
-                    </div>
-                </div>
-
-                <div id="view-products" class="dash-section hidden space-y-6">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-2xl font-black dark:text-white">Mes Produits</h2>
-                        <button onclick="document.getElementById('file-upload-modal').classList.remove('hidden')" class="bg-synapse text-black px-4 py-2 rounded-lg font-bold text-sm hover:bg-white transition"><i class="fa-solid fa-plus"></i> Ajouter</button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="my-products-list">
-                        </div>
-                </div>
-
-                <div id="view-ads" class="dash-section hidden space-y-6">
-                    <div class="bg-gray-900 rounded-2xl p-8 border border-gray-800">
-                        <h2 class="text-2xl font-black text-white mb-2">🚀 Créer une Publicité</h2>
-                        <p class="text-gray-400 mb-6 text-sm">Choisissez un produit, définissez votre budget et touchez des milliers de clients.</p>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div class="space-y-6">
-                                <div>
-                                    <label class="text-xs uppercase font-bold text-gray-500 mb-2 block">1. Produit à promouvoir</label>
-                                    <select id="boost-product-select" class="w-full bg-black border border-gray-700 rounded-xl p-3 text-white outline-none focus:border-synapse"></select>
-                                </div>
-                                
-                                <div>
-                                    <label class="text-xs uppercase font-bold text-gray-500 mb-2 block">2. Portée estimée (Audience)</label>
-                                    <input type="range" id="boost-range" min="1000" max="50000" step="1000" value="5000" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-synapse">
-                                    <div class="flex justify-between mt-2 text-white font-bold">
-                                        <span id="reach-display">5 000 Personnes</span>
-                                        <span class="text-synapse" id="price-display">2 500 DA</span>
-                                    </div>
-                                </div>
-
-                                <button onclick="confirmBoost()" class="w-full bg-gradient-to-r from-synapse to-green-600 text-black font-black py-4 rounded-xl shadow-lg shadow-synapse/20 hover:scale-[1.02] transition">
-                                    PAYER & LANCER LA PUB 🚀
-                                </button>
-                            </div>
-
-                            <div class="bg-black rounded-xl p-4 border border-gray-800 flex items-center justify-center">
-                                <div class="w-64 bg-white rounded-lg overflow-hidden shadow-lg transform scale-90">
-                                    <div class="bg-gray-100 h-32 flex items-center justify-center overflow-hidden">
-                                        <img id="boost-preview-img" src="" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="p-3">
-                                        <div class="text-[10px] bg-gray-200 text-gray-600 px-1 rounded inline-block mb-1">Sponsorisé</div>
-                                        <div class="font-bold text-sm truncate" id="boost-preview-title">Votre Produit</div>
-                                        <div class="text-synapse font-black text-xs mt-1" id="boost-preview-price">0 DA</div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="mt-6 pt-6 border-t border-gray-100 dark:border-dark-800">
+                         <h3 class="font-bold text-sm mb-3 dark:text-white flex items-center justify-center gap-2"><i class="fa-solid fa-bell"></i> Notifications</h3>
+                         <div id="my-messages-list" class="space-y-2 max-h-40 overflow-y-auto text-xs text-left">
+                            <div class="text-gray-400 text-center">Rien à signaler.</div>
                         </div>
                     </div>
                 </div>
-
-                <div id="view-orders" class="dash-section hidden">
-                    <h2 class="text-2xl font-black dark:text-white mb-6">Historique des Commandes</h2>
-                    <div id="dashboard-orders-container" class="space-y-4"></div>
+            </div>
+            <div class="col-span-1 md:col-span-3">
+                <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden min-h-[400px]">
+                    <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white flex justify-between items-center">
+                        <span>Historique & Suivi</span>
+                        <button onclick="loadBuyerOrders()" class="text-xs text-synapse hover:underline"><i class="fa-solid fa-rotate"></i> Actualiser</button>
+                    </div>
+                    <div id="buyer-orders-container" class="p-4 space-y-4">
+                        <div class="p-10 text-center text-gray-500">Chargement de vos commandes...</div>
+                    </div>
                 </div>
-
-            </main>
+            </div>
         </div>
     </div>
 
@@ -2008,206 +1881,7 @@ const { data: all } = await supabase
             window.scrollTo(0,0);
             
             if(id) await supabase.rpc('increment_views', { row_id: id });
-        } 
-
-        // ============================================
-    // LOGIQUE DU NOUVEAU DASHBOARD "VISUALBOARD"
-    // ============================================
-
-    // 1. Navigation entre les onglets du dashboard
-    window.switchDashView = function(viewName) {
-        // Cacher toutes les sections
-        document.querySelectorAll('.dash-section').forEach(el => el.classList.add('hidden'));
-        // Afficher la cible
-        document.getElementById('view-' + viewName).classList.remove('hidden');
-        
-        // Mettre à jour les boutons actifs
-        document.querySelectorAll('.dash-btn').forEach(btn => {
-            btn.classList.remove('bg-synapse', 'text-black', 'shadow-lg');
-            btn.classList.add('text-gray-500');
-        });
-        
-        // Highlight du bouton cliqué (On triche un peu avec l'event click pour simplifier)
-        const activeBtn = document.querySelector(`button[onclick="switchDashView('${viewName}')"]`);
-        if(activeBtn) {
-            activeBtn.classList.remove('text-gray-500');
-            activeBtn.classList.add('bg-synapse', 'text-black', 'shadow-lg');
         }
-
-        if(viewName === 'overview') loadOverviewStats();
-        if(viewName === 'products') loadMyProductsDash();
-        if(viewName === 'ads') initAdsSystem();
-        if(viewName === 'orders') loadOrdersInDash();
-    }
-
-    // 2. Chargement des Stats Vue d'ensemble (Overview)
-    async function loadOverviewStats() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return;
-
-        // A. Récupérer le solde et infos user
-        const { data: store } = await supabase.from('stores').select('*').eq('owner_id', user.id).single();
-        if(store) {
-            document.getElementById('dash-username').innerText = store.name;
-            document.getElementById('welcome-name').innerText = store.name;
-            document.getElementById('dash-wallet').innerText = "Solde: " + (store.wallet_balance || 0).toLocaleString() + " DA";
-        }
-
-        // B. Générer un Graphique des Ventes (Fake Data basé sur le réel si possible, ici simulé pour l'exemple visuel)
-        // On va créer des barres aléatoires pour l'effet "VisualBoard"
-        const barsContainer = document.getElementById('sales-chart-bars');
-        barsContainer.innerHTML = '';
-        const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-        let totalRev = 0;
-        
-        days.forEach(day => {
-            const height = Math.floor(Math.random() * 80) + 20; // Hauteur entre 20% et 100%
-            totalRev += height * 100; // Simulation revenu
-            
-            barsContainer.innerHTML += `
-                <div class="flex flex-col items-center gap-2 h-full justify-end flex-1 group">
-                    <div class="w-full max-w-[30px] bg-gray-100 dark:bg-dark-800 rounded-t-lg relative h-full flex items-end overflow-hidden group-hover:bg-gray-200 transition">
-                        <div style="height: ${height}%" class="w-full bg-synapse relative group-hover:opacity-80 transition-all"></div>
-                    </div>
-                    <span class="text-[10px] text-gray-400 font-bold">${day}</span>
-                </div>`;
-        });
-        document.getElementById('total-revenue-display').innerText = totalRev.toLocaleString() + " DA";
-
-        // C. Charger les "Top Produits du Marché" (Global)
-        const { data: topProducts } = await supabase.from('products').select('*').order('sales', {ascending: false}).limit(3);
-        const marketContainer = document.getElementById('market-top-products');
-        marketContainer.innerHTML = '';
-        
-        topProducts.forEach((p, index) => {
-            marketContainer.innerHTML += `
-            <div class="flex items-center gap-4 p-3 hover:bg-gray-50 dark:hover:bg-dark-800 rounded-xl transition cursor-pointer" onclick="openDetail('${p.title}', '${p.price}', '${p.description}', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}')">
-                <div class="font-black text-gray-300 text-lg">0${index+1}</div>
-                <img src="${p.image_url}" class="w-12 h-12 rounded-lg object-cover bg-white">
-                <div class="flex-1">
-                    <div class="font-bold text-sm dark:text-white truncate">${p.title}</div>
-                    <div class="text-xs text-gray-500">${p.sales || 0} Ventes</div>
-                </div>
-                <div class="font-bold text-synapse text-sm">${p.price} DA</div>
-            </div>`;
-        });
-    }
-
-    // 3. Gestion des Produits (Avec bouton ROCKET BOOST)
-    async function loadMyProductsDash() {
-        const { data: { user } } = await supabase.auth.getUser();
-        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
-        if(!store) return;
-
-        const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id);
-        const container = document.getElementById('my-products-list');
-        container.innerHTML = '';
-
-        products.forEach(p => {
-            container.innerHTML += `
-            <div class="bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 rounded-xl p-4 flex flex-col gap-3">
-                <div class="flex items-start justify-between">
-                    <img src="${p.image_url}" class="w-16 h-16 rounded-lg object-cover bg-gray-50">
-                    <div class="text-right">
-                        <span class="block font-black text-synapse">${p.price} DA</span>
-                        <span class="text-[10px] text-gray-500">${p.sales} Ventes</span>
-                    </div>
-                </div>
-                <h3 class="font-bold text-sm dark:text-white truncate">${p.title}</h3>
-                
-                <div class="mt-auto pt-4 flex gap-2">
-                    <button onclick="switchDashView('ads'); selectProductForBoost('${p.id}')" class="flex-1 bg-black text-white py-2 rounded-lg text-xs font-bold hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-rocket text-yellow-500"></i> BOOSTER
-                    </button>
-                    <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-100 text-red-500 hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            </div>`;
-        });
-    }
-
-    // 4. Système de Pub "Facebook Style" (Slider & Calcul)
-    async function initAdsSystem() {
-        const { data: { user } } = await supabase.auth.getUser();
-        const { data: store } = await supabase.from('stores').select('id, wallet_balance').eq('owner_id', user.id).single();
-        
-        // Remplir le select
-        const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id);
-        const select = document.getElementById('boost-product-select');
-        select.innerHTML = '<option value="">Choisir un produit...</option>';
-        
-        products.forEach(p => {
-            select.innerHTML += `<option value="${p.id}" data-img="${p.image_url}" data-price="${p.price}">${p.title}</option>`;
-        });
-
-        // Event Listener pour le Slider
-        const range = document.getElementById('boost-range');
-        const reachDisplay = document.getElementById('reach-display');
-        const priceDisplay = document.getElementById('price-display');
-
-        range.oninput = function() {
-            const reach = this.value;
-            const price = reach * 0.5; // 0.5 DA par personne
-            reachDisplay.innerText = parseInt(reach).toLocaleString() + " Personnes";
-            priceDisplay.innerText = parseInt(price).toLocaleString() + " DA";
-        }
-
-        // Preview Image au changement de select
-        select.onchange = function() {
-            const opt = this.options[this.selectedIndex];
-            if(opt.value) {
-                document.getElementById('boost-preview-img').src = opt.getAttribute('data-img');
-                document.getElementById('boost-preview-title').innerText = opt.text;
-                document.getElementById('boost-preview-price').innerText = opt.getAttribute('data-price') + " DA";
-            }
-        }
-    }
-
-    // Helper pour pré-sélectionner un produit depuis l'onglet produits
-    window.selectProductForBoost = function(pid) {
-        setTimeout(() => {
-            const select = document.getElementById('boost-product-select');
-            select.value = pid;
-            select.dispatchEvent(new Event('change')); // Déclencher la preview
-        }, 500);
-    }
-
-    // Fonction Paiement et Lancement Pub
-    window.confirmBoost = async function() {
-        const pid = document.getElementById('boost-product-select').value;
-        const reach = document.getElementById('boost-range').value;
-        const price = reach * 0.5;
-
-        if(!pid) return alert("Sélectionnez un produit !");
-        
-        if(confirm(`Confirmer la campagne pour ${price} DA ?`)) {
-            // Ici, on insère dans la table ADS et on déduit du WALLET (Code SQL nécessaire activé en Etape 1)
-            // Simulation JS pour l'instant :
-            alert("🚀 Campagne lancée avec succès ! Votre produit sera vu par " + reach + " personnes.");
-            switchDashView('overview');
-        }
-    }
-
-    // Charge les commandes dans le nouveau design
-    window.loadOrdersInDash = async function() {
-        // On réutilise votre ancienne logique mais on l'injecte dans le conteneur #dashboard-orders-container
-        // J'appelle votre fonction existante :
-        if(typeof window.loadBuyerOrders === 'function') {
-            // Petit hack pour rediriger le container cible temporairement
-            const oldContainerId = 'buyer-orders-container'; 
-            // ... Votre fonction loadBuyerOrders doit être légèrement adaptée pour accepter un ID cible
-            // ou alors on laisse votre fonction écrire dans l'ancien ID s'il est présent dans le DOM.
-            // Pour faire simple ici :
-             document.getElementById('dashboard-orders-container').innerHTML = '<div class="text-center p-10 text-gray-500">Fonctionnalité commandes connectée.</div>';
-             // Idéalement, adaptez loadBuyerOrders pour cibler 'dashboard-orders-container'
-        }
-    }
-
-    // Modif finale pour l'ouverture du dashboard
-    const oldShowDashboard = window.showDashboard; // Sauvegarde
-    window.showDashboard = function() {
-        document.getElementById('dashboard-view').classList.remove('hidden');
-        switchDashView('overview'); // Charger la vue par défaut
-    }
 
         // Init
         fetchAllData();
