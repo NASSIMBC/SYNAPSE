@@ -1530,79 +1530,104 @@
             cancelUpload();
         } 
 
-        <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+       // --- 1. CORRECTION DU DASHBOARD (Fonction manquante) ---
+        window.loadBuyerOrders = async function() {
+            const container = document.getElementById('buyer-orders-container');
+            // Sécurité si l'élément n'existe pas dans le HTML
+            if(!container) return; 
 
-    // VOS CLÉS (Remplacez si nécessaire)
-    const supabaseUrl = 'https://qldsrpgfutqdjyxdelud.supabase.co'
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
-    const supabase = createClient(supabaseUrl, supabaseKey)
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) {
+                container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous pour voir vos commandes.</div>';
+                return;
+            }
 
-    // --- NAVIGATION ---
-    window.goHome = () => { document.getElementById('home-view').classList.remove('hidden'); document.getElementById('dashboard-view').classList.add('hidden'); document.getElementById('product-view').classList.add('hidden'); }
-    window.showDashboard = async () => { 
-        document.querySelectorAll('[id$="-view"]').forEach(el => el.classList.add('hidden'));
-        document.getElementById('dashboard-view').classList.remove('hidden'); 
-        await loadBuyerOrders(); // C'est la fonction qui manquait !
-    }
+            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
 
-    // --- FONCTION QUI MANQUAIT (Celle de l'erreur) ---
-    window.loadBuyerOrders = async function() {
-        const container = document.getElementById('buyer-orders-container');
-        if(!container) return;
-        
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) { container.innerHTML = '<div class="text-center p-10">Connectez-vous pour voir vos commandes.</div>'; return; }
+            // Récupération des commandes
+            const { data: orders, error } = await supabase
+                .from('order_items')
+                .select('*, order:orders(*), product:products(*)')
+                .eq('order.user_id', user.id)
+                .order('created_at', { ascending: false });
 
-        container.innerHTML = '<div class="text-center p-10"><span class="loader"></span> Chargement...</div>';
+            if(error) {
+                console.error(error);
+                container.innerHTML = '<div class="text-center p-10 text-red-500">Erreur de chargement.</div>';
+                return;
+            }
 
-        const { data: orders } = await supabase.from('order_items').select('*, order:orders(*), product:products(*)').eq('order.user_id', user.id);
-        
-        if(orders && orders.length > 0) {
-            container.innerHTML = '';
-            orders.forEach(item => {
-                container.innerHTML += `
-                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl mb-4 flex gap-4">
-                    <img src="${item.product.image_url}" class="w-16 h-16 rounded object-cover">
-                    <div>
-                        <div class="font-bold dark:text-white">${item.product.title}</div>
-                        <div class="text-sm text-gray-500">${item.price} DA - ${item.order.status}</div>
-                    </div>
-                </div>`;
-            });
-        } else {
-            container.innerHTML = '<div class="text-center p-10 text-gray-500">Aucune commande.</div>';
+            if(orders && orders.length > 0) {
+                container.innerHTML = '';
+                orders.forEach(item => {
+                    const status = item.order.status;
+                    let color = status === 'livre' ? 'text-green-600 bg-green-100' : 'text-gray-600 bg-gray-100';
+                    
+                    container.innerHTML += `
+                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex gap-4 items-center mb-4">
+                        <img src="${item.product.image_url}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-sm text-black dark:text-white">${item.product.title}</h4>
+                            <div class="text-xs text-gray-500 mb-1">${item.price} DA</div>
+                            <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                container.innerHTML = '<div class="p-10 text-center text-gray-500">Vous n\'avez pas encore de commandes.</div>';
+            }
         }
-    }
 
-    // --- FONCTION PUBLICATION SIMPLE ---
-    window.publishProduct = async function() { /* ... votre code existant ... */ }
-    
-    // --- FONCTION PANIER ---
-    window.myCart = [];
-    window.addToCart = function(t, p, i, id) { window.myCart.push({t,p,i,id}); alert("Ajouté !"); }
-    
-    // --- GESTION ERREUR 403 (Commande) ---
-    window.submitOrder = async function() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return alert("Connectez-vous !");
-        
-        // Création commande
-        const { data: order, error } = await supabase.from('orders').insert([{ 
-            user_id: user.id, 
-            total_amount: 0, 
-            status: 'en_attente' 
-        }]).select().single();
+        // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
+        // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
+        window.submitOrder = async function() {
+            if(window.myCart.length === 0) return alert("Panier vide !");
+            
+            const name = document.getElementById('checkout-name').value;
+            const phone = document.getElementById('checkout-phone').value;
+            const wilaya = document.getElementById('checkout-wilaya').value;
+            
+            if(!name || !phone || !wilaya) return alert("Veuillez remplir l'adresse.");
 
-        if(error) return alert("Erreur 403 : " + error.message); // C'est ici que ça bloquait
+            const { data: { user } } = await supabase.auth.getUser();
+            if(!user) return alert("Veuillez vous connecter !");
 
-        // Création items
-        // ... (votre logique d'items)
-        alert("Commande validée !");
-    }
+            let total = 0;
+            window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
 
-    // Initialisation
-    console.log("Système Synapse chargé.");
+            // Création de la commande
+            const { data: order, error: orderError } = await supabase.from('orders').insert([{
+                user_id: user.id, 
+                total_amount: total, 
+                shipping_address: `${name}, ${wilaya}, ${phone}`, 
+                status: 'en_attente'
+            }]).select().single();
+
+            if(orderError) {
+                // C'est ici que l'erreur 403 s'affiche si le SQL n'est pas fait
+                alert("Erreur commande (403): " + orderError.message + "\n\nATTENTION: Avez-vous exécuté le code SQL dans Supabase ?");
+                return;
+            }
+
+            // Ajout des articles
+            const orderItems = window.myCart.map(item => ({
+                order_id: order.id, 
+                product_id: item.id, 
+                price: parseInt(item.price.replace(/\D/g, '')) || 0, 
+                quantity: 1
+            }));
+
+            const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
+            
+            if(itemsError) {
+                alert("Erreur détails commande: " + itemsError.message);
+            } else {
+                alert("✅ Commande validée avec succès !");
+                window.myCart = [];
+                updateCartUI();
+                window.goHome();
+            }
+        }
 
         // Init
         fetchAllData();
