@@ -1468,37 +1468,33 @@ const { data: all } = await supabase
     }
 }
 
-     // Fonction Mise à Jour Commande (Connectée à la base de données)
-    window.updateOrderItemStatus = async function(itemId, newStatus) {
-        
-        // 1. Feedback visuel immédiat (pour que le vendeur sache qu'il a cliqué)
-        showToast("⏳ Mise à jour en cours...");
+   window.updateOrderItemStatus = async function(itemId, newStatus) {
+    showToast("⏳ Mise à jour...");
 
-        // 2. Appel de la fonction SQL sécurisée (RPC)
-        const { error } = await supabase.rpc('update_item_status', {
-            p_item_id: itemId,
-            p_new_status: newStatus
-        });
+    try {
+        const { error } = await supabase
+            .from('order_items')
+            .update({ status: newStatus })
+            .eq('id', itemId);
 
         if (error) {
-            console.error("Erreur RPC:", error);
-            alert("Erreur lors de la mise à jour : " + error.message);
-        } else {
-            // 3. Succès !
-            if (newStatus === 'en_livraison') {
-                showToast("🚚 Colis marqué comme expédié !");
-            } else if (newStatus === 'livre') {
-                showToast("💰 Colis livré ! Argent ajouté à votre CA.");
-            } else if (newStatus === 'annule') {
-                showToast("❌ Commande annulée.");
-            }
-
-            // 4. On rafraîchit la liste pour voir les changements (boutons grisés, etc.)
-            await loadSellerOrders();
-            // On met à jour le chiffre d'affaires affiché en haut
-            await loadSellerStats();
+            console.error("Erreur Supabase:", error);
+            alert("Erreur : " + error.message + "\n(Vérifiez vos politiques RLS)");
+            return;
         }
+
+        // Succès
+        showToast("✅ Statut mis à jour : " + newStatus);
+        
+        // Rafraîchir les données sans recharger la page
+        if(typeof loadSellerOrders === 'function') loadSellerOrders();
+        if(typeof loadSellerStats === 'function') loadSellerStats();
+
+    } catch (err) {
+        console.error("Erreur critique:", err);
+        alert("Une erreur est survenue lors de la mise à jour.");
     }
+}
 
         async function loadSellerStats() {
              const { data: { user } } = await supabase.auth.getUser();
