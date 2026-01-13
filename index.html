@@ -97,172 +97,84 @@
 
     <div id="home-view" class="block transition-opacity duration-300">
         <div class="container mx-auto px-4 mt-6">
-            <div class="grid grid-cols-12 gap-6">
+    <div class="grid grid-cols-12 gap-6 relative">
+        
+        <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide pr-2">
+            
+            <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800 mb-6">
+                <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
                 
                 <div class="space-y-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    
+                    <details class="group">
+                        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5 text-center"></i> Téléphones</span>
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </summary>
+                        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+                            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones neufs')">Smartphones neufs</li>
+                            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones occasion')">Smartphones d'occasion</li>
+                            </ul>
+                    </details>
 
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5 text-center"></i> Téléphones</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones neufs')">Smartphones neufs</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones occasion')">Smartphones d'occasion</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Coques & protections')">Coques & protections</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chargeurs & câbles')">Chargeurs & câbles</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Écouteurs & casques')">Écouteurs & casques</li>
-        </ul>
-    </details>
+                    <li onclick="filterByCategory('Electronique')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+                        <i class="fa-solid fa-plug w-5 text-center"></i> Electronique
+                    </li>
 
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5 text-center"></i> Informatique</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Ordinateurs portables')">PC Portables</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('PC de bureau')">PC de bureau</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Tablettes')">Tablettes</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Composants PC')">Composants (RAM, GPU...)</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Périphériques')">Claviers & Souris</li>
-        </ul>
-    </details>
-
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-gamepad w-5 text-center"></i> Gaming</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Consoles')">Consoles</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Jeux vidéo')">Jeux vidéo</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Accessoires gaming')">Accessoires</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('PC gamer')">PC Gamer</li>
-        </ul>
-    </details>
-
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-user-tie w-5 text-center"></i> Mode Homme</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vêtements Homme')">Vêtements</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chaussures Homme')">Chaussures</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Montres')">Montres</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Accessoires Homme')">Accessoires</li>
-        </ul>
-    </details>
-
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5 text-center"></i> Mode Femme</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vêtements Femme')">Vêtements</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chaussures Femme')">Chaussures</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Sacs')">Sacs à main</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Bijoux')">Bijoux</li>
-        </ul>
-    </details>
-
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-couch w-5 text-center"></i> Maison & Déco</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Meubles')">Meubles</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Décoration')">Décoration</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Électroménager')">Électroménager</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Cuisine')">Cuisine</li>
-        </ul>
-    </details>
-
-    <details class="group">
-        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-            <span class="flex items-center gap-2"><i class="fa-solid fa-car w-5 text-center"></i> Véhicules</span>
-            <i class="fa-solid fa-chevron-down text-[10px]"></i>
-        </summary>
-        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Voitures')">Voitures</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Motos')">Motos</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Pièces Auto')">Pièces détachées</li>
-            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vélos')">Vélos & Trottinettes</li>
-        </ul>
-    </details>
-
-    <li onclick="filterByCategory('Beauté & Santé')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i> Beauté & Santé
-    </li>
-
-    <li onclick="filterByCategory('Sports & Loisirs')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-        <i class="fa-solid fa-person-running w-5 text-center"></i> Sports & Loisirs
-    </li>
-
-    <li onclick="filterByCategory('Livres & Éducation')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-        <i class="fa-solid fa-book w-5 text-center"></i> Livres & Éducation
-    </li>
-
-    <li onclick="filterByCategory('Services')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
-        <i class="fa-solid fa-handshake w-5 text-center"></i> Services
-    </li>
-
-</div>
-
-                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                        <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Filtrer par Prix (Max)</h3>
-                        <div class="mb-4">
-                            <input type="range" id="price-slider" min="0" max="50000000" step="1000" value="50000000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" oninput="updatePriceLabel(this.value)" onchange="applyPriceFilter(this.value)">
-                            <div class="flex justify-between text-xs mt-2 text-gray-500">
-                                <span>0 DA</span>
-                                <span id="price-value">50000k DA</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+            </div>
 
-                <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                    <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
-                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
-                            <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-                        </div>
-                        <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
-                            <div class="max-w-lg">
-                                <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
-                                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
-                                <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="boosted-section" class="hidden mb-8">
-                        <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Produits Boostés</h2>
-                        <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                    </div>
-
-                    <div id="recommended-section" class="hidden mb-8">
-                         <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-thumbs-up text-blue-500"></i> Recommandé pour vous</h2>
-                         <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-                    </div>
-
-                    <div id="hot-section-container">
-                        <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot 100+)</h2>
-                        <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[100px] mb-8"></div>
-                    </div>
-
-                    <h2 id="main-grid-title" class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
-                    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[200px]">
-                        <div class="col-span-full text-center py-10 text-gray-500">
-                            <span class="loader mr-2"></span> Chargement des produits...
-                        </div>
+            <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
+                <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Filtrer par Prix (Max)</h3>
+                <div class="mb-4">
+                    <input type="range" id="price-slider" min="0" max="50000000" step="1000" value="50000000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" oninput="updatePriceLabel(this.value)" onchange="applyPriceFilter(this.value)">
+                    <div class="flex justify-between text-xs mt-2 text-gray-500">
+                        <span>0 DA</span>
+                        <span id="price-value">50000k DA</span>
                     </div>
                 </div>
             </div>
+
+        </div> 
+        <div class="col-span-12 lg:col-span-9 xl:col-span-10">
+            
+            <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
+                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                </div>
+                <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
+                    <div class="max-w-lg">
+                        <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
+                        <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
+                        <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="boosted-section" class="hidden mb-8">
+                <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Produits Boostés</h2>
+                <div id="boosted-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <div id="recommended-section" class="hidden mb-8">
+                 <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-thumbs-up text-blue-500"></i> Recommandé pour vous</h2>
+                 <div id="recommended-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+            </div>
+
+            <div id="hot-section-container">
+                <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-fire text-synapse"></i> Les Plus Populaires (Hot 100+)</h2>
+                <div id="hot-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[100px] mb-8"></div>
+            </div>
+
+            <h2 id="main-grid-title" class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
+            <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[200px]">
+                <div class="col-span-full text-center py-10 text-gray-500">
+                    <span class="loader mr-2"></span> Chargement des produits...
+                </div>
+            </div>
         </div>
-    </div>
+        </div>
+</div>
 
 <div id="wishlist-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
