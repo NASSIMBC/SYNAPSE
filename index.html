@@ -754,7 +754,7 @@
             </div>
         </div>
     </footer>
-    
+
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -2189,29 +2189,51 @@ const { data: all } = await supabase
         }
     }
 
-// --- GESTION WISHLIST ---
-    window.toggleWishlist = async function(productId, btnElement) {
+window.toggleWishlist = async function(productId, btnElement) {
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) return alert("Connectez-vous pour ajouter aux favoris !");
 
+        // 👇 CORRECTION : On s'assure que c'est bien un nombre
+        const safeId = parseInt(productId); 
+        
         // On vérifie si c'est déjà en favoris
-        const { data: existing } = await supabase.from('wishlist').select('id').eq('user_id', user.id).eq('product_id', productId).maybeSingle();
+        const { data: existing } = await supabase
+            .from('wishlist')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('product_id', safeId) // Utiliser safeId
+            .maybeSingle();
 
         const icon = btnElement.querySelector('i');
 
         if(existing) {
             // Supprimer
-            await supabase.from('wishlist').delete().eq('id', existing.id);
+            const { error } = await supabase.from('wishlist').delete().eq('id', existing.id);
+            if(error) {
+                console.error("Erreur suppression:", error);
+                return alert("Erreur lors du retrait.");
+            }
+            
             icon.classList.remove('fa-solid', 'text-red-500');
             icon.classList.add('fa-regular', 'text-gray-400');
             showToast("Retiré des favoris.");
-            // Si on est sur la page wishlist, on recharge pour faire disparaitre l'article
+            
+            // Rafraichir si on est sur la page wishlist
             if(!document.getElementById('wishlist-view').classList.contains('hidden')) loadWishlist();
         } else {
             // Ajouter
-            await supabase.from('wishlist').insert([{ user_id: user.id, product_id: productId }]);
+            const { error } = await supabase.from('wishlist').insert([{ 
+                user_id: user.id, 
+                product_id: safeId // Utiliser safeId ici aussi
+            }]);
+
+            if(error) {
+                console.error("Erreur ajout:", error);
+                return alert("Impossible d'ajouter : " + error.message);
+            }
+
             icon.classList.remove('fa-regular', 'text-gray-400');
-            icon.classList.add('fa-solid', 'text-red-500', 'animate-bounce'); // Petit effet visuel
+            icon.classList.add('fa-solid', 'text-red-500', 'animate-bounce');
             showToast("❤️ Ajouté aux favoris !");
         }
     }
