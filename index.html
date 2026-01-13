@@ -41,7 +41,7 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 dark:bg-dark-950 dark:text-gray-200 flex flex-col min-h-screen">
- 
+
     <div class="bg-dark-950 text-gray-400 text-xs py-2 hidden md:block border-b border-gray-800 dark:border-dark-800">
         <div class="container mx-auto px-4 flex justify-between items-center">
             <div class="flex space-x-6">
@@ -664,21 +664,22 @@
 
             <div class="p-4 bg-white dark:bg-black border-t border-gray-100 dark:border-dark-800 shrink-0">
                 <div class="flex gap-2 items-center">
-                    <div class="relative group">
-                        <button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 hover:bg-synapse hover:text-black transition flex items-center justify-center text-gray-500">
-                            <i class="fa-solid fa-paperclip"></i>
-                        </button>
-                        <div class="absolute bottom-12 left-0 bg-white dark:bg-dark-800 shadow-xl rounded-xl p-2 w-48 hidden group-hover:block border border-gray-200 dark:border-dark-700">
-                            <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer">
-                                <i class="fa-solid fa-gift text-purple-500"></i> <span class="text-xs font-bold dark:text-white">Envoyer Produit</span>
-                                <input type="file" class="hidden" id="chat-upload-product" onchange="prepareUpload('product')">
-                            </label>
-                            <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer">
-                                <i class="fa-solid fa-receipt text-blue-500"></i> <span class="text-xs font-bold dark:text-white">Preuve Paiement</span>
-                                <input type="file" class="hidden" id="chat-upload-proof" onchange="prepareUpload('proof')">
-                            </label>
-                        </div>
-                    </div>
+                 <div class="relative">
+    <button onclick="toggleAttachMenu()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 hover:bg-synapse hover:text-black transition flex items-center justify-center text-gray-500">
+        <i class="fa-solid fa-paperclip"></i>
+    </button>
+
+    <div id="attach-menu" class="absolute bottom-12 left-0 bg-white dark:bg-dark-800 shadow-xl rounded-xl p-2 w-48 hidden border border-gray-200 dark:border-dark-700 z-50">
+        <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer" onclick="toggleAttachMenu()">
+            <i class="fa-solid fa-gift text-purple-500"></i> <span class="text-xs font-bold dark:text-white">Envoyer Produit</span>
+            <input type="file" class="hidden" id="chat-upload-product" onchange="prepareUpload('product')">
+        </label>
+        <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer" onclick="toggleAttachMenu()">
+            <i class="fa-solid fa-receipt text-blue-500"></i> <span class="text-xs font-bold dark:text-white">Preuve Paiement</span>
+            <input type="file" class="hidden" id="chat-upload-proof" onchange="prepareUpload('proof')">
+        </label>
+    </div>
+</div>
 
                     <input type="text" id="chat-input" placeholder="Écrivez votre message..." class="flex-1 bg-gray-50 dark:bg-dark-800 border-none rounded-full px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-synapse dark:text-white" onkeypress="if(event.key === 'Enter') sendChatMessage()">
                     
@@ -2683,6 +2684,13 @@ window.closeChat = function() {
     document.getElementById('chat-modal').classList.add('hidden');
     if(chatSubscription) supabase.removeChannel(chatSubscription); // On coupe la connexion
     currentChatContext = null;
+}
+
+// Fonction pour ouvrir/fermer le menu des pièces jointes
+window.toggleAttachMenu = function() {
+    const menu = document.getElementById('attach-menu');
+    // Si le menu est caché, on l'affiche. Sinon on le cache.
+    menu.classList.toggle('hidden');
 }
 
     </script>
