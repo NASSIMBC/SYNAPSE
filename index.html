@@ -259,9 +259,9 @@
                 </div>
                 
                 <div class="flex gap-2">
-    <button onclick="toggleWishlist('${p.id}', this); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center text-gray-400">
-        <i class="fa-regular fa-heart"></i>
-    </button>
+  <button id="detail-wishlist-btn" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center text-gray-400">
+    <i class="fa-regular fa-heart"></i>
+</button>
     <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center">
         <i class="fa-solid fa-plus"></i>
     </button>
@@ -2079,7 +2079,7 @@ const { data: all } = await supabase
         }
     }
 
-      window.openDetail = async function(t, p, d, i, id, storeId, category) {
+    window.openDetail = async function(t, p, d, i, id, storeId, category) {
         // 1. Remplir les textes
         document.getElementById('detail-title').innerText = t;
         document.getElementById('detail-price').innerText = p + " DA";
@@ -2093,19 +2093,38 @@ const { data: all } = await supabase
         document.getElementById('detail-id').value = id;
         document.getElementById('detail-category-hidden').value = category;
 
+        // 👇👇👇 AJOUT VITAL 1 : CORRECTION DES BOUTONS 👇👇👇
+        // On connecte dynamiquement les boutons au produit actuel pour éviter l'erreur "null"
+        
+        // 1. Bouton Wishlist
+        const wishBtn = document.getElementById('detail-wishlist-btn');
+        if(wishBtn) {
+            wishBtn.setAttribute('onclick', `toggleWishlist('${id}', this); event.stopPropagation()`);
+            // On le remet en gris par défaut (en attendant la vérification)
+            const icon = wishBtn.querySelector('i');
+            if(icon) icon.className = "fa-regular fa-heart"; 
+        }
+
+        // 2. Bouton Panier
+        const cartBtn = document.getElementById('detail-cart-btn');
+        if(cartBtn) {
+            const safeTitle = t.replace(/'/g, "\\'"); // Sécurité pour les titres avec apostrophes
+            cartBtn.setAttribute('onclick', `addToCart('${safeTitle}', '${p}', '${i}', '${id}'); event.stopPropagation()`);
+        }
+        // 👆👆👆 FIN AJOUT 1 👆👆👆
+
+
         // --- GESTION GALERIE ---
         const galleryContainer = document.getElementById('detail-gallery');
         galleryContainer.innerHTML = '<div class="text-xs text-gray-400">Chargement...</div>';
 
         try {
-            // On récupère les infos fraiches
             const { data: product, error } = await supabase
                 .from('products')
                 .select('images, sales') 
                 .eq('id', id)
                 .single();
 
-            // S'il y a une erreur technique
             if (error) throw error;
 
             // Mise à jour des ventes
@@ -2113,23 +2132,16 @@ const { data: all } = await supabase
             document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
 
             // Construction de la galerie
-            galleryContainer.innerHTML = ''; // On efface le message de chargement
-
-            // On prépare la liste des images (Sécurité anti-bug)
+            galleryContainer.innerHTML = ''; 
             let imagesList = [];
             
-            // Si la galerie existe dans la base, on la prend
             if (product && product.images && product.images.length > 0) {
                 imagesList = product.images;
-            } 
-            // Sinon, on met l'image principale par défaut
-            else {
+            } else {
                 imagesList = [i]; 
             }
 
-            // Affichage des vignettes
             imagesList.forEach(imgUrl => {
-                // On vérifie que l'URL n'est pas vide
                 if(imgUrl) {
                     galleryContainer.innerHTML += `
                     <img src="${imgUrl}" 
@@ -2141,10 +2153,7 @@ const { data: all } = await supabase
 
         } catch (err) {
             console.error("Erreur galerie:", err);
-            // En cas d'erreur, on affiche juste l'image principale
-            galleryContainer.innerHTML = `
-            <img src="${i}" class="w-20 h-20 object-cover rounded-lg border border-red-200 cursor-pointer">
-            `;
+            galleryContainer.innerHTML = `<img src="${i}" class="w-20 h-20 object-cover rounded-lg border border-red-200 cursor-pointer">`;
         }
 
         // --- GESTION VENDEUR ---
@@ -2164,28 +2173,37 @@ const { data: all } = await supabase
             if(btnSeller) btnSeller.style.display = 'none';
         }
 
-        // --- NAVIGATION ---
+        // --- NAVIGATION & COMMENTAIRES ---
         loadSimilarProducts(category, id);
         loadComments(id);
 
+        // Affichage de la vue
         window.hideAllViews();
         document.getElementById('product-view').classList.remove('hidden');
         window.scrollTo(0,0);
         
+        // Compteur de vues
         if(id) await supabase.rpc('increment_views', { row_id: id });
-    }
 
-        // Affiche le nombre de photos choisies
-    window.previewMultipleImages = function(input) {
-        const count = input.files ? input.files.length : 0;
-        const badge = document.getElementById('preview-count');
-        const text = document.getElementById('upload-text');
-        
-        if(count > 0 && badge) {
-            badge.innerText = count + " photos";
-            badge.classList.remove('hidden');
-            text.innerText = count + " fichiers prêts";
-            text.classList.add('text-synapse');
+        // 👇👇👇 AJOUT VITAL 2 : VÉRIFICATION DU COEUR ROUGE 👇👇👇
+        const { data: { user } } = await supabase.auth.getUser();
+        if(user && wishBtn) {
+            // On demande à la base de données : "Est-ce que ce produit est dans ma liste ?"
+            const { data: existing } = await supabase
+                .from('wishlist')
+                .select('id')
+                .eq('user_id', user.id)
+                .eq('product_id', id)
+                .maybeSingle();
+
+            const icon = wishBtn.querySelector('i');
+            if(existing) {
+                // OUI : Coeur Rouge
+                icon.className = "fa-solid fa-heart text-red-500";
+            } else {
+                // NON : Coeur Gris
+                icon.className = "fa-regular fa-heart text-gray-400";
+            }
         }
     }
 
