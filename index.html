@@ -2076,95 +2076,82 @@ const { data: all } = await supabase
  window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
     
-    // --- FIX CRITIQUE : DETECTION DES PHOTOS ---
-    // On vérifie d'abord notre liste de gestion (window.productFiles) 
-    // Sinon on regarde l'input direct au cas où
-    let imageFiles = [];
-    if (window.productFiles && window.productFiles.length > 0) {
-        imageFiles = window.productFiles;
-    } else {
-        const input = document.getElementById('prod-images');
-        imageFiles = input.files ? Array.from(input.files) : [];
-    }
+    // Récupération des images (depuis la liste globale ou l'input)
+    let imageFiles = (window.productFiles && window.productFiles.length > 0) 
+        ? window.productFiles 
+        : Array.from(document.getElementById('prod-images').files || []);
+
+    if (imageFiles.length === 0) return alert("⚠️ Mettez au moins une photo !");
 
     const title = document.getElementById('prod-title').value;
     const price = document.getElementById('prod-price').value;
-    const stock = document.getElementById('prod-stock').value;
-    const desc = document.getElementById('prod-desc').value;
     const category = document.getElementById('prod-category').value;
-    const digitalFile = document.getElementById('prod-file').files[0];
 
-    // Vérification réelle
-    if (imageFiles.length === 0) {
-        return alert("⚠️ Le site ne détecte aucune photo. Veuillez en sélectionner à nouveau.");
-    }
+    if (!title || !price || !category) return alert("⚠️ Remplissez tous les champs.");
     
-    if (imageFiles.length > 15) {
-        return alert(`⚠️ Trop de photos ! (${imageFiles.length}). Le maximum autorisé est de 15.`);
-    }
-
-    if (!title || !price) return alert("Remplissez le titre et le prix.");
-    
-    btn.innerText = "Envoi en cours..."; 
+    btn.innerText = "Envoi..."; 
     btn.disabled = true;
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Veuillez vous connecter !");
+        if (!user) throw new Error("Veuillez vous connecter.");
 
+        // 1. GESTION DE LA BOUTIQUE
+        let { data: store, error: storeError } = await supabase
+            .from('stores')
+            .select('id')
+            .eq('owner_id', user.id)
+            .maybeSingle();
+
+        if (!store) { 
+            // Tentative de création
+            const { data: newStore, error: createError } = await supabase
+                .from('stores')
+                .insert([{ 
+                    owner_id: user.id, 
+                    name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") 
+                }])
+                .select()
+                .single();
+
+            if (createError) {
+                console.error("Erreur creation boutique:", createError);
+                throw new Error("Action bloquée (403) : Vérifiez vos politiques RLS Supabase sur la table 'stores'.");
+            }
+            store = newStore; 
+        }
+
+        // 2. UPLOAD DES IMAGES
         let uploadedUrls = [];
-        
-        // Boucle d'upload sur imageFiles
         for (let i = 0; i < imageFiles.length; i++) {
             const file = imageFiles[i];
             const fileName = `img_${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-            
             const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
             if(upError) throw upError;
-            
             const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
             uploadedUrls.push(publicUrl.publicUrl);
         }
 
-        let digitalPath = null;
-        if(digitalFile) {
-            const fName = `secure_${Date.now()}_${digitalFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-            await supabase.storage.from('digital_vault').upload(fName, digitalFile);
-            digitalPath = fName;
-        }
-
-        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-        if (!store) { 
-            const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }]).select().single(); 
-            store = data; 
-        }
-
-        await supabase.from('products').insert([{
-            store_id: store.id,
-            title: title,
-            description: desc,
-            price: price,
-            stock: stock,
-            category: category,
+        // 3. INSERTION DU PRODUIT
+        const { error: prodError } = await supabase.from('products').insert([{
+            store_id: store.id, // Ici, store n'est plus null, ou alors l'erreur a été levée avant
+            title,
+            description: document.getElementById('prod-desc').value,
+            price: parseInt(price),
+            stock: parseInt(document.getElementById('prod-stock').value || 1),
+            category,
             image_url: uploadedUrls[0],
-            images: uploadedUrls,
-            digital_file: digitalPath,
-            is_hot: false, 
-            is_boosted: false, 
-            sales: 0
+            images: uploadedUrls
         }]);
 
-        alert(`✅ Produit publié avec succès (${uploadedUrls.length} photos) !`);
-        
-        // --- RESET APRES RÉUSSITE ---
-        window.productFiles = []; 
-        document.getElementById('prod-images').value = "";
-        if(document.getElementById('preview-grid')) document.getElementById('preview-grid').innerHTML = "";
+        if (prodError) throw prodError;
+
+        alert("✅ Produit publié avec succès !");
         window.goHome();
 
     } catch (err) {
-        console.error(err);
-        alert("Erreur lors de la publication : " + err.message);
+        console.error("Crash évité :", err);
+        alert("Erreur : " + err.message);
     } finally {
         btn.innerText = "Publier"; 
         btn.disabled = false;
