@@ -207,14 +207,12 @@
         <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
             <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> 
             <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Mes coups de cœur</span>
+            <span class="text-black dark:text-white font-bold">Mes Favoris</span>
         </div>
         <h1 class="text-2xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
             <i class="fa-solid fa-heart text-red-500"></i> Ma Wishlist
         </h1>
-        <div id="wishlist-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div class="col-span-full text-center py-20 text-gray-400">Chargement...</div>
-        </div>
+        <div id="wishlist-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
     </div>
 
    <div id="product-view" class="hidden container mx-auto px-4 mt-24 mb-12 animate-fade-in-up">
@@ -440,45 +438,34 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div class="col-span-1">
-               <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24 overflow-hidden relative group">
-    
-    <div class="absolute inset-0 bg-gray-800 z-0">
-        <img id="seller-bg-preview" src="" class="w-full h-full object-cover opacity-50 hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black"></div>
-    </div>
+          <div class="col-span-1">
+    <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24 overflow-hidden relative group">
+        
+        <div class="absolute inset-0 z-0">
+            <img id="seller-bg-preview" src="" class="w-full h-full object-cover opacity-50 hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black"></div>
+        </div>
 
-    <div class="relative z-10">
-        <div class="flex flex-col items-center mb-6">
-            <div class="relative w-20 h-20 mb-3 cursor-pointer group-hover:scale-105 transition" onclick="document.getElementById('upload-logo').click()">
+        <div class="relative z-10 flex flex-col items-center mb-6">
+            <div class="relative w-20 h-20 mb-3 cursor-pointer hover:scale-105 transition" onclick="document.getElementById('upload-logo').click()">
                 <img id="seller-logo-preview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-full h-full object-cover rounded-full border-2 border-synapse bg-black">
-                <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition text-xs text-white font-bold">Changer</div>
+                <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition text-[10px] text-white font-bold">CHANGER</div>
             </div>
-            <div class="font-bold text-white text-lg text-center">Ma Boutique</div>
-            <button onclick="document.getElementById('upload-banner').click()" class="text-[10px] text-gray-400 hover:text-white underline mt-1">Changer la bannière</button>
             
+            <div class="font-bold text-white text-lg">Ma Boutique</div>
+            <button onclick="document.getElementById('upload-banner').click()" class="text-[10px] text-gray-400 hover:text-white underline mt-1">Changer bannière</button>
+
             <input type="file" id="upload-logo" class="hidden" accept="image/*" onchange="updateStoreDesign('logo')">
             <input type="file" id="upload-banner" class="hidden" accept="image/*" onchange="updateStoreDesign('banner')">
         </div>
 
-        <ul class="space-y-2 text-sm font-bold text-gray-300">
+        <ul class="space-y-2 text-sm font-bold text-gray-300 relative z-10">
             <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-white/10 backdrop-blur-md"><i class="fa-solid fa-box-open"></i> Commandes</li>
             <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-white/10 backdrop-blur-md"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
             <li onclick="switchSellerTab('my-products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-white/10 backdrop-blur-md"><i class="fa-solid fa-list-ul"></i> Mes Produits</li>
         </ul>
     </div>
 </div>
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black"><i class="fa-solid fa-store"></i></div>
-                        <div><div class="font-bold text-white">Ma Boutique</div><div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div></div>
-                    </div>
-                    <ul class="space-y-1 text-sm font-bold text-gray-400">
-                        <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-synapse text-black"><i class="fa-solid fa-box-open"></i> Commandes</li>
-                        <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
-                        <li onclick="switchSellerTab('my-products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3"><i class="fa-solid fa-list-ul"></i> Mes Produits</li>
-                    </ul>
-                </div>
-            </div>
 
             <div class="col-span-1 lg:col-span-3 space-y-6">
                 <div id="seller-tab-orders" class="seller-tab-content">
@@ -2130,97 +2117,98 @@ const { data: all } = await supabase
     }
 
 // --- GESTION WISHLIST ---
-
-    // 1. Ajouter / Retirer des favoris
     window.toggleWishlist = async function(productId, btnElement) {
-        // Empêcher le clic de nous emmener sur la page produit
-        if(event) event.stopPropagation(); 
-
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) return alert("Connectez-vous pour ajouter aux favoris !");
 
-        // Vérifier si déjà liké
+        // On vérifie si c'est déjà en favoris
         const { data: existing } = await supabase.from('wishlist').select('id').eq('user_id', user.id).eq('product_id', productId).maybeSingle();
 
+        const icon = btnElement.querySelector('i');
+
         if(existing) {
-            // Si oui, on supprime
+            // Supprimer
             await supabase.from('wishlist').delete().eq('id', existing.id);
+            icon.classList.remove('fa-solid', 'text-red-500');
+            icon.classList.add('fa-regular', 'text-gray-400');
             showToast("Retiré des favoris.");
-            if(btnElement) btnElement.classList.remove('text-red-500'); // Visuel immédiat
-            loadWishlist(); // Rafraichir si on est sur la page wishlist
+            // Si on est sur la page wishlist, on recharge pour faire disparaitre l'article
+            if(!document.getElementById('wishlist-view').classList.contains('hidden')) loadWishlist();
         } else {
-            // Si non, on ajoute
+            // Ajouter
             await supabase.from('wishlist').insert([{ user_id: user.id, product_id: productId }]);
-            showToast("❤️ Ajouté aux coups de cœur !");
-            if(btnElement) btnElement.classList.add('text-red-500'); // Visuel immédiat
+            icon.classList.remove('fa-regular', 'text-gray-400');
+            icon.classList.add('fa-solid', 'text-red-500', 'animate-bounce'); // Petit effet visuel
+            showToast("❤️ Ajouté aux favoris !");
         }
     }
 
-    // 2. Afficher la page Wishlist
-    window.openWishlist = async function() {
+    window.openWishlist = function() {
         window.hideAllViews();
         document.getElementById('wishlist-view').classList.remove('hidden');
         loadWishlist();
     }
 
-    // 3. Charger les produits favoris
     window.loadWishlist = async function() {
         const container = document.getElementById('wishlist-grid');
         container.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
 
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) {
-            container.innerHTML = '<div class="col-span-full text-center text-gray-500">Connectez-vous pour voir vos favoris.</div>';
+            container.innerHTML = '<div class="col-span-full text-center text-gray-500">Connectez-vous.</div>';
             return;
         }
 
-        // On récupère les IDs des produits favoris
         const { data: wishes } = await supabase.from('wishlist').select('product_id').eq('user_id', user.id);
         
         if(!wishes || wishes.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10"><i class="fa-regular fa-heart text-4xl mb-4 text-gray-300"></i><br>Votre wishlist est vide.</div>';
+            container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-20 flex flex-col items-center"><i class="fa-regular fa-heart text-4xl mb-4 text-gray-300"></i>Votre wishlist est vide.</div>';
             return;
         }
 
-        // On récupère les détails de ces produits
         const productIds = wishes.map(w => w.product_id);
         const { data: products } = await supabase.from('products').select('*').in('id', productIds);
 
-        // On utilise ta fonction renderGrid existante mais on injecte le bouton coeur rouge
         renderGrid('wishlist-grid', products);
         
-        // Petit hack pour mettre les coeurs en rouge sur cette page
-        // (Idéalement on modifierait renderGrid, mais on fait simple)
+        // Petite astuce pour colorier les cœurs en rouge sur la page wishlist
         setTimeout(() => {
-            const hearts = container.querySelectorAll('.fa-heart');
-            hearts.forEach(h => h.classList.add('text-red-500', 'fa-solid')); 
+            container.querySelectorAll('.fa-heart').forEach(i => i.classList.add('fa-solid', 'text-red-500'));
         }, 100);
     }
 
-// --- DESIGN BOUTIQUE ---
-
+    // --- DESIGN BOUTIQUE (LOGO & BANNIERE) ---
     window.updateStoreDesign = async function(type) {
         const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
         const file = document.getElementById(inputId).files[0];
         if(!file) return;
 
+        showToast("Téléchargement en cours...");
+
         try {
             const { data: { user } } = await supabase.auth.getUser();
-            const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+            // On récupère la boutique
+            let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
             
-            // Upload
+            // Si pas de boutique, on la crée
+            if(!store) {
+                 const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Ma Boutique" }]).select().single();
+                 store = data;
+            }
+            
+            // Upload Image
             const fileName = `store_${store.id}_${type}_${Date.now()}`;
-            const { error: upError } = await supabase.storage.from('products').upload(fileName, file); // On utilise le même bucket 'products' par simplicité
+            const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
             if(upError) throw upError;
 
             const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
             const url = publicUrl.publicUrl;
 
-            // Update DB
+            // Mise à jour Base de données
             const updateData = type === 'logo' ? { logo_url: url } : { banner_url: url };
             await supabase.from('stores').update(updateData).eq('id', store.id);
 
-            // Update UI immédiat
+            // Mise à jour visuelle immédiate
             if(type === 'logo') document.getElementById('seller-logo-preview').src = url;
             if(type === 'banner') {
                 const banner = document.getElementById('seller-bg-preview');
@@ -2228,10 +2216,10 @@ const { data: all } = await supabase
                 banner.classList.remove('hidden');
             }
 
-            showToast("Design boutique mis à jour !");
+            showToast("Design mis à jour !");
 
         } catch(e) {
-            alert("Erreur upload: " + e.message);
+            alert("Erreur : " + e.message);
         }
     }
 
@@ -2278,6 +2266,48 @@ const { data: all } = await supabase
         const { data } = await supabase.from('products').select('*').eq('store_id', storeId);
         renderGrid('products-grid', data);
         window.scrollTo(0, 0);
+    }
+
+// FONCTION D'AFFICHAGE (Mise à jour avec le bouton Cœur)
+    window.renderGrid = function(containerId, products, isBoostedLayout = false) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        
+        if(!products || products.length === 0) {
+            if(containerId === 'products-grid') container.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucun produit trouvé.</div>';
+            return;
+        }
+
+        products.forEach(p => {
+            const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
+            const safeStoreId = p.store_id || '';
+            const safeCat = p.category || '';
+            
+            // Calculer si c'est un favori (visuel simple pour l'instant)
+            const heartClass = "fa-regular text-gray-400"; 
+
+            let cardHtml = `
+            <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
+                <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
+                    <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
+                    
+                    <button onclick="toggleWishlist('${p.id}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20">
+                        <i class="${heartClass} fa-heart"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span>
+                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>`;
+            
+            container.innerHTML += cardHtml;
+        });
     }
 
         // Init
