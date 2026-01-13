@@ -438,14 +438,16 @@
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
                         <div class="space-y-4">
                             
-                            <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
-                                <input type="file" id="prod-images" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewMultipleImages(this)">
-                                <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
-                                    <i class="fa-solid fa-images text-3xl mb-2"></i>
-                                    <span class="block text-xs font-bold" id="upload-text">Cliquez pour ajouter jusqu'à 10 photos</span>
-                                </div>
-                                <div id="preview-count" class="hidden absolute bottom-2 bg-synapse text-black text-xs font-bold px-2 py-1 rounded">0 photos</div>
-                            </div>
+                           <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
+    <input type="file" id="prod-images" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewMultipleImages(this)">
+    
+    <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
+        <i class="fa-solid fa-images text-3xl mb-2"></i>
+        <span class="block text-xs font-bold" id="upload-text">Cliquez pour ajouter jusqu'à 10 photos</span>
+    </div>
+    
+    <div id="preview-count" class="hidden absolute bottom-2 bg-synapse text-black text-xs font-bold px-2 py-1 rounded">0 photos</div>
+</div>
 
                             <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
                                 <label class="text-xs text-synapse font-bold uppercase mb-2 block"><i class="fa-solid fa-lock"></i> Fichier à vendre (Optionnel)</label>
@@ -1869,75 +1871,95 @@ const { data: all } = await supabase
         }
     }
 
-        // --- 2. PUBLICATION PRODUIT (Support Multiple Images) ---
-        window.publishProduct = async function() {
-            const btn = document.getElementById('btn-publish');
-            const title = document.getElementById('prod-title').value;
-            const price = document.getElementById('prod-price').value;
-            const stock = document.getElementById('prod-stock').value;
-            const desc = document.getElementById('prod-desc').value;
-            const category = document.getElementById('prod-category').value;
-            
-            // On récupère la liste des fichiers
-            const imageFiles = document.getElementById('prod-images').files;
-            const digitalFile = document.getElementById('prod-file').files[0];
+  // FONCTION DE PUBLICATION (AVEC LIMITE 10 PHOTOS)
+    window.publishProduct = async function() {
+        const btn = document.getElementById('btn-publish');
+        const imageFiles = document.getElementById('prod-images').files; // On prend la liste
+        
+        // Champs classiques
+        const title = document.getElementById('prod-title').value;
+        const price = document.getElementById('prod-price').value;
+        const stock = document.getElementById('prod-stock').value;
+        const desc = document.getElementById('prod-desc').value;
+        const category = document.getElementById('prod-category').value;
+        const digitalFile = document.getElementById('prod-file').files[0]; // Fichier optionnel
 
-            if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
-            
-            btn.innerText = "Envoi des photos..."; btn.disabled = true;
-
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) throw new Error("Connectez-vous !");
-
-                // A. Upload des images (Boucle)
-                let uploadedUrls = [];
-                for (let i = 0; i < imageFiles.length; i++) {
-                    const file = imageFiles[i];
-                    const fileName = `${Date.now()}_${i}_${file.name.replace(/\s/g, '')}`;
-                    
-                    const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
-                    if(upError) throw upError;
-                    
-                    const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-                    uploadedUrls.push(publicUrl.publicUrl);
-                }
-
-                // B. Upload fichier digital (Optionnel)
-                let digitalPath = null;
-                if(digitalFile) {
-                    const fName = `secure_${Date.now()}_${digitalFile.name.replace(/\s/g, '')}`;
-                    await supabase.storage.from('digital_vault').upload(fName, digitalFile);
-                    digitalPath = fName;
-                }
-
-                // C. Récupérer ou créer boutique
-                let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-                if (!store) { 
-                    const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
-                    store = data; 
-                }
-
-                // D. Sauvegarde en base (On garde image_url pour la compatibilité, et on ajoute images pour la galerie)
-                await supabase.from('products').insert([{
-                    store_id: store.id,
-                    title, description: desc, price, stock, category,
-                    image_url: uploadedUrls[0], // La première image reste l'image principale
-                    images: uploadedUrls,       // On sauvegarde TOUTES les images ici
-                    digital_file: digitalPath,
-                    is_hot: false, is_boosted: false, sales: 0
-                }]);
-
-                alert("Produit publié avec " + uploadedUrls.length + " photos !");
-                window.goHome();
-                await fetchAllData();
-
-            } catch (err) {
-                alert("Erreur : " + err.message);
-            } finally {
-                btn.innerText = "Publier"; btn.disabled = false;
-            }
+        // --- VÉRIFICATIONS ---
+        if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
+        
+        // 👇 AJOUT DE LA LIMITE ICI 👇
+        if (imageFiles.length > 10) {
+            return alert(`⚠️ Trop de photos ! Vous en avez sélectionné ${imageFiles.length}. Le maximum autorisé est de 10.`);
         }
+
+        if (!title || !price) return alert("Remplissez titre et prix.");
+        
+        btn.innerText = "Envoi en cours..."; 
+        btn.disabled = true;
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Veuillez vous connecter !");
+
+            // --- 1. BOUCLE D'UPLOAD DES IMAGES ---
+            let uploadedUrls = [];
+            
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                // Nom unique : timestamp + index + nom nettoyé
+                const fileName = `${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+                
+                // Upload vers Supabase Storage
+                const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
+                if(upError) throw upError;
+                
+                // Récupération de l'URL publique
+                const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
+                uploadedUrls.push(publicUrl.publicUrl);
+            }
+
+            // --- 2. UPLOAD FICHIER NUMÉRIQUE (Si présent) ---
+            let digitalPath = null;
+            if(digitalFile) {
+                const fName = `secure_${Date.now()}_${digitalFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+                await supabase.storage.from('digital_vault').upload(fName, digitalFile);
+                digitalPath = fName;
+            }
+
+            // --- 3. GESTION BOUTIQUE ---
+            let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+            if (!store) { 
+                const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }]).select().single(); 
+                store = data; 
+            }
+
+            // --- 4. INSERTION EN BASE DE DONNÉES ---
+            await supabase.from('products').insert([{
+                store_id: store.id,
+                title: title,
+                description: desc,
+                price: price,
+                stock: stock,
+                category: category,
+                image_url: uploadedUrls[0], // La 1ère image sert de couverture
+                images: uploadedUrls,       // Le tableau complet pour la galerie
+                digital_file: digitalPath,
+                is_hot: false, 
+                is_boosted: false, 
+                sales: 0
+            }]);
+
+            alert(`✅ Produit publié avec succès (${uploadedUrls.length} photos) !`);
+            window.goHome(); // Retour accueil pour rafraîchir
+
+        } catch (err) {
+            console.error(err);
+            alert("Erreur lors de la publication : " + err.message);
+        } finally {
+            btn.innerText = "Publier"; 
+            btn.disabled = false;
+        }
+    }
 
         // --- 3. AFFICHAGE DETAIL (Galerie) ---
         // Remplacez votre ancienne fonction openDetail par celle-ci
@@ -1999,6 +2021,20 @@ const { data: all } = await supabase
             
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
+
+        // Affiche le nombre de photos choisies
+    window.previewMultipleImages = function(input) {
+        const count = input.files ? input.files.length : 0;
+        const badge = document.getElementById('preview-count');
+        const text = document.getElementById('upload-text');
+        
+        if(count > 0 && badge) {
+            badge.innerText = count + " photos";
+            badge.classList.remove('hidden');
+            text.innerText = count + " fichiers prêts";
+            text.classList.add('text-synapse');
+        }
+    }
 
         // Init
         fetchAllData();
