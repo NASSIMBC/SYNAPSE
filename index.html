@@ -2073,95 +2073,85 @@ const { data: all } = await supabase
         }
     }
 
-  // FONCTION DE PUBLICATION (AVEC LIMITE 10 PHOTOS)
-    window.publishProduct = async function() {
-        const btn = document.getElementById('btn-publish');
-        const imageFiles = document.getElementById('prod-images').files; // On prend la liste
-        
-        // Champs classiques
-        const title = document.getElementById('prod-title').value;
-        const price = document.getElementById('prod-price').value;
-        const stock = document.getElementById('prod-stock').value;
-        const desc = document.getElementById('prod-desc').value;
-        const category = document.getElementById('prod-category').value;
-        const digitalFile = document.getElementById('prod-file').files[0]; // Fichier optionnel
+  window.publishProduct = async function() {
+    const btn = document.getElementById('btn-publish');
+    const imageFiles = document.getElementById('prod-images').files; 
 
-        // --- VÉRIFICATIONS ---
-        if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
-        
-        // 👇 AJOUT DE LA LIMITE ICI 👇
-        if (imageFiles.length > 10) {
-            return alert(`⚠️ Trop de photos ! Vous en avez sélectionné ${imageFiles.length}. Le maximum autorisé est de 10.`);
-        }
+    const title = document.getElementById('prod-title').value;
+    const price = document.getElementById('prod-price').value;
+    const stock = document.getElementById('prod-stock').value;
+    const desc = document.getElementById('prod-desc').value;
+    const category = document.getElementById('prod-category').value;
+    const digitalFile = document.getElementById('prod-file').files[0];
 
-        if (!title || !price) return alert("Remplissez titre et prix.");
-        
-        btn.innerText = "Envoi en cours..."; 
-        btn.disabled = true;
-
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("Veuillez vous connecter !");
-
-            // --- 1. BOUCLE D'UPLOAD DES IMAGES ---
-            let uploadedUrls = [];
-            
-            for (let i = 0; i < imageFiles.length; i++) {
-                const file = imageFiles[i];
-                // Nom unique : timestamp + index + nom nettoyé
-                const fileName = `${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-                
-                // Upload vers Supabase Storage
-                const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
-                if(upError) throw upError;
-                
-                // Récupération de l'URL publique
-                const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-                uploadedUrls.push(publicUrl.publicUrl);
-            }
-
-            // --- 2. UPLOAD FICHIER NUMÉRIQUE (Si présent) ---
-            let digitalPath = null;
-            if(digitalFile) {
-                const fName = `secure_${Date.now()}_${digitalFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-                await supabase.storage.from('digital_vault').upload(fName, digitalFile);
-                digitalPath = fName;
-            }
-
-            // --- 3. GESTION BOUTIQUE ---
-            let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-            if (!store) { 
-                const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }]).select().single(); 
-                store = data; 
-            }
-
-            // --- 4. INSERTION EN BASE DE DONNÉES ---
-            await supabase.from('products').insert([{
-                store_id: store.id,
-                title: title,
-                description: desc,
-                price: price,
-                stock: stock,
-                category: category,
-                image_url: uploadedUrls[0], // La 1ère image sert de couverture
-                images: uploadedUrls,       // Le tableau complet pour la galerie
-                digital_file: digitalPath,
-                is_hot: false, 
-                is_boosted: false, 
-                sales: 0
-            }]);
-
-            alert(`✅ Produit publié avec succès (${uploadedUrls.length} photos) !`);
-            window.goHome(); // Retour accueil pour rafraîchir
-
-        } catch (err) {
-            console.error(err);
-            alert("Erreur lors de la publication : " + err.message);
-        } finally {
-            btn.innerText = "Publier"; 
-            btn.disabled = false;
-        }
+    if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
+    
+    // --- LIMITE PASSÉE À 15 ---
+    if (imageFiles.length > 15) {
+        return alert(`⚠️ Trop de photos ! Vous en avez sélectionné ${imageFiles.length}. Le maximum autorisé est de 15.`);
     }
+
+    if (!title || !price) return alert("Remplissez titre et prix.");
+    
+    btn.innerText = "Envoi en cours..."; 
+    btn.disabled = true;
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Veuillez vous connecter !");
+
+        let uploadedUrls = [];
+        
+        for (let i = 0; i < imageFiles.length; i++) {
+            const file = imageFiles[i];
+            const fileName = `${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+            
+            const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
+            if(upError) throw upError;
+            
+            const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
+            uploadedUrls.push(publicUrl.publicUrl);
+        }
+
+        let digitalPath = null;
+        if(digitalFile) {
+            const fName = `secure_${Date.now()}_${digitalFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
+            await supabase.storage.from('digital_vault').upload(fName, digitalFile);
+            digitalPath = fName;
+        }
+
+        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+        if (!store) { 
+            const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }]).select().single(); 
+            store = data; 
+        }
+
+        await supabase.from('products').insert([{
+            store_id: store.id,
+            title: title,
+            description: desc,
+            price: price,
+            stock: stock,
+            category: category,
+            image_url: uploadedUrls[0],
+            images: uploadedUrls,
+            digital_file: digitalPath,
+            is_hot: false, 
+            is_boosted: false, 
+            sales: 0
+        }]);
+
+        alert(`✅ Produit publié avec succès (${uploadedUrls.length} photos) !`);
+        window.goHome();
+
+    } catch (err) {
+        console.error(err);
+        alert("Erreur lors de la publication : " + err.message);
+    } finally {
+        btn.innerText = "Publier"; 
+        btn.disabled = false;
+    }
+}
 
     window.openDetail = async function(t, p, d, i, id, storeId, category) {
         // 1. Remplir les textes
@@ -2572,9 +2562,9 @@ window.productFiles = [];
 window.addFilesToQueue = function(input) {
     const newFiles = Array.from(input.files);
     
-    // Vérification de la limite (10 max)
-    if (window.productFiles.length + newFiles.length > 10) {
-        alert("⚠️ Vous ne pouvez pas dépasser 10 photos au total.");
+    // Vérification de la limite (15 max)
+    if (window.productFiles.length + newFiles.length > 15) {
+        alert("⚠️ Vous ne pouvez pas dépasser 15 photos au total.");
         return;
     }
 
