@@ -840,42 +840,46 @@
             updateCartUI();
         }
 
-        function updateCartUI() {
-            const container = document.getElementById('cart-items-container');
-            const badge = document.getElementById('cart-count');
-            const totalDrawer = document.getElementById('cart-drawer-total');
-            const totalCheckout = document.getElementById('cart-total-price');
+      function updateCartUI() {
+    const container = document.getElementById('cart-items-container');
+    const badge = document.getElementById('cart-count');
+    const totalDrawer = document.getElementById('cart-drawer-total');
+    const totalCheckout = document.getElementById('cart-total-price');
 
-            badge.innerText = window.myCart.length;
-            container.innerHTML = '';
-            let total = 0;
+    badge.innerText = window.myCart.length;
+    container.innerHTML = '';
+    let total = 0;
 
-            if (window.myCart.length === 0) {
-                container.innerHTML = '<div class="text-center text-gray-500 mt-10">Votre panier est vide</div>';
-            } else {
-                window.myCart.forEach((item, index) => {
-                    let cleanPrice = parseInt(item.price.replace(/\D/g, '')) || 0;
-                    total += cleanPrice;
-                    const html = `
-                    <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg relative group">
-                        <img src="${item.image}" class="w-16 h-16 object-contain bg-white rounded-md">
-                        <div class="flex-1">
-                            <h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">${item.title}</h4>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="font-bold text-synapse-dark dark:text-synapse">${item.price}</span>
-                            </div>
-                        </div>
-                        <button onclick="removeFromCart(${index})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-2">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>`;
-                    container.innerHTML += html;
-                });
-            }
-            const formattedTotal = total.toLocaleString() + ' DA';
-            if(totalDrawer) totalDrawer.innerText = formattedTotal;
-            if(totalCheckout) totalCheckout.innerText = formattedTotal;
-        }
+    if (window.myCart.length === 0) {
+        container.innerHTML = '<div class="text-center text-gray-500 mt-10">Votre panier est vide</div>';
+    } else {
+        window.myCart.forEach((item, index) => {
+            let cleanPrice = parseInt(String(item.price).replace(/\D/g, '')) || 0;
+            total += cleanPrice;
+
+            // 👇 UTILISE BIEN L'ACCENT GRAVE ` (AltGr + 7) 👇
+            const html = `
+            <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg relative group">
+                <img src="${item.image}" class="w-16 h-16 object-contain bg-white rounded-md">
+                <div class="flex-1">
+                    <h4 class="text-sm font-bold text-black dark:text-white line-clamp-1">${item.title}</h4>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="font-bold text-synapse-dark dark:text-synapse">${item.price} DA</span>
+                    </div>
+                </div>
+                <button onclick="removeFromCart(${index})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-2">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>`; 
+            // 👆 FIN DE L'ACCENT GRAVE 👆
+
+            container.innerHTML += html;
+        });
+    }
+    const formattedTotal = total.toLocaleString() + ' DA';
+    if(totalDrawer) totalDrawer.innerText = formattedTotal;
+    if(totalCheckout) totalCheckout.innerText = formattedTotal;
+}
 
         window.showToast = (msg) => {
             const toast = document.getElementById('toast');
