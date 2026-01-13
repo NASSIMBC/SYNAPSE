@@ -694,67 +694,6 @@
         </div>
     </div>
 
-<footer class="bg-synapse mt-20 pt-16 pb-8 border-t-4 border-black">
-        <div class="container mx-auto px-4">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-                
-                <div>
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-8 h-8 bg-black rounded flex items-center justify-center text-synapse font-bold text-xl">S</div>
-                        <span class="text-2xl font-black tracking-tighter text-black">SYNAPSE</span>
-                    </div>
-                    <p class="text-black/80 font-medium text-sm leading-relaxed mb-4">
-                        La première marketplace algérienne dédiée aux créateurs. Achetez, vendez, innovez avec style.
-                    </p>
-                    <div class="flex gap-4">
-                        <a href="#" class="w-10 h-10 rounded-full bg-black/10 border border-black/20 flex items-center justify-center text-black hover:bg-black hover:text-synapse transition"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-black/10 border border-black/20 flex items-center justify-center text-black hover:bg-black hover:text-synapse transition"><i class="fa-brands fa-instagram"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-black/10 border border-black/20 flex items-center justify-center text-black hover:bg-black hover:text-synapse transition"><i class="fa-brands fa-tiktok"></i></a>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="font-black text-black text-lg mb-6 uppercase tracking-wider">Navigation</h3>
-                    <ul class="space-y-3 text-sm text-black/80 font-bold">
-                        <li><a href="#" onclick="goHome()" class="hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Accueil</a></li>
-                        <li><a href="#" onclick="openWishlist()" class="hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Mes Favoris</a></li>
-                        <li><a href="#" onclick="toggleCart()" class="hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Mon Panier</a></li>
-                        <li><a href="#" onclick="showSellerDashboard()" class="hover:text-white transition flex items-center gap-2"><i class="fa-solid fa-arrow-right text-xs"></i> Espace Vendeur</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="font-black text-black text-lg mb-6 uppercase tracking-wider">Aide</h3>
-                    <ul class="space-y-3 text-sm text-black/80 font-bold">
-                        <li><a href="#" class="hover:text-white transition">Centre d'aide</a></li>
-                        <li><a href="#" class="hover:text-white transition">CGV & Mentions légales</a></li>
-                        <li><a href="#" class="hover:text-white transition">Confidentialité</a></li>
-                        <li><a href="#" class="hover:text-white transition">Contactez-nous</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="font-black text-black text-lg mb-6 uppercase tracking-wider">Rejoignez-nous</h3>
-                    <p class="text-xs text-black/70 font-bold mb-4">Les meilleures offres direct dans votre poche.</p>
-                    <div class="flex gap-2">
-                        <input type="email" placeholder="Votre email..." class="w-full bg-white/50 border border-black/10 placeholder-black/50 text-black rounded-lg px-4 py-3 outline-none focus:bg-white focus:border-black font-bold text-sm transition">
-                        <button class="bg-black text-synapse font-bold px-4 rounded-lg hover:bg-gray-800 transition shadow-lg"><i class="fa-regular fa-paper-plane"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-t border-black/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p class="text-xs text-black/60 font-bold">© 2026 Synapse all rights reserved.</p>
-                <div class="flex gap-6 opacity-70">
-                    <i class="fa-brands fa-cc-visa text-2xl text-black"></i>
-                    <i class="fa-brands fa-cc-mastercard text-2xl text-black"></i>
-                    <i class="fa-solid fa-money-bill-wave text-2xl text-black" title="Cash à la livraison"></i>
-                </div>
-            </div>
-        </div>
-    </footer>
-    
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -1094,7 +1033,12 @@ const { data: all } = await supabase
             
             // --- ACTIVATION DU REALTIME (Écouteur) ---
             setupRealtime();
-        }
+
+        // Cette ligne vérifie quels produits sont aimés et met les cœurs en rouge
+            if (typeof window.syncWishlistState === 'function') {
+                await window.syncWishlistState();
+            }
+        }
         
         function setupRealtime() {
             supabase
@@ -2384,6 +2328,56 @@ const { data: all } = await supabase
             container.innerHTML += cardHtml;
         });
     }
+
+// Fonction à ajouter dans votre script
+window.syncWishlistState = async function() {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    // 1. Si pas connecté, on remet tout à zéro (gris)
+    if (!user) {
+        document.querySelectorAll('.fa-heart').forEach(icon => {
+            icon.classList.remove('fa-solid', 'text-red-500');
+            icon.classList.add('fa-regular', 'text-gray-400');
+        });
+        return;
+    }
+
+    // 2. On récupère TOUS les IDs des produits que l'utilisateur a likés
+    const { data: wishlistItems } = await supabase
+        .from('wishlist')
+        .select('product_id')
+        .eq('user_id', user.id);
+
+    if (!wishlistItems) return;
+
+    // On crée une liste simple des IDs (ex: [12, 45, 89])
+    const likedProductIds = wishlistItems.map(item => item.product_id);
+
+    // 3. On parcourt tous les cœurs affichés sur l'écran
+    // Note: On cible les boutons qui ont une fonction toggleWishlist
+    document.querySelectorAll('button[onclick^="toggleWishlist"]').forEach(btn => {
+        // On extrait l'ID du produit depuis l'attribut onclick
+        // Le format est toggleWishlist('123', this)
+        const onclickText = btn.getAttribute('onclick');
+        const productIdMatch = onclickText.match(/'([^']+)'/); // On cherche l'ID entre les guillemets
+        
+        if (productIdMatch) {
+            const prodId = parseInt(productIdMatch[1]); // ex: 123
+            const icon = btn.querySelector('i');
+
+            if (likedProductIds.includes(prodId)) {
+                // C'est liké : Rouge + Plein
+                icon.classList.remove('fa-regular', 'text-gray-400');
+                icon.classList.add('fa-solid', 'text-red-500');
+            } else {
+                // Pas liké : Gris + Vide
+                icon.classList.remove('fa-solid', 'text-red-500');
+                icon.classList.add('fa-regular', 'text-gray-400');
+            }
+        }
+    });
+}
+
         // Init
         fetchAllData();
 
