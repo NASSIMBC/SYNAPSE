@@ -818,6 +818,17 @@
         </div>
     </footer>
 
+<div id="live-notif" class="fixed bottom-10 left-5 z-[100] transform -translate-x-96 opacity-0 transition-all duration-700 bg-white dark:bg-dark-900 p-3 rounded-xl shadow-2xl border border-gray-100 dark:border-dark-800 flex items-center gap-3 max-w-xs">
+    <div class="w-10 h-10 bg-synapse rounded-lg flex-shrink-0 flex items-center justify-center">
+        <i class="fa-solid fa-shopping-bag text-black"></i>
+    </div>
+    <div>
+        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Vente en direct</div>
+        <div id="notif-text" class="text-xs font-bold text-black dark:text-white line-clamp-1">Quelqu'un a acheté un produit !</div>
+    </div>
+</div>
+
+
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -1127,42 +1138,63 @@
             document.getElementById('hot-section-container').classList.add('hidden');
         }
 
-        // --- 8. AFFICHAGE DONNEES & REALTIME ---
-        async function fetchAllData() {
-            const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(4);
-            const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
-            
-            const lastSearch = localStorage.getItem('synapse_last_search');
-            if(lastSearch) {
-                const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
-                if(recos && recos.length > 0) {
-                     document.getElementById('recommended-section').classList.remove('hidden');
-                     renderGrid('recommended-grid', recos);
-                }
-            }
-            
-           // Vérifiez que vous avez bien .order('created_at', { ascending: false })
-const { data: all } = await supabase
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false }); // false = du plus récent au plus vieux
+       // --- 8. AFFICHAGE DONNEES & REALTIME ---
+async function fetchAllData() {
+    // 1. Charger les produits HOT (augmenté à 10 pour remplir la ligne)
+    const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(10);
+    
+    // 2. Charger les produits BOOSTÉS
+    const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
+    
+    // 3. Gestion des RECOMMANDATIONS (IA basée sur lastSearch)
+    const lastSearch = localStorage.getItem('synapse_last_search');
+    if(lastSearch) {
+        // Augmenté à 10 pour remplir la ligne de 10 colonnes
+        const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(10);
+        if(recos && recos.length > 0) {
+             const recoSection = document.getElementById('ai-reco-section') || document.getElementById('recommended-section');
+             if(recoSection) {
+                recoSection.classList.remove('hidden');
+                renderGrid(recoSection.querySelector('.grid')?.id || 'ai-reco-grid', recos);
+             }
+        }
+    }
+    
+    // 4. Charger les 50 DERNIERS PRODUITS (pour vos 5 lignes de 10)
+    const { data: all } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50); 
 
-            renderGrid('products-grid', all);
-            if(hot && hot.length > 0) renderGrid('hot-grid', hot);
-            
-            if(boosted && boosted.length > 0) {
-                document.getElementById('boosted-section').classList.remove('hidden');
-                renderGrid('boosted-grid', boosted, true);
-            }
-            
-            // --- ACTIVATION DU REALTIME (Écouteur) ---
-            setupRealtime();
+    // Rendu de la grille principale
+    renderGrid('products-grid', all);
+    
+    // Rendu de la grille Hot
+    if(hot && hot.length > 0) renderGrid('hot-grid', hot);
+    
+    // Rendu des produits boostés
+    if(boosted && boosted.length > 0) {
+        const boostedSect = document.getElementById('boosted-section');
+        if(boostedSect) {
+            boostedSect.classList.remove('hidden');
+            renderGrid('boosted-grid', boosted);
+        }
+    }
 
-        // Cette ligne vérifie quels produits sont aimés et met les cœurs en rouge
-            if (typeof window.syncWishlistState === 'function') {
-                await window.syncWishlistState();
-            }
-        }
+    // --- 5. ACTIVATION DES NOTIFICATIONS EN DIRECT ---
+    // On utilise les produits chargés pour simuler des ventes
+    if(all && all.length > 0 && typeof window.startLiveNotifications === 'function') {
+        window.startLiveNotifications(all);
+    }
+    
+    // --- 6. REALTIME & WISHLIST ---
+    setupRealtime();
+
+    if (typeof window.syncWishlistState === 'function') {
+        await window.syncWishlistState();
+    }
+}
         
         function setupRealtime() {
             supabase
@@ -2862,6 +2894,33 @@ window.deleteProduct = async function(productId, imageUrl) {
         console.error("Erreur suppression:", err);
         alert("Impossible de supprimer le produit : " + err.message);
     }
+}
+
+// --- SYSTÈME DE NOTIFICATIONS EN DIRECT ---
+window.startLiveNotifications = function(products) {
+    if (!products || products.length === 0) return;
+
+    const notif = document.getElementById('live-notif');
+    const text = document.getElementById('notif-text');
+    const wilayas = ["Alger", "Oran", "Constantine", "Tizi Ouzou", "Bejaia", "Setif", "Annaba", "Blida"];
+
+    setInterval(() => {
+        // 1. Choisir un produit au hasard parmi les 50
+        const randomProd = products[Math.floor(Math.random() * products.length)];
+        const randomWilaya = wilayas[Math.floor(Math.random() * wilayas.length)];
+
+        // 2. Mettre à jour le texte
+        text.innerText = `Un utilisateur à ${randomWilaya} vient d'acheter "${randomProd.title}"`;
+
+        // 3. Animation d'entrée
+        notif.classList.remove('-translate-x-96', 'opacity-0');
+        
+        // 4. Cacher après 6 secondes
+        setTimeout(() => {
+            notif.classList.add('-translate-x-96', 'opacity-0');
+        }, 6000);
+
+    }, 45000); // Se déclenche toutes les 45 secondes (tu peux changer le temps)
 }
 
     </script>
