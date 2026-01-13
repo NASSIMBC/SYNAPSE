@@ -1611,63 +1611,64 @@ const { data: all } = await supabase
 
 // --- GESTION DES COMMANDES & CHAT INTELLIGENT ---
 
-      async function loadBuyerOrders() {
-            // On cible l'ID exact que vous avez mis dans le HTML
-            const container = document.getElementById('buyer-orders-container');
-            
-            // Sécurité : si le HTML n'est pas encore chargé ou ID incorrect
-            if(!container) {
-                console.error("Erreur: Impossible de trouver la div 'buyer-orders-container'");
-                return;
-            }
+    async function loadBuyerOrders() {
+        const container = document.getElementById('buyer-orders-container');
+        if(!container) return;
 
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) return;
-
-            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span><br><span class="text-xs text-gray-400">Récupération des commandes...</span></div>';
-
-            // Récupération des commandes
-            const { data: orders, error } = await supabase
-                .from('order_items')
-                .select('*, order:orders(*), product:products(*)')
-                .eq('order.user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if(error) {
-                container.innerHTML = '<div class="text-red-500 text-center p-4">Erreur de connexion.</div>';
-                return;
-            }
-
-            if(orders && orders.length > 0) {
-                container.innerHTML = '';
-                orders.forEach(item => {
-                    const status = item.order.status;
-                    let statusColor = 'bg-gray-200 text-gray-600';
-                    let statusText = 'En attente';
-
-                    if(status === 'en_livraison') { statusColor = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
-                    if(status === 'livre') { statusColor = 'bg-green-100 text-green-600'; statusText = 'Terminé'; }
-
-                    // On échappe les apostrophes pour le titre dans le onclick
-                    const safeTitle = item.product.title.replace(/'/g, "\\'");
-
-                    container.innerHTML += `
-                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center">
-                        <img src="${item.product.image_url}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
-                        <div class="flex-1 text-center md:text-left">
-                            <h4 class="font-bold text-sm text-black dark:text-white">${item.product.title}</h4>
-                            <div class="text-xs text-gray-500 mb-1">Commande #${item.order_id.slice(0,8)} • ${item.price} DA</div>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded ${statusColor}">${statusText}</span>
-                        </div>
-                        <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
-                            <i class="fa-solid fa-comments"></i> Ouvrir Chat & Fichiers
-                        </button>
-                    </div>`;
-                });
-            } else {
-                container.innerHTML = '<div class="p-10 text-center text-gray-500 border border-dashed border-gray-300 rounded-xl">Vous n\'avez pas encore passé de commande.</div>';
-            }
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) {
+            container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
+            return;
         }
+
+        container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
+
+        const { data: orders, error } = await supabase
+            .from('order_items')
+            .select('*, order:orders(*), product:products(*)')
+            .eq('order.user_id', user.id)
+            .order('created_at', { ascending: false });
+
+        if(error) {
+            console.error(error);
+            container.innerHTML = '<div class="text-center text-red-500">Erreur chargement.</div>';
+            return;
+        }
+
+        if(orders && orders.length > 0) {
+            container.innerHTML = '';
+            orders.forEach(item => {
+                const status = item.order ? item.order.status : 'en_attente';
+                let color = 'bg-gray-100 text-gray-600';
+                let statusText = 'En attente';
+
+                if(status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
+                if(status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Terminé'; }
+                if(status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
+
+                // --- 🔴 CORRECTION ICI : String(...) avant .slice ---
+                const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
+                
+                const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
+                const safeImg = item.product ? item.product.image_url : '';
+
+                container.innerHTML += `
+                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
+                    <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
+                    <div class="flex-1 text-center md:text-left">
+                        <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
+                        <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${statusText}</span>
+                    </div>
+                    <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-comments"></i> Chat & Fichiers
+                    </button>
+                </div>`;
+            });
+        } else {
+            container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
+        }
+    }
 
         // --- LOGIQUE DU CHAT ---
         let currentChatOrderId = null;
@@ -2284,14 +2285,15 @@ const { data: all } = await supabase
             const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
             const safeStoreId = p.store_id || '';
             const safeCat = p.category || '';
-            
-            // 👇 C'EST ICI QUE LES BACKTICKS ( ` ) SONT IMPORTANTS 👇
+            const prodId = p.id; // ID propre
+
+            // 👇 ATTENTION : Utilisez bien les accents graves ` ` ici, pas ' '
             let cardHtml = `
-            <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
+            <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${prodId}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
                 <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
                     <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
                     
-                    <button onclick="toggleWishlist('${p.id}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20 group-heart">
+                    <button onclick="toggleWishlist('${prodId}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20 group-heart">
                         <i class="fa-regular fa-heart text-gray-400 group-heart-hover:text-red-500"></i>
                     </button>
                 </div>
@@ -2300,7 +2302,7 @@ const { data: all } = await supabase
                     <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
                     <div class="flex items-center justify-between">
                         <span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span>
-                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${prodId}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
             </div>`;
