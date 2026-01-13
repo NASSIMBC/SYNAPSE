@@ -1768,9 +1768,12 @@ const { data: all } = await supabase
             cancelUpload();
         } 
 
+   // ============================================================
+    // 2. FONCTION COMMANDES (CORRECTION ERREUR SLICE)
+    // ============================================================
     window.loadBuyerOrders = async function() {
         const container = document.getElementById('buyer-orders-container');
-        if(!container) return;
+        if(!container) return; 
 
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) {
@@ -1789,30 +1792,32 @@ const { data: all } = await supabase
         if(orders && orders.length > 0) {
             container.innerHTML = '';
             orders.forEach(item => {
-                // ICI : On lit le statut de l'article
-                const status = item.status || 'en_attente';
+                const status = item.order ? item.order.status : 'en_attente';
+                let color = 'bg-gray-100 text-gray-600'; // Couleur par défaut
+
+                if(status === 'en_livraison') color = 'bg-blue-100 text-blue-600';
+                if(status === 'livre') color = 'bg-green-100 text-green-600';
+                if(status === 'annule') color = 'bg-red-100 text-red-600';
+
+                // 👇 CORRECTION CRITIQUE POUR L'ERREUR SLICE 👇
+                // On transforme le numéro en texte (String) AVANT de le couper
+                let orderIdRaw = item.order_id || '???';
+                const safeOrderId = String(orderIdRaw).slice(0, 8);
                 
-                let color = 'bg-gray-100 text-gray-600';
-                let statusText = 'En attente';
-
-                if(status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
-                if(status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Terminé'; }
-                if(status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
-
-                const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
                 const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
                 const safeImg = item.product ? item.product.image_url : '';
 
+                // Ici aussi, on utilise les accents graves ( ` )
                 container.innerHTML += `
                 <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
                     <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
                     <div class="flex-1 text-center md:text-left">
                         <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
                         <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${statusText}</span>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
                     </div>
                     <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-comments"></i> Chat & Fichiers
+                        <i class="fa-solid fa-comments"></i> Chat
                     </button>
                 </div>`;
             });
@@ -2269,7 +2274,9 @@ const { data: all } = await supabase
         window.scrollTo(0, 0);
     }
 
-// FONCTION D'AFFICHAGE CORRIGÉE (Backticks obligatoires !)
+// ============================================================
+    // 1. FONCTION D'AFFICHAGE (CORRIGÉE AVEC ACCENTS GRAVES ` )
+    // ============================================================
     window.renderGrid = function(containerId, products, isBoostedLayout = false) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
@@ -2280,21 +2287,22 @@ const { data: all } = await supabase
         }
 
         products.forEach(p => {
-            // Nettoyage des textes pour éviter les bugs d'affichage
+            // Nettoyage pour éviter les bugs avec les apostrophes dans les titres
             const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
             const safeStoreId = p.store_id || '';
             const safeCat = p.category || '';
-            const prodId = p.id; // ID propre
+            const prodId = p.id; // L'ID propre
 
-            // 👇 ATTENTION : Utilisez bien les accents graves ` ` ici, pas ' '
+            // 👇👇👇 C'EST ICI LE SECRET : UTILISE BIEN LES ACCENTS GRAVES ( ` ) 👇👇👇
             let cardHtml = `
             <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${prodId}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
+                
                 <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
                     <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
                     
-                    <button onclick="toggleWishlist('${prodId}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20 group-heart">
-                        <i class="fa-regular fa-heart text-gray-400 group-heart-hover:text-red-500"></i>
+                    <button onclick="toggleWishlist('${prodId}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20">
+                        <i class="fa-regular fa-heart text-gray-400"></i>
                     </button>
                 </div>
                 
@@ -2302,10 +2310,13 @@ const { data: all } = await supabase
                     <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
                     <div class="flex items-center justify-between">
                         <span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span>
-                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${prodId}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${prodId}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             </div>`;
+            // 👆👆👆 FIN DES ACCENTS GRAVES 👆👆👆
             
             container.innerHTML += cardHtml;
         });
