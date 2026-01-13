@@ -2390,51 +2390,54 @@ window.toggleWishlist = async function(productId, btnElement) {
         }, 100);
     }
 
-    // --- DESIGN BOUTIQUE (LOGO & BANNIERE) ---
-    window.updateStoreDesign = async function(type) {
-        const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
-        const file = document.getElementById(inputId).files[0];
-        if(!file) return;
+  window.updateStoreDesign = async function(type) {
+    const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
+    const file = document.getElementById(inputId).files[0];
+    if(!file) return;
 
-        showToast("Téléchargement en cours...");
+    showToast("⏳ Sauvegarde en cours...");
 
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            // On récupère la boutique
-            let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-            
-            // Si pas de boutique, on la crée
-            if(!store) {
-                 const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Ma Boutique" }]).select().single();
-                 store = data;
-            }
-            
-            // Upload Image
-            const fileName = `store_${store.id}_${type}_${Date.now()}`;
-            const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
-            if(upError) throw upError;
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // 1. Trouver l'ID de la boutique
+        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+        
+        // 2. Upload avec un nom unique pour éviter le cache
+        const fileName = `design_${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
+        if (uploadError) throw uploadError;
 
-            const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-            const url = publicUrl.publicUrl;
+        // 3. Récupérer l'URL
+        const { data } = supabase.storage.from('products').getPublicUrl(fileName);
+        const url = data.publicUrl;
 
-            // Mise à jour Base de données
-            const updateData = type === 'logo' ? { logo_url: url } : { banner_url: url };
-            await supabase.from('stores').update(updateData).eq('id', store.id);
+        // 4. Mise à jour de la base de données (Colonnes EXACTES)
+        const updateField = (type === 'logo') ? { logo_url: url } : { banner_url: url };
+        
+        const { error: dbError } = await supabase
+            .from('stores')
+            .update(updateField)
+            .eq('id', store.id);
 
-            // Mise à jour visuelle immédiate
-            if(type === 'logo') document.getElementById('seller-logo-preview').src = url;
-            if(type === 'banner') {
-                const banner = document.getElementById('seller-bg-preview');
-                banner.src = url;
-                banner.classList.remove('hidden');
-            }
+        if (dbError) throw dbError;
 
-            showToast("Design mis à jour !");
-
-        } catch(e) {
-            alert("Erreur : " + e.message);
+        // 5. Mise à jour visuelle
+        if (type === 'logo') {
+            document.getElementById('seller-logo-preview').src = url;
+        } else {
+            const banner = document.getElementById('seller-bg-preview');
+            banner.src = url;
+            banner.classList.remove('hidden');
         }
+
+        showToast("✅ Sauvegardé dans la base de données !");
+
+    } catch (err) {
+        console.error("Erreur complète:", err);
+        alert("Erreur base de données : " + (err.message || "Vérifiez vos colonnes logo_url et banner_url"));
     }
+}
 
     // Fonction améliorée pour afficher la boutique du vendeur (Visiteur)
     window.filterByStore = async function(storeId) {
@@ -2879,69 +2882,8 @@ window.deleteProduct = async function(productId, imageUrl) {
     }
 }
 
-window.updateStoreDesign = async function(type) {
-    const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
-    const file = document.getElementById(inputId).files[0];
-    if(!file) return;
 
-    showToast("⏳ Mise à jour du design...");
 
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return alert("Veuillez vous connecter.");
-
-        // 1. On récupère la boutique pour avoir son ID
-        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-        
-        if(!store) {
-            // Si pas de boutique, on la crée d'abord
-            const { data: newStore } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Ma Boutique" }]).select().single();
-            store = newStore;
-        }
-        
-        // 2. Upload de l'image (On utilise le bucket 'products' comme dans votre code)
-        const fileExt = file.name.split('.').pop();
-        const fileName = `design_${type}_${store.id}_${Date.now()}.${fileExt}`;
-        
-        const { error: upError } = await supabase.storage
-            .from('products') // Vérifiez que ce bucket est bien PUBLIC dans Supabase
-            .upload(fileName, file);
-
-        if(upError) throw upError;
-
-        // 3. Récupérer l'URL publique
-        const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-        const url = publicUrl.publicUrl;
-
-        // 4. SAUVEGARDE DANS LA TABLE 'STORES' (C'est ce qui manquait peut-être)
-        const updateData = {};
-        if(type === 'logo') updateData.logo_url = url;
-        else updateData.banner_url = url;
-
-        const { error: dbError } = await supabase
-            .from('stores')
-            .update(updateData)
-            .eq('id', store.id);
-
-        if(dbError) throw dbError;
-
-        // 5. Mise à jour visuelle immédiate sur la page
-        if(type === 'logo') {
-            document.getElementById('seller-logo-preview').src = url;
-        } else {
-            const banner = document.getElementById('seller-bg-preview');
-            banner.src = url;
-            banner.classList.remove('hidden');
-        }
-
-        showToast("✅ Design sauvegardé !");
-
-    } catch(e) {
-        console.error("Erreur design:", e);
-        alert("Erreur de sauvegarde : " + e.message);
-    }
-}
-        
     </script>
 </body>
 </html>
