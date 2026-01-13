@@ -2389,61 +2389,57 @@ window.toggleWishlist = async function(productId, btnElement) {
             container.querySelectorAll('.fa-heart').forEach(i => i.classList.add('fa-solid', 'text-red-500'));
         }, 100);
     }
-
- window.updateStoreDesign = async function(type) {
+    
+window.updateStoreDesign = async function(type) {
     const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
     const file = document.getElementById(inputId).files[0];
     if(!file) return;
 
-    showToast("⏳ Sauvegarde en cours...");
+    showToast("⏳ Sauvegarde forcée...");
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
         let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
         
-        // --- FIX : NETTOYAGE DU NOM DE FICHIER ---
+        // Nom propre pour Supabase
         const fileExt = file.name.split('.').pop();
-        // On garde uniquement les lettres et chiffres pour éviter l'erreur "Invalid Key"
-        const cleanName = `design_${Date.now()}_${type}.${fileExt}`;
+        const cleanName = `design_${type}_${store.id}_${Date.now()}.${fileExt}`;
         
-        // 1. Upload vers le bucket 'products'
-        const { error: uploadError } = await supabase.storage
-            .from('products')
-            .upload(cleanName, file);
-            
-        if (uploadError) throw uploadError;
+        // 1. Upload
+        const { error: upError } = await supabase.storage.from('products').upload(cleanName, file);
+        if (upError) throw upError;
 
-        // 2. Récupérer l'URL
         const { data } = supabase.storage.from('products').getPublicUrl(cleanName);
         const url = data.publicUrl;
 
-        // 3. Mise à jour de la table 'stores'
+        // 2. Update avec Log de vérification
         const updateField = (type === 'logo') ? { logo_url: url } : { banner_url: url };
-        const { error: dbError } = await supabase
+        const { data: result, error: dbError, status } = await supabase
             .from('stores')
             .update(updateField)
-            .eq('id', store.id);
+            .eq('id', store.id)
+            .select(); // On demande le retour pour vérifier
 
         if (dbError) throw dbError;
 
-        // 4. Mise à jour visuelle
-        if (type === 'logo') {
-            document.getElementById('seller-logo-preview').src = url;
+        console.log("Réponse de la base :", result);
+
+        if (result && result.length > 0) {
+            showToast("✅ SAUVEGARDÉ DANS LA BASE !");
+            // Changement visuel
+            if (type === 'logo') document.getElementById('seller-logo-preview').src = url;
+            else {
+                const b = document.getElementById('seller-bg-preview');
+                b.src = url; b.classList.remove('hidden');
+            }
         } else {
-            const banner = document.getElementById('seller-bg-preview');
-            banner.src = url;
-            banner.classList.remove('hidden');
+            alert("⚠️ La base de données a ignoré la modification. Vérifiez vos RLS (Policies) !");
         }
 
-        showToast("✅ Design sauvegardé !");
-
     } catch (err) {
-        console.error("Erreur complète:", err);
-        // Si l'erreur est "Duplicate", c'est que le fichier existe déjà, on prévient l'utilisateur
-        alert("Erreur : " + (err.message || "Problème de fichier"));
+        alert("Erreur : " + err.message);
     }
 }
-
     // Fonction améliorée pour afficher la boutique du vendeur (Visiteur)
     window.filterByStore = async function(storeId) {
         window.hideAllViews();
