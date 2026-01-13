@@ -1972,70 +1972,81 @@ const { data: all } = await supabase
         }
     }
 
-       // --- 3. AFFICHAGE DÉTAIL (VERSION CORRIGÉE GALERIE) ---
-    window.openDetail = async function(t, p, d, i, id, storeId, category) {
-        console.log("Ouverture produit ID:", id);
-
-        // 1. Remplissage des infos de base
+      window.openDetail = async function(t, p, d, i, id, storeId, category) {
+        // 1. Remplir les textes
         document.getElementById('detail-title').innerText = t;
         document.getElementById('detail-price').innerText = p + " DA";
         document.getElementById('detail-desc').innerText = d || "Pas de description.";
         
-        // Image principale par défaut
+        // Image principale
         const mainImg = document.getElementById('detail-img');
         mainImg.src = i || "https://pngimg.com/d/box_PNG120.png";
         
-        // Champs cachés
+        // IDs cachés
         document.getElementById('detail-id').value = id;
         document.getElementById('detail-category-hidden').value = category;
 
-        // --- 2. RECUPERATION GALERIE ET VENTES ---
+        // --- GESTION GALERIE ---
         const galleryContainer = document.getElementById('detail-gallery');
-        galleryContainer.innerHTML = '<span class="text-xs text-gray-400">Chargement...</span>';
+        galleryContainer.innerHTML = '<div class="text-xs text-gray-400">Chargement...</div>';
 
-        // On interroge Supabase pour avoir la liste 'images'
-        const { data: product, error } = await supabase
-            .from('products')
-            .select('images, sales') 
-            .eq('id', id)
-            .single();
+        try {
+            // On récupère les infos fraiches
+            const { data: product, error } = await supabase
+                .from('products')
+                .select('images, sales') 
+                .eq('id', id)
+                .single();
 
-        if (error) console.error("Erreur récup produit:", error);
+            // S'il y a une erreur technique
+            if (error) throw error;
 
-        // Mise à jour ventes
-        const sales = product ? (product.sales || 0) : 0;
-        document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
+            // Mise à jour des ventes
+            const sales = product ? (product.sales || 0) : 0;
+            document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
 
-        // --- CONSTRUCTION DE LA GALERIE ---
-        galleryContainer.innerHTML = ''; // On vide
+            // Construction de la galerie
+            galleryContainer.innerHTML = ''; // On efface le message de chargement
 
-        // Cas A : On a une liste d'images dans la base (Nouveau produit)
-        if(product && product.images && product.images.length > 0) {
-            console.log("Galerie trouvée :", product.images.length + " photos");
+            // On prépare la liste des images (Sécurité anti-bug)
+            let imagesList = [];
             
-            product.images.forEach(imgUrl => {
-                galleryContainer.innerHTML += `
-                <img src="${imgUrl}" 
-                     onclick="document.getElementById('detail-img').src = '${imgUrl}'" 
-                     class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-synapse hover:scale-105 transition flex-shrink-0 bg-white">
-                `;
+            // Si la galerie existe dans la base, on la prend
+            if (product && product.images && product.images.length > 0) {
+                imagesList = product.images;
+            } 
+            // Sinon, on met l'image principale par défaut
+            else {
+                imagesList = [i]; 
+            }
+
+            // Affichage des vignettes
+            imagesList.forEach(imgUrl => {
+                // On vérifie que l'URL n'est pas vide
+                if(imgUrl) {
+                    galleryContainer.innerHTML += `
+                    <img src="${imgUrl}" 
+                         onclick="document.getElementById('detail-img').src = '${imgUrl}'" 
+                         class="w-20 h-20 object-cover rounded-lg border border-gray-200 cursor-pointer hover:border-synapse hover:scale-105 transition flex-shrink-0 bg-white">
+                    `;
+                }
             });
-        } 
-        // Cas B : Pas de liste, on met juste l'image principale (Vieux produit)
-        else {
-            console.log("Pas de galerie, affichage image principale uniquement.");
+
+        } catch (err) {
+            console.error("Erreur galerie:", err);
+            // En cas d'erreur, on affiche juste l'image principale
             galleryContainer.innerHTML = `
-            <img src="${i}" class="w-20 h-20 object-cover rounded-lg border-2 border-synapse cursor-pointer flex-shrink-0 bg-white">
+            <img src="${i}" class="w-20 h-20 object-cover rounded-lg border border-red-200 cursor-pointer">
             `;
         }
 
-        // --- 3. GESTION VENDEUR ---
+        // --- GESTION VENDEUR ---
         const btnSeller = document.getElementById('btn-seller-profile');
-        if(storeId && storeId !== 'undefined' && storeId !== 'null') {
+        if(storeId && storeId !== 'undefined') {
              const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
              if(store) {
                   document.getElementById('detail-store-id').value = store.owner_id; 
-                  document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
+                  document.getElementById('detail-seller-name').innerText = store.name || "Vendeur";
                   if(btnSeller) {
                       btnSeller.style.display = 'block'; 
                       btnSeller.onclick = function() { filterByStore(storeId); }; 
@@ -2046,7 +2057,7 @@ const { data: all } = await supabase
             if(btnSeller) btnSeller.style.display = 'none';
         }
 
-        // --- 4. NAVIGATION ---
+        // --- NAVIGATION ---
         loadSimilarProducts(category, id);
         loadComments(id);
 
