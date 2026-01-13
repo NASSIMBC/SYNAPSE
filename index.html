@@ -2879,6 +2879,74 @@ window.deleteProduct = async function(productId, imageUrl) {
     }
 }
 
+window.saveStoreSettings = async function() {
+    const btn = document.getElementById('btn-save-store');
+    const name = document.getElementById('edit-store-name').value;
+    const desc = document.getElementById('edit-store-desc').value;
+    
+    // Récupération des fichiers (input type="file")
+    const avatarFile = document.getElementById('edit-store-avatar').files[0];
+    const bannerFile = document.getElementById('edit-store-banner').files[0];
+
+    if (!name) return alert("Le nom de la boutique est obligatoire.");
+    
+    btn.innerText = "Sauvegarde..."; btn.disabled = true;
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // 1. Récupérer les infos actuelles de la boutique
+        let { data: store } = await supabase.from('stores').select('*').eq('owner_id', user.id).single();
+        
+        let newAvatarUrl = store.avatar_url;
+        let newBannerUrl = store.banner_url;
+
+        // 2. Upload de l'Avatar (si changé)
+        if (avatarFile) {
+            const ext = avatarFile.name.split('.').pop();
+            const path = `avatars/${user.id}_${Date.now()}.${ext}`;
+            const { error: upErr } = await supabase.storage.from('stores-assets').upload(path, avatarFile);
+            if (!upErr) {
+                const { data } = supabase.storage.from('stores-assets').getPublicUrl(path);
+                newAvatarUrl = data.publicUrl;
+            }
+        }
+
+        // 3. Upload de la Bannière (si changée)
+        if (bannerFile) {
+            const ext = bannerFile.name.split('.').pop();
+            const path = `banners/${user.id}_${Date.now()}.${ext}`;
+            const { error: upErr } = await supabase.storage.from('stores-assets').upload(path, bannerFile);
+            if (!upErr) {
+                const { data } = supabase.storage.from('stores-assets').getPublicUrl(path);
+                newBannerUrl = data.publicUrl;
+            }
+        }
+
+        // 4. Mise à jour finale en base de données
+        const { error: updateErr } = await supabase
+            .from('stores')
+            .update({
+                name: name,
+                description: desc,
+                avatar_url: newAvatarUrl,
+                banner_url: newBannerUrl
+            })
+            .eq('owner_id', user.id);
+
+        if (updateErr) throw updateErr;
+
+        alert("✅ Boutique mise à jour !");
+        location.reload(); // Pour rafraîchir les images
+
+    } catch (err) {
+        console.error(err);
+        alert("Erreur : " + err.message);
+    } finally {
+        btn.innerText = "Enregistrer"; btn.disabled = false;
+    }
+}
+        
     </script>
 </body>
 </html>
