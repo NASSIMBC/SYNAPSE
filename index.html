@@ -1411,39 +1411,37 @@ const { data: all } = await supabase
             } catch(e) { console.error(e); }
         }
 
-       // NOUVELLE FONCTION : Met à jour un article précis
-        window.updateOrderItemStatus = async function(itemId, newStatus, amount = 0, storeId = 0, productId = 0) {
-            
-            // Mise à jour de la table ORDER_ITEMS (et non orders)
-            const { error } = await supabase
-                .from('order_items')
-                .update({ status: newStatus })
-                .eq('id', itemId); // On cible l'ID unique de l'article
+     // Fonction Mise à Jour Commande (Connectée à la base de données)
+    window.updateOrderItemStatus = async function(itemId, newStatus) {
+        
+        // 1. Feedback visuel immédiat (pour que le vendeur sache qu'il a cliqué)
+        showToast("⏳ Mise à jour en cours...");
 
-            if(error) {
-                alert("Erreur: " + error.message);
-            } else {
-                // Logique financière (si livré)
-                if(newStatus === 'livre' && amount > 0 && storeId > 0) { 
-                    await supabase.rpc('add_revenue', { store_id_param: storeId, amount: amount }); 
-                    
-                    if(productId > 0) {
-                        const { data: prod } = await supabase.from('products').select('sales').eq('id', productId).single();
-                        const currentSales = prod ? (prod.sales || 0) : 0;
-                        await supabase.from('products').update({ sales: currentSales + 1 }).eq('id', productId);
-                    }
-                    showToast("Article livré ! Vente comptabilisée."); 
-                } else if (newStatus === 'annule') {
-                    showToast("Article annulé.");
-                } else { 
-                    showToast("Statut de l'article mis à jour."); 
-                }
-                
-                // Recharger la liste pour voir le changement sur CET article seulement
-                loadSellerOrders(); 
-                loadSellerStats();
+        // 2. Appel de la fonction SQL sécurisée (RPC)
+        const { error } = await supabase.rpc('update_item_status', {
+            p_item_id: itemId,
+            p_new_status: newStatus
+        });
+
+        if (error) {
+            console.error("Erreur RPC:", error);
+            alert("Erreur lors de la mise à jour : " + error.message);
+        } else {
+            // 3. Succès !
+            if (newStatus === 'en_livraison') {
+                showToast("🚚 Colis marqué comme expédié !");
+            } else if (newStatus === 'livre') {
+                showToast("💰 Colis livré ! Argent ajouté à votre CA.");
+            } else if (newStatus === 'annule') {
+                showToast("❌ Commande annulée.");
             }
+
+            // 4. On rafraîchit la liste pour voir les changements (boutons grisés, etc.)
+            await loadSellerOrders();
+            // On met à jour le chiffre d'affaires affiché en haut
+            await loadSellerStats();
         }
+    }
 
         async function loadSellerStats() {
              const { data: { user } } = await supabase.auth.getUser();
