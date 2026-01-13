@@ -99,57 +99,118 @@
         <div class="container mx-auto px-4 mt-6">
             <div class="grid grid-cols-12 gap-6">
                 
-                <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
-                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800 h-[600px] overflow-y-auto scrollbar-hide">
-                        <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
-                        <div class="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5"></i> Mode Femme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Robes')">Robes</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Chemisiers')">Chemisiers</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jeans Femme')">Jeans</li>
-                                </ul>
-                            </details>
+                <div class="space-y-1 text-sm font-medium text-gray-700 dark:text-gray-300">
 
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-shirt w-5"></i> Mode Homme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('T-Shirts')">T-Shirts</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Vestes')">Vestes</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Pantalons')">Pantalons</li>
-                                </ul>
-                            </details>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5 text-center"></i> Téléphones</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones neufs')">Smartphones neufs</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones occasion')">Smartphones d'occasion</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Coques & protections')">Coques & protections</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chargeurs & câbles')">Chargeurs & câbles</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Écouteurs & casques')">Écouteurs & casques</li>
+        </ul>
+    </details>
 
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5"></i> Téléphonie</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Smartphones')">Smartphones</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Coques')">Coques & Étuis</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires')">Accessoires</li>
-                                </ul>
-                            </details>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5 text-center"></i> Informatique</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Ordinateurs portables')">PC Portables</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('PC de bureau')">PC de bureau</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Tablettes')">Tablettes</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Composants PC')">Composants (RAM, GPU...)</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Périphériques')">Claviers & Souris</li>
+        </ul>
+    </details>
 
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5"></i> Ordi & Bureau</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Laptops')">Ordinateurs Portables</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Composants')">Composants</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Périphériques')">Claviers/Souris</li>
-                                </ul>
-                            </details>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-gamepad w-5 text-center"></i> Gaming</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Consoles')">Consoles</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Jeux vidéo')">Jeux vidéo</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Accessoires gaming')">Accessoires</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('PC gamer')">PC Gamer</li>
+        </ul>
+    </details>
 
-                            <li onclick="filterByCategory('Electronique')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-plug w-5"></i> Electronique</span></li>
-                            <li onclick="filterByCategory('Bijoux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gem w-5"></i> Bijoux & Montres</span></li>
-                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
-                            <li onclick="filterByCategory('Sacs')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-bag-shopping w-5"></i> Sacs & Bagages</span></li>
-                            <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gamepad w-5"></i> Jouets & Loisirs</span></li>
-                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sports</span></li>
-                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
-                            <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-5"></i> Auto & Moto</span></li>
-                        </div>
-                    </div>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-user-tie w-5 text-center"></i> Mode Homme</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vêtements Homme')">Vêtements</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chaussures Homme')">Chaussures</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Montres')">Montres</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Accessoires Homme')">Accessoires</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5 text-center"></i> Mode Femme</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vêtements Femme')">Vêtements</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chaussures Femme')">Chaussures</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Sacs')">Sacs à main</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Bijoux')">Bijoux</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-couch w-5 text-center"></i> Maison & Déco</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Meubles')">Meubles</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Décoration')">Décoration</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Électroménager')">Électroménager</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Cuisine')">Cuisine</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-car w-5 text-center"></i> Véhicules</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Voitures')">Voitures</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Motos')">Motos</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Pièces Auto')">Pièces détachées</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vélos')">Vélos & Trottinettes</li>
+        </ul>
+    </details>
+
+    <li onclick="filterByCategory('Beauté & Santé')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i> Beauté & Santé
+    </li>
+
+    <li onclick="filterByCategory('Sports & Loisirs')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-person-running w-5 text-center"></i> Sports & Loisirs
+    </li>
+
+    <li onclick="filterByCategory('Livres & Éducation')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-book w-5 text-center"></i> Livres & Éducation
+    </li>
+
+    <li onclick="filterByCategory('Services')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-handshake w-5 text-center"></i> Services
+    </li>
+
+</div>
 
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
                         <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Filtrer par Prix (Max)</h3>
@@ -507,37 +568,88 @@
                                 <input type="number" id="prod-stock" placeholder="Stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
                             </div>
                             
-                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
+                           <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
     <option value="" disabled selected>Choisir une catégorie...</option>
-    
-    <optgroup label="Mode Femme">
-        <option value="Robes">Robes</option>
-        <option value="Chemisiers">Chemisiers</option>
-        <option value="Jeans Femme">Jeans Femme</option>
+
+    <optgroup label="📱 Téléphones & Accessoires">
+        <option value="Smartphones neufs">Smartphones neufs</option>
+        <option value="Smartphones occasion">Smartphones d'occasion</option>
+        <option value="Coques & protections">Coques & protections</option>
+        <option value="Chargeurs & câbles">Chargeurs & câbles</option>
+        <option value="Écouteurs & casques">Écouteurs & casques</option>
     </optgroup>
 
-    <optgroup label="Mode Homme">
-        <option value="T-Shirts">T-Shirts</option>
-        <option value="Vestes">Vestes</option>
-        <option value="Pantalons">Pantalons</option>
+    <optgroup label="💻 Informatique">
+        <option value="Ordinateurs portables">Ordinateurs portables</option>
+        <option value="PC de bureau">PC de bureau</option>
+        <option value="Tablettes">Tablettes</option>
+        <option value="Composants PC">Composants PC (RAM, GPU...)</option>
+        <option value="Périphériques">Périphériques (Clavier, Souris)</option>
     </optgroup>
 
-    <optgroup label="High-Tech">
-        <option value="Smartphones">Smartphones</option>
-        <option value="Laptops">Ordinateurs Portables</option>
-        <option value="Composants">Composants PC</option>
-        <option value="Périphériques">Claviers/Souris</option>
-        <option value="Electronique">Autre Electronique</option>
+    <optgroup label="🎮 Gaming">
+        <option value="Consoles">Consoles</option>
+        <option value="Jeux vidéo">Jeux vidéo</option>
+        <option value="Accessoires gaming">Accessoires gaming</option>
+        <option value="PC gamer">PC Gamer</option>
     </optgroup>
 
-    <optgroup label="Autres">
-        <option value="Maison">Maison & Jardin</option>
-        <option value="Beauté">Beauté & Santé</option>
-        <option value="Sport">Sport</option>
-        <option value="Auto">Auto & Moto</option>
-        <option value="Jouets">Jouets</option>
-        <option value="Bijoux">Bijoux & Montres</option>
-        <option value="Sacs">Sacs & Bagages</option>
+    <optgroup label="📷 Audio – Vidéo">
+        <option value="Télévisions">Télévisions</option>
+        <option value="Appareils photo">Appareils photo & Caméras</option>
+        <option value="Audio">Enceintes & Son</option>
+    </optgroup>
+
+    <optgroup label="👔 Mode Homme">
+        <option value="Vêtements Homme">Vêtements Homme</option>
+        <option value="Chaussures Homme">Chaussures Homme</option>
+        <option value="Montres">Montres</option>
+    </optgroup>
+
+    <optgroup label="👗 Mode Femme">
+        <option value="Vêtements Femme">Vêtements Femme</option>
+        <option value="Chaussures Femme">Chaussures Femme</option>
+        <option value="Sacs">Sacs & Accessoires</option>
+        <option value="Bijoux">Bijoux</option>
+    </optgroup>
+
+    <optgroup label="👶 Enfant & Bébé">
+        <option value="Vêtements bébé">Vêtements bébé</option>
+        <option value="Vêtements enfants">Vêtements enfants</option>
+        <option value="Jouets enfants">Jouets</option>
+    </optgroup>
+
+    <optgroup label="🏠 Maison & Jardin">
+        <option value="Meubles">Meubles</option>
+        <option value="Électroménager">Électroménager</option>
+        <option value="Décoration">Décoration</option>
+        <option value="Jardin">Jardin & Bricolage</option>
+    </optgroup>
+
+    <optgroup label="🚗 Véhicules">
+        <option value="Voitures">Voitures</option>
+        <option value="Motos">Motos</option>
+        <option value="Pièces Auto">Pièces détachées & Accessoires</option>
+        <option value="Vélos">Vélos & Trottinettes</option>
+    </optgroup>
+
+    <optgroup label="💄 Beauté & Santé">
+        <option value="Maquillage">Maquillage</option>
+        <option value="Parfums">Parfums</option>
+        <option value="Soins">Soins Visage & Corps</option>
+    </optgroup>
+
+    <optgroup label="⚽ Sports & Loisirs">
+        <option value="Sport">Matériel de Sport</option>
+        <option value="Camping">Camping & Randonnée</option>
+        <option value="Musique">Instruments de Musique</option>
+    </optgroup>
+
+    <optgroup label="📚 Culture & Services">
+        <option value="Livres">Livres & Romans</option>
+        <option value="Scolaire">Fournitures Scolaires</option>
+        <option value="Services">Services & Freelance</option>
+        <option value="Animaux">Animaux & Accessoires</option>
     </optgroup>
 </select>
                             
@@ -664,21 +776,22 @@
 
             <div class="p-4 bg-white dark:bg-black border-t border-gray-100 dark:border-dark-800 shrink-0">
                 <div class="flex gap-2 items-center">
-                    <div class="relative group">
-                        <button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 hover:bg-synapse hover:text-black transition flex items-center justify-center text-gray-500">
-                            <i class="fa-solid fa-paperclip"></i>
-                        </button>
-                        <div class="absolute bottom-12 left-0 bg-white dark:bg-dark-800 shadow-xl rounded-xl p-2 w-48 hidden group-hover:block border border-gray-200 dark:border-dark-700">
-                            <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer">
-                                <i class="fa-solid fa-gift text-purple-500"></i> <span class="text-xs font-bold dark:text-white">Envoyer Produit</span>
-                                <input type="file" class="hidden" id="chat-upload-product" onchange="prepareUpload('product')">
-                            </label>
-                            <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer">
-                                <i class="fa-solid fa-receipt text-blue-500"></i> <span class="text-xs font-bold dark:text-white">Preuve Paiement</span>
-                                <input type="file" class="hidden" id="chat-upload-proof" onchange="prepareUpload('proof')">
-                            </label>
-                        </div>
-                    </div>
+                 <div class="relative">
+    <button onclick="toggleAttachMenu()" class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 hover:bg-synapse hover:text-black transition flex items-center justify-center text-gray-500">
+        <i class="fa-solid fa-paperclip"></i>
+    </button>
+
+    <div id="attach-menu" class="absolute bottom-12 left-0 bg-white dark:bg-dark-800 shadow-xl rounded-xl p-2 w-48 hidden border border-gray-200 dark:border-dark-700 z-50">
+        <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer" onclick="toggleAttachMenu()">
+            <i class="fa-solid fa-gift text-purple-500"></i> <span class="text-xs font-bold dark:text-white">Envoyer Produit</span>
+            <input type="file" class="hidden" id="chat-upload-product" onchange="prepareUpload('product')">
+        </label>
+        <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer" onclick="toggleAttachMenu()">
+            <i class="fa-solid fa-receipt text-blue-500"></i> <span class="text-xs font-bold dark:text-white">Preuve Paiement</span>
+            <input type="file" class="hidden" id="chat-upload-proof" onchange="prepareUpload('proof')">
+        </label>
+    </div>
+</div>
 
                     <input type="text" id="chat-input" placeholder="Écrivez votre message..." class="flex-1 bg-gray-50 dark:bg-dark-800 border-none rounded-full px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-synapse dark:text-white" onkeypress="if(event.key === 'Enter') sendChatMessage()">
                     
@@ -1680,7 +1793,7 @@ const { data: all } = await supabase
 
 // --- GESTION DES COMMANDES & CHAT INTELLIGENT ---
 
-    async function loadBuyerOrders() {
+ async function loadBuyerOrders() {
         const container = document.getElementById('buyer-orders-container');
         if(!container) return;
 
@@ -1707,32 +1820,43 @@ const { data: all } = await supabase
         if(orders && orders.length > 0) {
             container.innerHTML = '';
             orders.forEach(item => {
-                const status = item.order ? item.order.status : 'en_attente';
+                // --- 1. DÉFINITION DES VARIABLES (Indispensable pour le HTML) ---
+                
+                // Statut : On prend celui de l'article en priorité, sinon celui de la commande
+                const status = item.status || (item.order ? item.order.status : 'en_attente');
+                
                 let color = 'bg-gray-100 text-gray-600';
                 let statusText = 'En attente';
 
                 if(status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
-                if(status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Terminé'; }
+                if(status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Livré'; }
                 if(status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
 
-                // --- 🔴 CORRECTION ICI : String(...) avant .slice ---
+                // Sécurisation des données
                 const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
                 
-                const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
-                const safeImg = item.product ? item.product.image_url : '';
+                // Titre brut pour l'affichage (avec apostrophes normales)
+                const rawTitle = item.product ? item.product.title : 'Produit supprimé';
+                
+                // Titre sécurisé pour le bouton onclick (apostrophes échappées)
+                const safeTitle = rawTitle.replace(/'/g, "\\'"); 
+                
+                const safeImg = item.product ? item.product.image_url : 'https://pngimg.com/d/box_PNG120.png';
 
+                // --- 2. CONSTRUCTION DU HTML (Votre partie) ---
                 container.innerHTML += `
                 <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
                     <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
+                    
                     <div class="flex-1 text-center md:text-left">
-                        <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
+                        <h4 class="font-bold text-sm text-black dark:text-white">${rawTitle}</h4>
                         <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
                         <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${statusText}</span>
                     </div>
-                  // Dans loadBuyerOrders
-<button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" ... >
-   <i class="fa-solid fa-comments"></i> Chat
-</button>
+
+                    <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-comments"></i> Chat & Suivi
+                    </button>
                 </div>`;
             });
         } else {
@@ -2672,6 +2796,13 @@ window.closeChat = function() {
     document.getElementById('chat-modal').classList.add('hidden');
     if(chatSubscription) supabase.removeChannel(chatSubscription); // On coupe la connexion
     currentChatContext = null;
+}
+
+// Fonction pour ouvrir/fermer le menu des pièces jointes
+window.toggleAttachMenu = function() {
+    const menu = document.getElementById('attach-menu');
+    // Si le menu est caché, on l'affiche. Sinon on le cache.
+    menu.classList.toggle('hidden');
 }
 
     </script>
