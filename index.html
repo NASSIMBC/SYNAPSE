@@ -569,6 +569,77 @@
         </div>
     </div>
 
+<div id="message-modal" class="hidden fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in-up">
+        <div class="bg-white dark:bg-dark-900 w-full max-w-md rounded-2xl p-6 border border-gray-100 dark:border-dark-800 shadow-2xl relative">
+            
+            <button onclick="document.getElementById('message-modal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <h3 class="text-xl font-black text-black dark:text-white mb-2">Envoyer un message</h3>
+            <p class="text-xs text-gray-500 mb-4">Posez une question au vendeur avant d'acheter.</p>
+
+            <textarea id="msg-content" rows="4" placeholder="Bonjour, cet article est-il encore disponible ?" class="w-full bg-gray-50 dark:bg-black border border-gray-200 dark:border-dark-700 rounded-xl p-4 text-sm outline-none focus:border-synapse dark:text-white mb-4 resize-none"></textarea>
+
+            <button onclick="sendMessage()" class="w-full bg-synapse text-black font-bold py-3 rounded-xl hover:bg-black hover:text-synapse transition shadow-lg flex items-center justify-center gap-2">
+                <i class="fa-regular fa-paper-plane"></i> ENVOYER
+            </button>
+        </div>
+    </div>
+
+    <div id="chat-modal" class="hidden fixed inset-0 z-[90] bg-black/90 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-dark-900 w-full max-w-lg h-[80vh] rounded-2xl border border-gray-100 dark:border-dark-800 shadow-2xl flex flex-col overflow-hidden relative">
+            
+            <div class="bg-gray-50 dark:bg-black p-4 border-b border-gray-100 dark:border-dark-800 flex justify-between items-center shrink-0">
+                <div>
+                    <h3 class="font-black text-black dark:text-white flex items-center gap-2"><i class="fa-solid fa-shield-halved text-green-500"></i> Chat Sécurisé</h3>
+                    <p class="text-[10px] text-gray-500">Transaction protégée par Synapse</p>
+                </div>
+                <button onclick="closeChat()" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-dark-800 flex items-center justify-center hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-100 dark:bg-dark-950/50">
+                </div>
+
+            <div id="upload-preview" class="hidden px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border-t border-yellow-200 dark:border-yellow-900 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-arrow-up text-yellow-600"></i>
+                    <div class="text-xs">
+                        <div class="font-bold dark:text-white" id="preview-name">Fichier.zip</div>
+                        <div class="text-[10px] text-gray-500" id="preview-type">Type</div>
+                    </div>
+                </div>
+                <button onclick="cancelUpload()" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button>
+            </div>
+
+            <div class="p-4 bg-white dark:bg-black border-t border-gray-100 dark:border-dark-800 shrink-0">
+                <div class="flex gap-2 items-center">
+                    <div class="relative group">
+                        <button class="w-10 h-10 rounded-full bg-gray-100 dark:bg-dark-800 hover:bg-synapse hover:text-black transition flex items-center justify-center text-gray-500">
+                            <i class="fa-solid fa-paperclip"></i>
+                        </button>
+                        <div class="absolute bottom-12 left-0 bg-white dark:bg-dark-800 shadow-xl rounded-xl p-2 w-48 hidden group-hover:block border border-gray-200 dark:border-dark-700">
+                            <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer">
+                                <i class="fa-solid fa-gift text-purple-500"></i> <span class="text-xs font-bold dark:text-white">Envoyer Produit</span>
+                                <input type="file" class="hidden" id="chat-upload-product" onchange="prepareUpload('product')">
+                            </label>
+                            <label class="flex items-center gap-3 p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-lg cursor-pointer">
+                                <i class="fa-solid fa-receipt text-blue-500"></i> <span class="text-xs font-bold dark:text-white">Preuve Paiement</span>
+                                <input type="file" class="hidden" id="chat-upload-proof" onchange="prepareUpload('proof')">
+                            </label>
+                        </div>
+                    </div>
+
+                    <input type="text" id="chat-input" placeholder="Écrivez votre message..." class="flex-1 bg-gray-50 dark:bg-dark-800 border-none rounded-full px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-synapse dark:text-white" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                    
+                    <button onclick="sendChatMessage()" class="w-10 h-10 rounded-full bg-synapse text-black flex items-center justify-center hover:bg-white transition shadow-lg">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-5 right-5 left-5 md:left-auto z-[70] transform translate-y-40 opacity-0 transition-all duration-300">
         <div class="bg-black dark:bg-white text-white dark:text-black px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4 justify-center">
             <i class="fa-solid fa-check-circle text-synapse dark:text-green-600 text-xl"></i>
@@ -733,27 +804,38 @@
         // --- 6. MESSAGERIE ---
         window.openMessageModal = () => document.getElementById('message-modal').classList.remove('hidden');
 
-        window.sendMessage = async function() {
-            const content = document.getElementById('msg-content').value;
-            const sellerId = document.getElementById('detail-store-id').value;
-            if(!content) return alert("Message vide !");
-            
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) return alert("Connectez-vous !");
-            
-            const { error } = await supabase.from('messages').insert([{
-                sender_id: user.id,
-                receiver_id: sellerId,
-                content: content
-            }]);
+      window.sendMessage = async function() {
+        const content = document.getElementById('msg-content').value;
+        const sellerId = document.getElementById('detail-store-id').value; // ID récupéré depuis la page produit
 
-            if(error) alert("Erreur envoi");
-            else {
-                showToast("Message envoyé !");
-                document.getElementById('message-modal').classList.add('hidden');
-                document.getElementById('msg-content').value = "";
-            }
+        if(!content) return alert("Le message est vide !");
+        
+        // Sécurité : On vérifie si on est connecté
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) {
+            // Si pas connecté, on ferme la modale message et on ouvre la connexion
+            document.getElementById('message-modal').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            return;
         }
+        
+        // Si le vendeur n'est pas identifié (ex: produit ajouté sans boutique)
+        if(!sellerId) return alert("Erreur : Impossible de contacter ce vendeur.");
+
+        const { error } = await supabase.from('messages').insert([{
+            sender_id: user.id,
+            receiver_id: sellerId,
+            content: content
+        }]);
+
+        if(error) {
+            alert("Erreur envoi: " + error.message);
+        } else {
+            showToast("Message envoyé avec succès !");
+            document.getElementById('message-modal').classList.add('hidden');
+            document.getElementById('msg-content').value = "";
+        }
+    }
 
       window.loadMyMessages = async function(userId) {
             const list = document.getElementById('my-messages-list');
