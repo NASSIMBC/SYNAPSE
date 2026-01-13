@@ -2268,7 +2268,7 @@ const { data: all } = await supabase
         window.scrollTo(0, 0);
     }
 
-// FONCTION D'AFFICHAGE (Mise à jour avec le bouton Cœur)
+// FONCTION D'AFFICHAGE CORRIGÉE (Backticks obligatoires !)
     window.renderGrid = function(containerId, products, isBoostedLayout = false) {
         const container = document.getElementById(containerId);
         container.innerHTML = '';
@@ -2279,21 +2279,20 @@ const { data: all } = await supabase
         }
 
         products.forEach(p => {
+            // Nettoyage des textes pour éviter les bugs d'affichage
             const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
             const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
             const safeStoreId = p.store_id || '';
             const safeCat = p.category || '';
             
-            // Calculer si c'est un favori (visuel simple pour l'instant)
-            const heartClass = "fa-regular text-gray-400"; 
-
+            // 👇 C'EST ICI QUE LES BACKTICKS ( ` ) SONT IMPORTANTS 👇
             let cardHtml = `
             <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
                 <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center relative">
                     <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
                     
-                    <button onclick="toggleWishlist('${p.id}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20">
-                        <i class="${heartClass} fa-heart"></i>
+                    <button onclick="toggleWishlist('${p.id}', this); event.stopPropagation()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 dark:bg-black/50 hover:text-red-500 transition flex items-center justify-center shadow-sm z-20 group-heart">
+                        <i class="fa-regular fa-heart text-gray-400 group-heart-hover:text-red-500"></i>
                     </button>
                 </div>
                 
@@ -2309,7 +2308,6 @@ const { data: all } = await supabase
             container.innerHTML += cardHtml;
         });
     }
-
         // Init
         fetchAllData();
 
