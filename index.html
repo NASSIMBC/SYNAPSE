@@ -2390,7 +2390,7 @@ window.toggleWishlist = async function(productId, btnElement) {
         }, 100);
     }
 
-  window.updateStoreDesign = async function(type) {
+ window.updateStoreDesign = async function(type) {
     const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
     const file = document.getElementById(inputId).files[0];
     if(!file) return;
@@ -2399,22 +2399,26 @@ window.toggleWishlist = async function(productId, btnElement) {
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
-        
-        // 1. Trouver l'ID de la boutique
         let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
         
-        // 2. Upload avec un nom unique pour éviter le cache
-        const fileName = `design_${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage.from('products').upload(fileName, file);
+        // --- FIX : NETTOYAGE DU NOM DE FICHIER ---
+        const fileExt = file.name.split('.').pop();
+        // On garde uniquement les lettres et chiffres pour éviter l'erreur "Invalid Key"
+        const cleanName = `design_${Date.now()}_${type}.${fileExt}`;
+        
+        // 1. Upload vers le bucket 'products'
+        const { error: uploadError } = await supabase.storage
+            .from('products')
+            .upload(cleanName, file);
+            
         if (uploadError) throw uploadError;
 
-        // 3. Récupérer l'URL
-        const { data } = supabase.storage.from('products').getPublicUrl(fileName);
+        // 2. Récupérer l'URL
+        const { data } = supabase.storage.from('products').getPublicUrl(cleanName);
         const url = data.publicUrl;
 
-        // 4. Mise à jour de la base de données (Colonnes EXACTES)
+        // 3. Mise à jour de la table 'stores'
         const updateField = (type === 'logo') ? { logo_url: url } : { banner_url: url };
-        
         const { error: dbError } = await supabase
             .from('stores')
             .update(updateField)
@@ -2422,7 +2426,7 @@ window.toggleWishlist = async function(productId, btnElement) {
 
         if (dbError) throw dbError;
 
-        // 5. Mise à jour visuelle
+        // 4. Mise à jour visuelle
         if (type === 'logo') {
             document.getElementById('seller-logo-preview').src = url;
         } else {
@@ -2431,11 +2435,12 @@ window.toggleWishlist = async function(productId, btnElement) {
             banner.classList.remove('hidden');
         }
 
-        showToast("✅ Sauvegardé dans la base de données !");
+        showToast("✅ Design sauvegardé !");
 
     } catch (err) {
         console.error("Erreur complète:", err);
-        alert("Erreur base de données : " + (err.message || "Vérifiez vos colonnes logo_url et banner_url"));
+        // Si l'erreur est "Duplicate", c'est que le fichier existe déjà, on prévient l'utilisateur
+        alert("Erreur : " + (err.message || "Problème de fichier"));
     }
 }
 
