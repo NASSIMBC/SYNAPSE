@@ -65,19 +65,11 @@
             </a>
 
             <div class="flex-1 max-w-3xl relative hidden lg:block">
-    <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
-        <input type="text" id="search-input" 
-               onkeyup="if(event.key === 'Enter') handleSearch()" 
-               oninput="showSuggestions(this.value)"
-               autocomplete="off"
-               placeholder="Chercher un produit (ex: iPhone)..." 
-               class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
-        <button onclick="handleSearch()" class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300"><i class="fa-solid fa-magnifying-glass"></i></button>
-    </div>
-
-    <div id="search-suggestions" class="absolute top-full left-0 w-full bg-white dark:bg-dark-900 mt-2 rounded-xl shadow-2xl border border-gray-100 dark:border-dark-800 hidden z-[100] overflow-hidden">
-        </div>
-</div>
+                <div class="flex items-center border-2 border-synapse rounded-full overflow-hidden bg-gray-50 dark:bg-dark-800 h-11">
+                    <input type="text" id="search-input" onkeyup="if(event.key === 'Enter') handleSearch()" placeholder="Chercher un produit (ex: iPhone)..." class="w-full px-5 bg-transparent outline-none text-sm font-medium dark:text-white dark:placeholder-gray-500">
+                    <button onclick="handleSearch()" class="bg-synapse h-full px-8 text-black font-bold hover:bg-black hover:text-synapse transition duration-300"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
 
             <div class="flex items-center gap-4 md:gap-6 shrink-0">
                 <button onclick="showSellerDashboard()" class="hidden lg:block text-xs bg-red-500 text-white px-3 py-1.5 rounded font-bold hover:bg-red-600 transition shadow-lg">ESPACE VENDEUR</button>
@@ -107,57 +99,118 @@
         <div class="container mx-auto px-4 mt-6">
             <div class="grid grid-cols-12 gap-6">
                 
-             <div class="col-span-12 lg:col-span-3 xl:col-span-2 hidden lg:block space-y-6">
-                    <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800 h-[600px] overflow-y-auto scrollbar-hide">
-                        <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
-                        <div class="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5"></i> Mode Femme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Robes')">Robes</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Chemisiers')">Chemisiers</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jeans Femme')">Jeans</li>
-                                </ul>
-                            </details>
+                <div class="space-y-1 text-sm font-medium text-gray-700 dark:text-gray-300">
 
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-shirt w-5"></i> Mode Homme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('T-Shirts')">T-Shirts</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Vestes')">Vestes</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Pantalons')">Pantalons</li>
-                                </ul>
-                            </details>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5 text-center"></i> Téléphones</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones neufs')">Smartphones neufs</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Smartphones occasion')">Smartphones d'occasion</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Coques & protections')">Coques & protections</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chargeurs & câbles')">Chargeurs & câbles</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Écouteurs & casques')">Écouteurs & casques</li>
+        </ul>
+    </details>
 
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5"></i> Téléphonie</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Smartphones')">Smartphones</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Coques')">Coques & Étuis</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires')">Accessoires</li>
-                                </ul>
-                            </details>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5 text-center"></i> Informatique</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Ordinateurs portables')">PC Portables</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('PC de bureau')">PC de bureau</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Tablettes')">Tablettes</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Composants PC')">Composants (RAM, GPU...)</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Périphériques')">Claviers & Souris</li>
+        </ul>
+    </details>
 
-                            <details class="group">
-                                <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5"></i> Ordi & Bureau</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                                <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Laptops')">Ordinateurs Portables</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Composants')">Composants</li>
-                                    <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Périphériques')">Claviers/Souris</li>
-                                </ul>
-                            </details>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-gamepad w-5 text-center"></i> Gaming</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Consoles')">Consoles</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Jeux vidéo')">Jeux vidéo</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Accessoires gaming')">Accessoires</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('PC gamer')">PC Gamer</li>
+        </ul>
+    </details>
 
-                            <li onclick="filterByCategory('Electronique')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-plug w-5"></i> Electronique</span></li>
-                            <li onclick="filterByCategory('Bijoux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gem w-5"></i> Bijoux & Montres</span></li>
-                            <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
-                            <li onclick="filterByCategory('Sacs')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-bag-shopping w-5"></i> Sacs & Bagages</span></li>
-                            <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gamepad w-5"></i> Jouets & Loisirs</span></li>
-                            <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sports</span></li>
-                            <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
-                            <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-5"></i> Auto & Moto</span></li>
-                        </div>
-                    </div>
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-user-tie w-5 text-center"></i> Mode Homme</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vêtements Homme')">Vêtements</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chaussures Homme')">Chaussures</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Montres')">Montres</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Accessoires Homme')">Accessoires</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5 text-center"></i> Mode Femme</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vêtements Femme')">Vêtements</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Chaussures Femme')">Chaussures</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Sacs')">Sacs à main</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Bijoux')">Bijoux</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-couch w-5 text-center"></i> Maison & Déco</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Meubles')">Meubles</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Décoration')">Décoration</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Électroménager')">Électroménager</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Cuisine')">Cuisine</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-car w-5 text-center"></i> Véhicules</span>
+            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+        </summary>
+        <ul class="pl-9 mt-1 space-y-2 text-xs text-gray-500 border-l-2 border-gray-100 dark:border-gray-800 ml-3">
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Voitures')">Voitures</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Motos')">Motos</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Pièces Auto')">Pièces détachées</li>
+            <li class="hover:text-synapse cursor-pointer pl-2" onclick="filterByCategory('Vélos')">Vélos & Trottinettes</li>
+        </ul>
+    </details>
+
+    <li onclick="filterByCategory('Beauté & Santé')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i> Beauté & Santé
+    </li>
+
+    <li onclick="filterByCategory('Sports & Loisirs')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-person-running w-5 text-center"></i> Sports & Loisirs
+    </li>
+
+    <li onclick="filterByCategory('Livres & Éducation')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-book w-5 text-center"></i> Livres & Éducation
+    </li>
+
+    <li onclick="filterByCategory('Services')" class="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-dark-800 rounded cursor-pointer">
+        <i class="fa-solid fa-handshake w-5 text-center"></i> Services
+    </li>
+
+</div>
 
                     <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
                         <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Filtrer par Prix (Max)</h3>
@@ -818,17 +871,6 @@
         </div>
     </footer>
 
-<div id="live-notif" class="fixed bottom-10 left-5 z-[100] transform -translate-x-96 opacity-0 transition-all duration-700 bg-white dark:bg-dark-900 p-3 rounded-xl shadow-2xl border border-gray-100 dark:border-dark-800 flex items-center gap-3 max-w-xs">
-    <div class="w-10 h-10 bg-synapse rounded-lg flex-shrink-0 flex items-center justify-center">
-        <i class="fa-solid fa-shopping-bag text-black"></i>
-    </div>
-    <div>
-        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Vente en direct</div>
-        <div id="notif-text" class="text-xs font-bold text-black dark:text-white line-clamp-1">Quelqu'un a acheté un produit !</div>
-    </div>
-</div>
-
-
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -1138,63 +1180,42 @@
             document.getElementById('hot-section-container').classList.add('hidden');
         }
 
-       // --- 8. AFFICHAGE DONNEES & REALTIME ---
-async function fetchAllData() {
-    // 1. Charger les produits HOT (augmenté à 10 pour remplir la ligne)
-    const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(10);
-    
-    // 2. Charger les produits BOOSTÉS
-    const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
-    
-    // 3. Gestion des RECOMMANDATIONS (IA basée sur lastSearch)
-    const lastSearch = localStorage.getItem('synapse_last_search');
-    if(lastSearch) {
-        // Augmenté à 10 pour remplir la ligne de 10 colonnes
-        const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(10);
-        if(recos && recos.length > 0) {
-             const recoSection = document.getElementById('ai-reco-section') || document.getElementById('recommended-section');
-             if(recoSection) {
-                recoSection.classList.remove('hidden');
-                renderGrid(recoSection.querySelector('.grid')?.id || 'ai-reco-grid', recos);
-             }
-        }
-    }
-    
-    // 4. Charger les 50 DERNIERS PRODUITS (pour vos 5 lignes de 10)
-    const { data: all } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50); 
+        // --- 8. AFFICHAGE DONNEES & REALTIME ---
+        async function fetchAllData() {
+            const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(4);
+            const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
+            
+            const lastSearch = localStorage.getItem('synapse_last_search');
+            if(lastSearch) {
+                const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
+                if(recos && recos.length > 0) {
+                     document.getElementById('recommended-section').classList.remove('hidden');
+                     renderGrid('recommended-grid', recos);
+                }
+            }
+            
+           // Vérifiez que vous avez bien .order('created_at', { ascending: false })
+const { data: all } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false }); // false = du plus récent au plus vieux
 
-    // Rendu de la grille principale
-    renderGrid('products-grid', all);
-    
-    // Rendu de la grille Hot
-    if(hot && hot.length > 0) renderGrid('hot-grid', hot);
-    
-    // Rendu des produits boostés
-    if(boosted && boosted.length > 0) {
-        const boostedSect = document.getElementById('boosted-section');
-        if(boostedSect) {
-            boostedSect.classList.remove('hidden');
-            renderGrid('boosted-grid', boosted);
-        }
-    }
+            renderGrid('products-grid', all);
+            if(hot && hot.length > 0) renderGrid('hot-grid', hot);
+            
+            if(boosted && boosted.length > 0) {
+                document.getElementById('boosted-section').classList.remove('hidden');
+                renderGrid('boosted-grid', boosted, true);
+            }
+            
+            // --- ACTIVATION DU REALTIME (Écouteur) ---
+            setupRealtime();
 
-    // --- 5. ACTIVATION DES NOTIFICATIONS EN DIRECT ---
-    // On utilise les produits chargés pour simuler des ventes
-    if(all && all.length > 0 && typeof window.startLiveNotifications === 'function') {
-        window.startLiveNotifications(all);
-    }
-    
-    // --- 6. REALTIME & WISHLIST ---
-    setupRealtime();
-
-    if (typeof window.syncWishlistState === 'function') {
-        await window.syncWishlistState();
-    }
-}
+        // Cette ligne vérifie quels produits sont aimés et met les cœurs en rouge
+            if (typeof window.syncWishlistState === 'function') {
+                await window.syncWishlistState();
+            }
+        }
         
         function setupRealtime() {
             supabase
@@ -1378,44 +1399,35 @@ async function fetchAllData() {
             btn.innerText = "Publier"; btn.disabled = false;
         }
     }
-      window.loadSellerProducts = async function() {
-    const list = document.getElementById('seller-products-list');
-    list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return;
-        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-        if(!store) return list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>';
-        
-        const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id).order('created_at', { ascending: false });
+        window.loadSellerProducts = async function() {
+            const list = document.getElementById('seller-products-list');
+            list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if(!user) return;
+                const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+                if(!store) return list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>';
+                const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id).order('created_at', { ascending: false });
 
-        if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
+                if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
 
-        list.innerHTML = '';
-        products.forEach(p => {
-            const safeTitle = p.title.replace(/'/g, "\\'");
-            const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
-            
-            list.innerHTML += `
-            <div class="flex items-center gap-4 bg-dark-900 p-4 rounded-xl border border-gray-800 group hover:border-red-500/30 transition">
-                <img src="${p.image_url}" class="w-16 h-16 object-contain bg-white rounded-lg">
-                <div class="flex-1">
-                    <h4 class="font-bold text-white">${p.title}</h4>
-                    <div class="text-sm text-gray-400">${p.price} DA • Stock: ${p.stock || 0} • <span class="text-synapse">${p.sales || 0} ventes</span></div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock}', '${safeDesc}')" class="bg-gray-700 hover:bg-synapse hover:text-black text-white px-3 py-2 rounded-lg text-xs font-bold transition">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    
-                    <button onclick="deleteProduct('${p.id}', '${p.image_url}')" class="bg-gray-800 hover:bg-red-500 text-red-500 hover:text-white px-3 py-2 rounded-lg text-xs font-bold transition border border-red-500/20">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
-            </div>`;
-        });
-    } catch(e) { console.error(e); }
-}
+                list.innerHTML = '';
+                products.forEach(p => {
+                    const safeTitle = p.title.replace(/'/g, "\\'");
+                    const safeDesc = (p.description || '').replace(/'/g, "\\'");
+                    list.innerHTML += `
+                    <div class="flex items-center gap-4 bg-dark-900 p-4 rounded-xl border border-gray-800">
+                        <img src="${p.image_url}" class="w-16 h-16 object-contain bg-white rounded-lg">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-white">${p.title}</h4>
+                            <div class="text-sm text-gray-400">${p.price} DA • Stock: ${p.stock || 0} • <span class="text-synapse">${p.sales || 0} ventes</span></div>
+                        </div>
+                        <button onclick="openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock}', '${safeDesc}')" class="bg-gray-700 hover:bg-synapse hover:text-black text-white px-4 py-2 rounded-lg text-sm font-bold transition">Modifier</button>
+                    </div>`;
+                });
+            } catch(e) { console.error(e); }
+        }
+
         window.openEditProduct = function(id, title, price, stock, desc) {
             document.getElementById('edit-prod-id').value = id;
             document.getElementById('edit-prod-title').value = title;
@@ -2791,136 +2803,6 @@ window.toggleAttachMenu = function() {
     const menu = document.getElementById('attach-menu');
     // Si le menu est caché, on l'affiche. Sinon on le cache.
     menu.classList.toggle('hidden');
-}
-
-// --- SYSTÈME DE SUGGESTIONS DE RECHERCHE ---
-
-window.showSuggestions = async function(val) {
-    const suggestionBox = document.getElementById('search-suggestions');
-    
-    // On ne cherche qu'à partir de 2 ou 3 lettres pour ne pas saturer la base
-    if (val.length < 2) {
-        suggestionBox.innerHTML = '';
-        suggestionBox.classList.add('hidden');
-        return;
-    }
-
-    // Requête rapide sur les titres des produits
-    const { data: products, error } = await supabase
-        .from('products')
-        .select('id, title, price, image_url, category, store_id, description')
-        .ilike('title', `%${val}%`)
-        .limit(6); // On limite à 6 suggestions pour rester propre
-
-    if (error || !products || products.length === 0) {
-        suggestionBox.classList.add('hidden');
-        return;
-    }
-
-    // Construction du HTML des suggestions
-    suggestionBox.innerHTML = '';
-    products.forEach(p => {
-        const safeTitle = p.title.replace(/'/g, "\\'");
-        const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
-        
-        suggestionBox.innerHTML += `
-        <div onclick="selectSuggestion('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}')" 
-             class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-dark-800 cursor-pointer border-b border-gray-50 dark:border-dark-800 last:border-none transition">
-            <img src="${p.image_url}" class="w-10 h-10 object-contain bg-white rounded-lg p-1">
-            <div class="flex-1">
-                <div class="text-sm font-bold text-black dark:text-white truncate">${p.title}</div>
-                <div class="text-[10px] text-synapse-dark dark:text-synapse font-black">${p.price} DA</div>
-            </div>
-            <i class="fa-solid fa-arrow-right text-gray-300 text-xs"></i>
-        </div>`;
-    });
-
-    suggestionBox.classList.remove('hidden');
-}
-
-// Fonction appelée quand on clique sur une suggestion
-window.selectSuggestion = function(t, p, d, i, id, storeId, cat) {
-    // 1. On remplit l'input
-    document.getElementById('search-input').value = t;
-    // 2. On cache la boite
-    document.getElementById('search-suggestions').classList.add('hidden');
-    // 3. On ouvre directement le détail du produit !
-    openDetail(t, p, d, i, id, storeId, cat);
-}
-
-// Fermer les suggestions si on clique ailleurs sur la page
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('#search-input')) {
-        document.getElementById('search-suggestions').classList.add('hidden');
-    }
-});
-
-// --- FONCTION DE SUPPRESSION DE PRODUIT ---
-window.deleteProduct = async function(productId, imageUrl) {
-    const confirmDelete = confirm("⚠️ Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.");
-    
-    if (!confirmDelete) return;
-
-    try {
-        showToast("⏳ Suppression en cours...");
-
-        // 1. Supprimer l'image du Storage (si elle existe)
-        if (imageUrl) {
-            // On extrait le nom du fichier depuis l'URL (le texte après le dernier '/')
-            const fileName = imageUrl.split('/').pop();
-            const { error: storageError } = await supabase.storage
-                .from('products')
-                .remove([fileName]);
-            
-            if (storageError) console.warn("Note: L'image n'a pas pu être retirée du stockage.");
-        }
-
-        // 2. Supprimer la ligne dans la table 'products'
-        const { error: dbError } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', productId);
-
-        if (dbError) throw dbError;
-
-        // 3. Succès
-        showToast("🗑️ Produit supprimé avec succès.");
-        
-        // Actualiser les listes
-        await loadSellerProducts();
-        await loadSellerStats();
-        
-    } catch (err) {
-        console.error("Erreur suppression:", err);
-        alert("Impossible de supprimer le produit : " + err.message);
-    }
-}
-
-// --- SYSTÈME DE NOTIFICATIONS EN DIRECT ---
-window.startLiveNotifications = function(products) {
-    if (!products || products.length === 0) return;
-
-    const notif = document.getElementById('live-notif');
-    const text = document.getElementById('notif-text');
-    const wilayas = ["Alger", "Oran", "Constantine", "Tizi Ouzou", "Bejaia", "Setif", "Annaba", "Blida"];
-
-    setInterval(() => {
-        // 1. Choisir un produit au hasard parmi les 50
-        const randomProd = products[Math.floor(Math.random() * products.length)];
-        const randomWilaya = wilayas[Math.floor(Math.random() * wilayas.length)];
-
-        // 2. Mettre à jour le texte
-        text.innerText = `Un utilisateur à ${randomWilaya} vient d'acheter "${randomProd.title}"`;
-
-        // 3. Animation d'entrée
-        notif.classList.remove('-translate-x-96', 'opacity-0');
-        
-        // 4. Cacher après 6 secondes
-        setTimeout(() => {
-            notif.classList.add('-translate-x-96', 'opacity-0');
-        }, 6000);
-
-    }, 45000); // Se déclenche toutes les 45 secondes (tu peux changer le temps)
 }
 
     </script>
