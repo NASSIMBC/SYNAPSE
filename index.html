@@ -1410,75 +1410,63 @@ const { data: all } = await supabase
             }
         }
 
-       async function loadSellerOrders() {
-            const list = document.getElementById('seller-orders-list');
-            list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if(!user) return;
-                const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-                if(!store) { list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>'; return; }
+     async function loadSellerOrders() {
+    const list = document.getElementById('seller-orders-list');
+    list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
+    
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+        if(!store) return;
 
-                // NOTE: On garde !inner pour filtrer vos produits uniquement
-                const { data: items } = await supabase
-                    .from('order_items')
-                    .select('*, order:orders(*), product:products!inner(*)') 
-                    .eq('product.store_id', store.id)
-                    .order('created_at', { ascending: false });
+        const { data: items, error } = await supabase
+            .from('order_items')
+            .select('*, order:orders(*), product:products!inner(*)') 
+            .eq('product.store_id', store.id)
+            .order('created_at', { ascending: false });
 
-                if(!items || items.length === 0) { 
-                    list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucune commande.</div>'; 
-                    return; 
-                }
-
-                list.innerHTML = '';
-                items.forEach(item => {
-                    // ICI : On regarde le statut de L'ARTICLE, pas de la commande
-                    const status = item.status || 'en_attente'; 
-                    
-                    let buttonsHtml = '';
-                    // NOTE : On passe item.id (l'ID de la ligne) au lieu de item.order_id
-                    if (status === 'en_attente') {
-                        buttonsHtml = `<button onclick="updateOrderItemStatus('${item.id}', 'en_livraison')" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition"><i class="fa-solid fa-truck"></i> Expédier cet article</button>`;
-                    } else if (status === 'en_livraison') {
-                        buttonsHtml = `<div class="flex gap-2">
-                            <button onclick="updateOrderItemStatus('${item.id}', 'livre', ${item.price}, ${store.id}, ${item.product.id})" class="flex-1 bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition"><i class="fa-solid fa-check"></i> Livré</button>
-                            <button onclick="updateOrderItemStatus('${item.id}', 'annule')" class="flex-1 bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition"><i class="fa-solid fa-xmark"></i> Annuler</button>
-                        </div>`;
-                    } else if(status === 'livre') {
-                        buttonsHtml = `<div class="text-green-500 font-bold text-center"><i class="fa-solid fa-circle-check"></i> Terminé</div>`;
-                    } else if(status === 'annule') {
-                        buttonsHtml = `<div class="text-red-500 font-bold text-center"><i class="fa-solid fa-ban"></i> Annulé</div>`;
-                    }
-
-                    list.innerHTML += `
-                    <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/50 transition">
-                        <div class="flex justify-between items-start border-b border-gray-800 pb-4 mb-4">
-                            <div>
-                                <span class="text-xs text-gray-500 uppercase font-bold">Commande #${String(item.order_id).slice(0,8)}</span>
-                                <div class="text-sm text-gray-300 mt-1">${new Date(item.created_at).toLocaleDateString()}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl font-black text-white">${item.price} DA</div>
-                                <span class="bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded border border-gray-700">${status}</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 items-center mb-4">
-                            <img src="${item.product.image_url}" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
-                            <div>
-                                <h4 class="font-bold text-white">${item.product.title}</h4>
-                                <div class="text-xs text-gray-400">Qté: ${item.quantity}</div>
-                            </div>
-                        </div>
-                        <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800">
-                            <div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison :</div>
-                            <p>${item.order.shipping_address || 'Non spécifiée'}</p>
-                        </div>
-                        ${buttonsHtml}
-                    </div>`;
-                });
-            } catch(e) { console.error(e); }
+        if(!items || items.length === 0) {
+            list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucune commande.</div>';
+            return;
         }
+
+        list.innerHTML = '';
+        items.forEach(item => {
+            // --- FIX ICI : SÉCURISATION ---
+            // On vérifie si 'order' existe, sinon on met un texte par défaut
+            const shippingInfo = item.order ? item.order.shipping_address : "Adresse non disponible (Commande supprimée)";
+            const status = item.status || 'en_attente';
+            const productTitle = item.product ? item.product.title : "Produit inconnu";
+            const productImg = item.product ? item.product.image_url : "";
+            
+            list.innerHTML += `
+            <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4">
+                <div class="flex justify-between items-start border-b border-gray-800 pb-4 mb-4">
+                    <div>
+                        <span class="text-xs text-gray-500 uppercase font-bold">Commande #${String(item.order_id).slice(0,8)}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xl font-black text-white">${item.price} DA</div>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-center mb-4">
+                    <img src="${productImg}" class="w-16 h-16 bg-white rounded-lg object-contain p-1">
+                    <div>
+                        <h4 class="font-bold text-white">${productTitle}</h4>
+                        <div class="text-xs text-gray-400">Qté: ${item.quantity}</div>
+                    </div>
+                </div>
+                <div class="bg-black/50 p-3 rounded-lg text-sm text-gray-300 mb-4 border border-gray-800">
+                    <div class="font-bold text-synapse mb-1"><i class="fa-solid fa-location-dot"></i> Livraison :</div>
+                    <p>${shippingInfo}</p>
+                </div>
+                </div>`;
+        });
+    } catch(e) { 
+        console.error("Erreur espace vendeur:", e);
+        list.innerHTML = '<div class="text-red-500 text-center">Erreur lors de l\'affichage des commandes.</div>';
+    }
+}
 
      // Fonction Mise à Jour Commande (Connectée à la base de données)
     window.updateOrderItemStatus = async function(itemId, newStatus) {
