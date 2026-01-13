@@ -82,6 +82,10 @@
                         <div id="header-username" class="text-sm font-bold text-black dark:text-white">Compte</div>
                     </div>
                 </div>
+
+                <button onclick="openWishlist()" class="text-2xl text-gray-700 dark:text-gray-300 hover:text-red-500 transition group" title="Mes Favoris">
+                    <i class="fa-regular fa-heart group-hover:animate-pulse"></i>
+                </button>
                 
                 <div onclick="toggleCart()" class="relative cursor-pointer group">
                     <div class="text-2xl text-gray-700 dark:text-gray-300 group-hover:text-synapse transition"><i class="fa-solid fa-cart-shopping"></i></div>
@@ -199,6 +203,20 @@
         </div>
     </div>
 
+<div id="wishlist-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> 
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-black dark:text-white font-bold">Mes coups de cœur</span>
+        </div>
+        <h1 class="text-2xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-heart text-red-500"></i> Ma Wishlist
+        </h1>
+        <div id="wishlist-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="col-span-full text-center py-20 text-gray-400">Chargement...</div>
+        </div>
+    </div>
+
    <div id="product-view" class="hidden container mx-auto px-4 mt-24 mb-12 animate-fade-in-up">
         
         <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
@@ -242,14 +260,14 @@
                     </div>
                 </div>
                 
-                <div class="flex gap-3">
-                    <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="flex-1 bg-synapse text-black font-bold py-4 rounded-xl hover:bg-white hover:shadow-lg transition uppercase tracking-wide transform active:scale-95 shadow-synapse/50 shadow-lg">
-                        Ajouter au panier
-                    </button>
-                    <button onclick="openMessageModal()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-6 rounded-xl font-bold hover:bg-gray-200 transition border border-gray-200 dark:border-dark-700">
-                        <i class="fa-regular fa-envelope text-2xl"></i>
-                    </button>
-                </div>
+                <div class="flex gap-2">
+    <button onclick="toggleWishlist('${p.id}', this); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center text-gray-400">
+        <i class="fa-regular fa-heart"></i>
+    </button>
+    <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center">
+        <i class="fa-solid fa-plus"></i>
+    </button>
+</div>
 
                 <div class="border border-gray-200 dark:border-dark-800 rounded-xl p-4 flex items-center gap-4 bg-white dark:bg-black/20 hover:border-synapse transition cursor-pointer group">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 flex items-center justify-center text-xl font-bold text-gray-600 group-hover:bg-synapse group-hover:text-black transition">
@@ -423,7 +441,33 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div class="col-span-1">
-                <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24">
+               <div class="bg-black border border-synapse/30 rounded-xl p-6 sticky top-24 overflow-hidden relative group">
+    
+    <div class="absolute inset-0 bg-gray-800 z-0">
+        <img id="seller-bg-preview" src="" class="w-full h-full object-cover opacity-50 hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black"></div>
+    </div>
+
+    <div class="relative z-10">
+        <div class="flex flex-col items-center mb-6">
+            <div class="relative w-20 h-20 mb-3 cursor-pointer group-hover:scale-105 transition" onclick="document.getElementById('upload-logo').click()">
+                <img id="seller-logo-preview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-full h-full object-cover rounded-full border-2 border-synapse bg-black">
+                <div class="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 hover:opacity-100 transition text-xs text-white font-bold">Changer</div>
+            </div>
+            <div class="font-bold text-white text-lg text-center">Ma Boutique</div>
+            <button onclick="document.getElementById('upload-banner').click()" class="text-[10px] text-gray-400 hover:text-white underline mt-1">Changer la bannière</button>
+            
+            <input type="file" id="upload-logo" class="hidden" accept="image/*" onchange="updateStoreDesign('logo')">
+            <input type="file" id="upload-banner" class="hidden" accept="image/*" onchange="updateStoreDesign('banner')">
+        </div>
+
+        <ul class="space-y-2 text-sm font-bold text-gray-300">
+            <li onclick="switchSellerTab('orders')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-white/10 backdrop-blur-md"><i class="fa-solid fa-box-open"></i> Commandes</li>
+            <li onclick="switchSellerTab('products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-white/10 backdrop-blur-md"><i class="fa-solid fa-plus-circle"></i> Ajouter Produit</li>
+            <li onclick="switchSellerTab('my-products')" class="seller-tab-btn hover:bg-synapse hover:text-black p-3 rounded-lg cursor-pointer transition flex items-center gap-3 bg-white/10 backdrop-blur-md"><i class="fa-solid fa-list-ul"></i> Mes Produits</li>
+        </ul>
+    </div>
+</div>
                     <div class="flex items-center gap-3 mb-8">
                         <div class="w-12 h-12 rounded-lg bg-synapse flex items-center justify-center text-xl text-black font-black"><i class="fa-solid fa-store"></i></div>
                         <div><div class="font-bold text-white">Ma Boutique</div><div class="text-xs text-synapse">Vendeur Vérifié <i class="fa-solid fa-circle-check"></i></div></div>
@@ -578,6 +622,9 @@
                 <li onclick="goHome(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-house w-6"></i> Accueil</li>
                 <li onclick="handleAccountClick(); toggleMobileMenu()" class="cursor-pointer hover:text-synapse flex items-center gap-3"><i class="fa-solid fa-user w-6"></i> Mon Compte</li>
                 <li onclick="showSellerDashboard(); toggleMobileMenu()" class="cursor-pointer text-red-500 hover:text-red-400 flex items-center gap-3 mt-8 pt-8 border-t border-gray-200 dark:border-gray-800"><i class="fa-solid fa-store w-6"></i> Espace Vendeur</li>
+                <li onclick="openWishlist(); toggleMobileMenu()" class="cursor-pointer hover:text-red-500 flex items-center gap-3">
+    <i class="fa-solid fa-heart w-6"></i> Mes Favoris
+</li>
             </ul>
         </div>
     </div>
@@ -2080,6 +2127,157 @@ const { data: all } = await supabase
             text.innerText = count + " fichiers prêts";
             text.classList.add('text-synapse');
         }
+    }
+
+// --- GESTION WISHLIST ---
+
+    // 1. Ajouter / Retirer des favoris
+    window.toggleWishlist = async function(productId, btnElement) {
+        // Empêcher le clic de nous emmener sur la page produit
+        if(event) event.stopPropagation(); 
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) return alert("Connectez-vous pour ajouter aux favoris !");
+
+        // Vérifier si déjà liké
+        const { data: existing } = await supabase.from('wishlist').select('id').eq('user_id', user.id).eq('product_id', productId).maybeSingle();
+
+        if(existing) {
+            // Si oui, on supprime
+            await supabase.from('wishlist').delete().eq('id', existing.id);
+            showToast("Retiré des favoris.");
+            if(btnElement) btnElement.classList.remove('text-red-500'); // Visuel immédiat
+            loadWishlist(); // Rafraichir si on est sur la page wishlist
+        } else {
+            // Si non, on ajoute
+            await supabase.from('wishlist').insert([{ user_id: user.id, product_id: productId }]);
+            showToast("❤️ Ajouté aux coups de cœur !");
+            if(btnElement) btnElement.classList.add('text-red-500'); // Visuel immédiat
+        }
+    }
+
+    // 2. Afficher la page Wishlist
+    window.openWishlist = async function() {
+        window.hideAllViews();
+        document.getElementById('wishlist-view').classList.remove('hidden');
+        loadWishlist();
+    }
+
+    // 3. Charger les produits favoris
+    window.loadWishlist = async function() {
+        const container = document.getElementById('wishlist-grid');
+        container.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) {
+            container.innerHTML = '<div class="col-span-full text-center text-gray-500">Connectez-vous pour voir vos favoris.</div>';
+            return;
+        }
+
+        // On récupère les IDs des produits favoris
+        const { data: wishes } = await supabase.from('wishlist').select('product_id').eq('user_id', user.id);
+        
+        if(!wishes || wishes.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10"><i class="fa-regular fa-heart text-4xl mb-4 text-gray-300"></i><br>Votre wishlist est vide.</div>';
+            return;
+        }
+
+        // On récupère les détails de ces produits
+        const productIds = wishes.map(w => w.product_id);
+        const { data: products } = await supabase.from('products').select('*').in('id', productIds);
+
+        // On utilise ta fonction renderGrid existante mais on injecte le bouton coeur rouge
+        renderGrid('wishlist-grid', products);
+        
+        // Petit hack pour mettre les coeurs en rouge sur cette page
+        // (Idéalement on modifierait renderGrid, mais on fait simple)
+        setTimeout(() => {
+            const hearts = container.querySelectorAll('.fa-heart');
+            hearts.forEach(h => h.classList.add('text-red-500', 'fa-solid')); 
+        }, 100);
+    }
+
+// --- DESIGN BOUTIQUE ---
+
+    window.updateStoreDesign = async function(type) {
+        const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
+        const file = document.getElementById(inputId).files[0];
+        if(!file) return;
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+            
+            // Upload
+            const fileName = `store_${store.id}_${type}_${Date.now()}`;
+            const { error: upError } = await supabase.storage.from('products').upload(fileName, file); // On utilise le même bucket 'products' par simplicité
+            if(upError) throw upError;
+
+            const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
+            const url = publicUrl.publicUrl;
+
+            // Update DB
+            const updateData = type === 'logo' ? { logo_url: url } : { banner_url: url };
+            await supabase.from('stores').update(updateData).eq('id', store.id);
+
+            // Update UI immédiat
+            if(type === 'logo') document.getElementById('seller-logo-preview').src = url;
+            if(type === 'banner') {
+                const banner = document.getElementById('seller-bg-preview');
+                banner.src = url;
+                banner.classList.remove('hidden');
+            }
+
+            showToast("Design boutique mis à jour !");
+
+        } catch(e) {
+            alert("Erreur upload: " + e.message);
+        }
+    }
+
+    // Fonction améliorée pour afficher la boutique du vendeur (Visiteur)
+    window.filterByStore = async function(storeId) {
+        window.hideAllViews();
+        document.getElementById('home-view').classList.remove('hidden');
+        
+        // Reset UI
+        document.getElementById('boosted-section').classList.add('hidden');
+        document.getElementById('recommended-section').classList.add('hidden');
+        document.getElementById('hot-section-container').classList.add('hidden');
+        document.getElementById('hero-banner').classList.add('hidden');
+
+        // Charger infos boutique
+        const { data: store } = await supabase.from('stores').select('*').eq('id', storeId).single();
+        
+        // Construction de l'en-tête boutique
+        let headerHtml = `<div class="bg-gray-900 rounded-2xl overflow-hidden mb-8 relative">`;
+        
+        // Bannière
+        if(store.banner_url) {
+            headerHtml += `<div class="h-48 bg-cover bg-center opacity-60" style="background-image: url('${store.banner_url}')"></div>`;
+        } else {
+            headerHtml += `<div class="h-32 bg-gradient-to-r from-gray-800 to-black"></div>`;
+        }
+
+        // Logo et Nom
+        headerHtml += `
+            <div class="absolute bottom-0 left-0 p-6 flex items-end gap-4 w-full bg-gradient-to-t from-black/90 to-transparent">
+                <img src="${store.logo_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="w-20 h-20 rounded-full border-4 border-black bg-white object-cover">
+                <div class="mb-1">
+                    <h1 class="text-3xl font-black text-white">${store.name}</h1>
+                    <div class="text-synapse text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Vendeur Vérifié</div>
+                </div>
+            </div>
+        </div>`;
+
+        document.getElementById('main-grid-title').innerHTML = headerHtml;
+
+        // Charger produits
+        const grid = document.getElementById('products-grid');
+        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+        const { data } = await supabase.from('products').select('*').eq('store_id', storeId);
+        renderGrid('products-grid', data);
+        window.scrollTo(0, 0);
     }
 
         // Init
