@@ -479,16 +479,19 @@
                     <h2 class="text-2xl font-black text-white mb-6">Mettre en vente un produit</h2>
                     <div class="bg-dark-900 border border-gray-800 rounded-xl p-6">
                         <div class="space-y-4">
-                            
-                           <div class="relative border-2 border-dashed border-gray-700 rounded-xl h-40 flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group">
-    <input type="file" id="prod-images" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="previewMultipleImages(this)">
-    
-    <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
-        <i class="fa-solid fa-images text-3xl mb-2"></i>
-        <span class="block text-xs font-bold" id="upload-text">Cliquez pour ajouter jusqu'à 10 photos</span>
+    <div class="relative border-2 border-dashed border-gray-700 rounded-xl min-h-[160px] flex flex-col items-center justify-center bg-black/20 hover:border-synapse transition group p-4">
+        
+        <input type="file" id="prod-images" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="addFilesToQueue(this)">
+        
+        <div id="upload-placeholder" class="text-center text-gray-500 group-hover:text-synapse pointer-events-none">
+            <i class="fa-solid fa-images text-3xl mb-2"></i>
+            <span class="block text-xs font-bold">Cliquez pour ajouter des photos</span>
+            <span class="text-[10px] opacity-70">(Max 10 photos)</span>
+        </div>
+
+        <div id="preview-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full relative z-20 mt-2 hidden">
+            </div>
     </div>
-    
-    <div id="preview-count" class="hidden absolute bottom-2 bg-synapse text-black text-xs font-bold px-2 py-1 rounded">0 photos</div>
 </div>
 
                             <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
@@ -1199,15 +1202,16 @@ const { data: all } = await supabase
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
-  window.publishProduct = async function() {
-        // 👇 CETTE ALERTE DOIT S'AFFICHER. SI NON = ANCIEN CODE
-        alert("📢 NOUVEAU CODE ACTIVÉ : Nettoyage du fichier en cours..."); 
-
-        const btn = document.getElementById('btn-publish');
-        const imageFiles = document.getElementById('prod-images').files;
-        const digitalFile = document.getElementById('prod-file').files[0];
-        
-        if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
+ window.publishProduct = async function() {
+    const btn = document.getElementById('btn-publish');
+    
+    // 👇 MODIFICATION ICI : On utilise notre liste globale au lieu de l'input
+    const imageFiles = window.productFiles; 
+    
+    const digitalFile = document.getElementById('prod-file').files[0];
+    
+    // Vérifications
+    if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
         
         btn.innerText = "Envoi..."; btn.disabled = true;
 
@@ -2477,6 +2481,75 @@ window.syncWishlistState = async function() {
             }
         }
     });
+}
+
+// --- GESTION AVANCÉE DES PHOTOS (AVEC SUPPRESSION) ---
+
+// 1. Liste globale pour stocker les fichiers
+window.productFiles = []; 
+
+// 2. Fonction pour ajouter des fichiers sans écraser les précédents
+window.addFilesToQueue = function(input) {
+    const newFiles = Array.from(input.files);
+    
+    // Vérification de la limite (10 max)
+    if (window.productFiles.length + newFiles.length > 10) {
+        alert("⚠️ Vous ne pouvez pas dépasser 10 photos au total.");
+        return;
+    }
+
+    // On ajoute les nouveaux fichiers à notre liste
+    window.productFiles = [...window.productFiles, ...newFiles];
+    
+    // On vide l'input pour pouvoir ré-ajouter les mêmes fichiers si besoin (cas rare mais possible)
+    input.value = ''; 
+    
+    renderPreviews();
+}
+
+// 3. Fonction pour retirer une photo spécifique
+window.removeFile = function(index) {
+    // On retire le fichier à l'index donné
+    window.productFiles.splice(index, 1);
+    renderPreviews();
+}
+
+// 4. Fonction d'affichage (Render)
+window.renderPreviews = function() {
+    const container = document.getElementById('preview-grid');
+    const placeholder = document.getElementById('upload-placeholder');
+
+    container.innerHTML = ''; // On nettoie l'affichage
+
+    if (window.productFiles.length === 0) {
+        container.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+    } else {
+        container.classList.remove('hidden');
+        placeholder.classList.add('hidden'); // On cache le texte "Cliquez ici"
+
+        // On boucle sur chaque fichier pour créer la vignette
+        window.productFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const html = `
+                <div class="relative group aspect-square bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
+                    <img src="${e.target.result}" class="w-full h-full object-cover">
+                    
+                    <button onclick="removeFile(${index})" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md transition transform hover:scale-110 z-30">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                    
+                    <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 rounded">${index + 1}</span>
+                </div>`;
+                
+                // Astuce : on insère au fur et à mesure que les images chargent
+                // Note : Pour garantir l'ordre, on pourrait créer les div vides d'abord, mais ceci suffit pour l'instant.
+                container.insertAdjacentHTML('beforeend', html);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
 }
 
         // Init
