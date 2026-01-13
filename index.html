@@ -199,62 +199,73 @@
         </div>
     </div>
 
-    <div id="product-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+   <div id="product-view" class="hidden container mx-auto px-4 mt-24 mb-12 animate-fade-in-up">
+        
         <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span id="detail-category-crumb" class="text-gray-400">Produit</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> 
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span id="detail-category-crumb" class="text-gray-400">Produit</span> 
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
             <span class="text-black dark:text-white font-bold">Détail</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
             <div class="lg:col-span-7">
-                <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 h-[400px] sticky top-24 mb-4">
-                    <img id="detail-img" src="" class="max-h-full object-contain drop-shadow-2xl hover:scale-105 transition duration-500">
+                <div class="bg-white dark:bg-dark-900 rounded-2xl p-8 flex items-center justify-center border border-gray-100 dark:border-dark-800 h-[400px] sticky top-24 mb-4 shadow-sm relative overflow-hidden group">
+                    <img id="detail-img" src="" class="max-h-full object-contain drop-shadow-2xl transition duration-500 group-hover:scale-105">
                 </div>
                 
-                <div id="detail-gallery" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide"></div>
+                <div id="detail-gallery" class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide min-h-[90px] items-center">
+                    <span class="text-xs text-gray-400">Chargement galerie...</span>
+                </div>
             </div>
 
             <div class="lg:col-span-5 space-y-6">
+                
                 <input type="hidden" id="detail-id">
-               <input type="hidden" id="detail-store-id">
+                <input type="hidden" id="detail-store-id">
                 <input type="hidden" id="detail-category-hidden"> 
+
                 <div>
-                    <h1 id="detail-title" class="text-2xl md:text-3xl font-black text-black dark:text-white leading-tight mb-2">Titre Produit</h1>
-                    <div id="detail-sales-badge" class="inline-flex items-center gap-1 bg-gray-100 dark:bg-dark-800 px-2 py-1 rounded text-xs text-gray-500 font-bold">
-                        </div>
+                    <h1 id="detail-title" class="text-3xl font-black text-black dark:text-white leading-tight mb-2">Titre du produit</h1>
+                    <div id="detail-sales-badge" class="inline-flex items-center gap-1 bg-gray-100 dark:bg-dark-800 px-3 py-1 rounded-full text-xs text-gray-500 font-bold">
+                        Chargement...
+                    </div>
                 </div>
 
-                <div class="bg-gray-50 dark:bg-dark-900 p-5 rounded-2xl border border-gray-100 dark:border-dark-800 flex justify-between items-center">
+                <div class="bg-gray-50 dark:bg-dark-900 p-6 rounded-2xl border border-gray-100 dark:border-dark-800 flex justify-between items-center shadow-inner">
                     <span id="detail-price" class="text-4xl font-black text-synapse-dark dark:text-synapse">0 DA</span>
                     <div class="text-right">
                         <div class="text-xs text-gray-400 line-through">Prix marché</div>
-                        <div class="text-xs text-green-600 font-bold">Meilleur prix</div>
+                        <div class="text-xs text-green-600 font-bold bg-green-100 px-2 py-1 rounded">Meilleure offre</div>
                     </div>
                 </div>
                 
                 <div class="flex gap-3">
-                    <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="flex-1 bg-synapse text-black font-bold py-4 rounded-xl hover:bg-white hover:shadow-lg transition uppercase tracking-wide transform active:scale-95">
+                    <button onclick="addToCart(document.getElementById('detail-title').innerText, document.getElementById('detail-price').innerText, document.getElementById('detail-img').src, document.getElementById('detail-id').value)" class="flex-1 bg-synapse text-black font-bold py-4 rounded-xl hover:bg-white hover:shadow-lg transition uppercase tracking-wide transform active:scale-95 shadow-synapse/50 shadow-lg">
                         Ajouter au panier
                     </button>
-                    <button onclick="openMessageModal()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-5 rounded-xl font-bold hover:bg-gray-200 transition">
-                        <i class="fa-regular fa-envelope text-xl"></i>
+                    <button onclick="openMessageModal()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-6 rounded-xl font-bold hover:bg-gray-200 transition border border-gray-200 dark:border-dark-700">
+                        <i class="fa-regular fa-envelope text-2xl"></i>
                     </button>
                 </div>
 
-                <div class="border border-gray-200 dark:border-dark-800 rounded-xl p-4 flex items-center gap-4 bg-white dark:bg-black/20">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 flex items-center justify-center text-xl font-bold text-gray-600">
+                <div class="border border-gray-200 dark:border-dark-800 rounded-xl p-4 flex items-center gap-4 bg-white dark:bg-black/20 hover:border-synapse transition cursor-pointer group">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-gray-200 to-gray-400 flex items-center justify-center text-xl font-bold text-gray-600 group-hover:bg-synapse group-hover:text-black transition">
                         <i class="fa-solid fa-store"></i>
                     </div>
                     <div class="flex-1">
-                        <div class="text-xs text-gray-400 uppercase font-bold">Vendu par</div>
-                        <div id="detail-seller-name" class="font-bold text-black dark:text-white text-lg leading-none">Nom Boutique</div>
+                        <div class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Vendu par</div>
+                        <div id="detail-seller-name" class="font-bold text-black dark:text-white text-lg leading-none mt-1">Vendeur</div>
                     </div>
-                    <button id="btn-seller-profile" class="text-xs font-bold text-synapse hover:underline">Voir la boutique</button>
+                    <button id="btn-seller-profile" class="text-xs font-bold text-synapse hover:underline bg-black/5 px-3 py-2 rounded-lg">
+                        Voir la boutique
+                    </button>
                 </div>
 
-                <div class="pt-4 border-t border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-black dark:text-white mb-2">Description</h3>
+                <div class="pt-6 border-t border-gray-100 dark:border-dark-800">
+                    <h3 class="font-bold text-black dark:text-white mb-2 flex items-center gap-2"><i class="fa-solid fa-align-left text-synapse"></i> Description</h3>
                     <p id="detail-desc" class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">...</p>
                 </div>
             </div>
@@ -269,15 +280,15 @@
             </div>
         </div>
 
-        <div class="mt-12 bg-gray-50 dark:bg-dark-900 rounded-2xl p-6 md:p-8">
+        <div class="mt-12 bg-gray-50 dark:bg-dark-900 rounded-2xl p-6 md:p-8 mb-20">
             <h2 class="text-xl font-bold text-black dark:text-white mb-6">Avis & Questions</h2>
             
             <div class="flex gap-4 mb-8">
                 <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-dark-700 flex-shrink-0 flex items-center justify-center"><i class="fa-solid fa-user"></i></div>
                 <div class="flex-1">
-                    <input type="text" id="new-comment-input" placeholder="Posez une question ou donnez votre avis..." class="w-full bg-white dark:bg-black border border-gray-200 dark:border-dark-700 rounded-lg px-4 py-3 outline-none focus:border-synapse dark:text-white text-sm">
+                    <input type="text" id="new-comment-input" placeholder="Posez une question ou donnez votre avis..." class="w-full bg-white dark:bg-black border border-gray-200 dark:border-dark-700 rounded-lg px-4 py-3 outline-none focus:border-synapse dark:text-white text-sm transition">
                     <div class="flex justify-end mt-2">
-                        <button onclick="postComment()" class="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-lg text-xs font-bold hover:opacity-80 transition">PUBLIER</button>
+                        <button onclick="postComment()" class="bg-black dark:bg-white text-white dark:text-black px-6 py-2 rounded-lg text-xs font-bold hover:opacity-80 transition shadow-lg">PUBLIER</button>
                     </div>
                 </div>
             </div>
