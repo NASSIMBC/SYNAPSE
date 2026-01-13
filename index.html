@@ -1961,66 +1961,90 @@ const { data: all } = await supabase
         }
     }
 
-        // --- 3. AFFICHAGE DETAIL (Galerie) ---
-        // Remplacez votre ancienne fonction openDetail par celle-ci
-        window.openDetail = async function(t, p, d, i, id, storeId, category) {
-            document.getElementById('detail-title').innerText = t;
-            document.getElementById('detail-price').innerText = p + " DA";
-            document.getElementById('detail-desc').innerText = d || "Pas de description.";
-            
-            // Image par défaut
-            const mainImg = document.getElementById('detail-img');
-            mainImg.src = i || "https://pngimg.com/d/box_PNG120.png";
-            
-            document.getElementById('detail-id').value = id;
-            document.getElementById('detail-category-hidden').value = category;
+       // --- 3. AFFICHAGE DÉTAIL (VERSION CORRIGÉE GALERIE) ---
+    window.openDetail = async function(t, p, d, i, id, storeId, category) {
+        console.log("Ouverture produit ID:", id);
 
-            // --- GESTION GALERIE ---
-            const galleryContainer = document.getElementById('detail-gallery');
-            galleryContainer.innerHTML = ''; // Reset
+        // 1. Remplissage des infos de base
+        document.getElementById('detail-title').innerText = t;
+        document.getElementById('detail-price').innerText = p + " DA";
+        document.getElementById('detail-desc').innerText = d || "Pas de description.";
+        
+        // Image principale par défaut
+        const mainImg = document.getElementById('detail-img');
+        mainImg.src = i || "https://pngimg.com/d/box_PNG120.png";
+        
+        // Champs cachés
+        document.getElementById('detail-id').value = id;
+        document.getElementById('detail-category-hidden').value = category;
 
-            // On récupère le tableau d'images depuis la base
-            const { data: product } = await supabase.from('products').select('images').eq('id', id).single();
+        // --- 2. RECUPERATION GALERIE ET VENTES ---
+        const galleryContainer = document.getElementById('detail-gallery');
+        galleryContainer.innerHTML = '<span class="text-xs text-gray-400">Chargement...</span>';
+
+        // On interroge Supabase pour avoir la liste 'images'
+        const { data: product, error } = await supabase
+            .from('products')
+            .select('images, sales') 
+            .eq('id', id)
+            .single();
+
+        if (error) console.error("Erreur récup produit:", error);
+
+        // Mise à jour ventes
+        const sales = product ? (product.sales || 0) : 0;
+        document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
+
+        // --- CONSTRUCTION DE LA GALERIE ---
+        galleryContainer.innerHTML = ''; // On vide
+
+        // Cas A : On a une liste d'images dans la base (Nouveau produit)
+        if(product && product.images && product.images.length > 0) {
+            console.log("Galerie trouvée :", product.images.length + " photos");
             
-            // S'il y a plusieurs images, on crée les miniatures
-            if(product && product.images && product.images.length > 0) {
-                product.images.forEach(imgUrl => {
-                    galleryContainer.innerHTML += `
-                    <img src="${imgUrl}" 
-                         onclick="document.getElementById('detail-img').src = '${imgUrl}'" 
-                         class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-synapse hover:scale-105 transition">
-                    `;
-                });
-            } else {
-                // Sinon on met juste l'image principale en miniature
-                galleryContainer.innerHTML = `<img src="${i}" class="w-20 h-20 object-cover rounded-lg border border-synapse cursor-pointer">`;
-            }
-
-            
-            // --- GESTION VENDEUR ---
-            const btnSeller = document.getElementById('btn-seller-profile');
-            if(storeId) {
-                 const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
-                 if(store) {
-                     document.getElementById('detail-store-id').value = store.owner_id; 
-                     document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
-                     if(btnSeller) { btnSeller.style.display = 'block'; btnSeller.onclick = function() { filterByStore(storeId); }; }
-                 }
-            } else {
-                document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
-                if(btnSeller) btnSeller.style.display = 'none';
-            }
-
-            // Charger le reste
-            loadSimilarProducts(category, id);
-            loadComments(id);
-
-            window.hideAllViews();
-            document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0,0);
-            
-            if(id) await supabase.rpc('increment_views', { row_id: id });
+            product.images.forEach(imgUrl => {
+                galleryContainer.innerHTML += `
+                <img src="${imgUrl}" 
+                     onclick="document.getElementById('detail-img').src = '${imgUrl}'" 
+                     class="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:border-synapse hover:scale-105 transition flex-shrink-0 bg-white">
+                `;
+            });
+        } 
+        // Cas B : Pas de liste, on met juste l'image principale (Vieux produit)
+        else {
+            console.log("Pas de galerie, affichage image principale uniquement.");
+            galleryContainer.innerHTML = `
+            <img src="${i}" class="w-20 h-20 object-cover rounded-lg border-2 border-synapse cursor-pointer flex-shrink-0 bg-white">
+            `;
         }
+
+        // --- 3. GESTION VENDEUR ---
+        const btnSeller = document.getElementById('btn-seller-profile');
+        if(storeId && storeId !== 'undefined' && storeId !== 'null') {
+             const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
+             if(store) {
+                  document.getElementById('detail-store-id').value = store.owner_id; 
+                  document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
+                  if(btnSeller) {
+                      btnSeller.style.display = 'block'; 
+                      btnSeller.onclick = function() { filterByStore(storeId); }; 
+                  }
+             }
+        } else {
+            document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
+            if(btnSeller) btnSeller.style.display = 'none';
+        }
+
+        // --- 4. NAVIGATION ---
+        loadSimilarProducts(category, id);
+        loadComments(id);
+
+        window.hideAllViews();
+        document.getElementById('product-view').classList.remove('hidden');
+        window.scrollTo(0,0);
+        
+        if(id) await supabase.rpc('increment_views', { row_id: id });
+    }
 
         // Affiche le nombre de photos choisies
     window.previewMultipleImages = function(input) {
