@@ -1842,16 +1842,18 @@ const { data: all } = await supabase
     }
 };
 
+// --- FONCTION POUR PARTAGER LA BOUTIQUE ---
 window.shareStore = function(name) {
     const url = window.location.href;
     if (navigator.share) {
         navigator.share({
-            title: `Boutique ${name} on SYNAPSE`,
+            title: `Boutique ${name} sur SYNAPSE`,
+            text: `Découvrez les produits de ${name} sur Synapse !`,
             url: url
-        });
+        }).catch(err => console.log("Erreur:", err));
     } else {
         navigator.clipboard.writeText(url);
-        showToast("Lien de la boutique copié !");
+        showToast("✅ Lien de la boutique copié !");
     }
 };
 
