@@ -857,30 +857,41 @@
         </div>
     </footer>
 
-<div id="boost-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-dark-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-yellow-400/30">
+ <div id="boost-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-dark-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-yellow-400/30 animate-fade-in-up">
         <h2 class="text-2xl font-black mb-2 text-black dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-rocket text-yellow-500"></i> Propulsez votre vente
+            <i class="fa-solid fa-rocket text-yellow-500"></i> Pack Visibilité
         </h2>
-        <p class="text-gray-500 text-sm mb-6">Votre annonce apparaîtra en haut de la page d'accueil pour 7 jours.</p>
         
         <input type="hidden" id="boost-product-id">
         
-        <div class="p-4 border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10 rounded-xl mb-6">
-            <div class="flex justify-between items-center font-bold">
-                <span class="dark:text-white">Pack Visibilité 7 jours</span>
+        <div class="p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-xl mb-4 border border-yellow-200">
+            <div class="flex justify-between items-center font-bold text-sm">
+                <span class="dark:text-white">Sponsorisé (7 jours)</span>
                 <span class="text-yellow-600">500 DA</span>
             </div>
         </div>
 
-        <div class="p-4 bg-gray-50 dark:bg-dark-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-            <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Instructions BaridiMob</p>
-            <p class="text-xs font-medium dark:text-gray-300">Envoyez 500 DA au RIP : <br> <span class="text-synapse font-mono text-sm">00799999000123456789</span></p>
+        <div class="p-4 bg-gray-50 dark:bg-dark-800 rounded-xl mb-4 border border-gray-200 dark:border-gray-700">
+            <p class="text-[10px] text-gray-400 uppercase font-bold mb-1">RIP BaridiMob</p>
+            <p class="text-sm font-mono dark:text-synapse select-all">00799999000123456789</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mt-6">
-            <button onclick="closeBoostModal()" class="px-4 py-3 bg-gray-100 dark:bg-dark-800 dark:text-white rounded-xl font-bold">Annuler</button>
-            <button onclick="requestBoost()" class="px-4 py-3 bg-yellow-400 text-black rounded-xl font-bold hover:bg-yellow-500">J'ai payé</button>
+        <div class="mb-6">
+            <label class="block text-[10px] font-black uppercase text-gray-500 mb-2">Preuve de paiement (Reçu)</label>
+            <div class="relative border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-black/20 hover:border-yellow-400 transition group">
+                <input type="file" id="boost-receipt" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="previewReceipt(this)">
+                <div id="receipt-placeholder" class="text-center">
+                    <i class="fa-solid fa-camera text-2xl text-gray-400 group-hover:text-yellow-500 mb-1"></i>
+                    <p class="text-[10px] text-gray-500 font-bold">CLIQUEZ POUR JOINDRE LA CAPTURE</p>
+                </div>
+                <img id="receipt-preview" class="hidden max-h-32 rounded shadow-md">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="closeBoostModal()" class="px-4 py-3 bg-gray-100 dark:bg-dark-800 dark:text-white rounded-xl font-bold text-xs uppercase">Annuler</button>
+            <button onclick="requestBoost()" id="btn-confirm-boost" class="px-4 py-3 bg-yellow-400 text-black rounded-xl font-bold text-xs uppercase hover:bg-yellow-500 transition shadow-lg">Envoyer la preuve</button>
         </div>
     </div>
 </div>
@@ -3404,6 +3415,58 @@ window.requestBoost = async function() {
         alert("Erreur: " + err.message);
     }
 }
+
+window.previewReceipt = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('receipt-preview').src = e.target.result;
+            document.getElementById('receipt-preview').classList.remove('hidden');
+            document.getElementById('receipt-placeholder').classList.add('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+window.requestBoost = async function() {
+    const productId = document.getElementById('boost-product-id').value;
+    const file = document.getElementById('boost-receipt').files[0];
+    const btn = document.getElementById('btn-confirm-boost');
+
+    if(!file) return alert("⚠️ Veuillez joindre une capture d'écran de votre reçu BaridiMob.");
+
+    btn.innerText = "ENVOI...";
+    btn.disabled = true;
+
+    try {
+        // 1. Upload du reçu dans le storage (Dossier 'products' ou un nouveau 'receipts')
+        const fileName = `receipt_${Date.now()}_${productId}.jpg`;
+        const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
+        if(upError) throw upError;
+
+        const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
+        const receiptUrl = urlData.publicUrl;
+
+        // 2. On marque le produit comme "En attente" avec l'URL du reçu
+        const { data: p } = await supabase.from('products').select('description').eq('id', productId).single();
+        const tag = `[DEMANDE BOOST : ${receiptUrl}] `;
+        
+        await supabase.from('products').update({ 
+            description: tag + (p.description || "") 
+        }).eq('id', productId);
+
+        showToast("✅ Preuve envoyée ! Votre boost sera activé après vérification.");
+        closeBoostModal();
+        loadSellerProducts();
+
+    } catch (e) {
+        alert("Erreur : " + e.message);
+    } finally {
+        btn.innerText = "Envoyer la preuve";
+        btn.disabled = false;
+    }
+}
+
 
     </script>
 </body>
