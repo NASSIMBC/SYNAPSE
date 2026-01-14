@@ -826,21 +826,19 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsZHNycGdmdXRxZGp5eGRlbHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNzg3NjIsImV4cCI6MjA4MzY1NDc2Mn0.ZhEV3ujRQmTThC_EpicV54-GJ5r7iaO1R-wmTtJVBCs'
         const supabase = createClient(supabaseUrl, supabaseKey)
 
-       // Remplace window.myCart = []; par ceci :
-window.myCart = JSON.parse(localStorage.getItem('synapse_cart')) || [];
+        // --- 2. GESTION DU PANIER ---
+        window.myCart = [];
 
-window.addToCart = function(title, price, image, id) {
-    window.myCart.push({ title, price, image, id });
-    localStorage.setItem('synapse_cart', JSON.stringify(window.myCart)); // Sauvegarde
-    updateCartUI();
-    showToast("Ajouté au panier !");
-}
+        window.addToCart = function(title, price, image, id) {
+            window.myCart.push({ title, price, image, id });
+            updateCartUI();
+            showToast("Ajouté au panier !");
+        }
 
-window.removeFromCart = function(index) {
-    window.myCart.splice(index, 1);
-    localStorage.setItem('synapse_cart', JSON.stringify(window.myCart)); // Mise à jour
-    updateCartUI();
-}
+        window.removeFromCart = function(index) {
+            window.myCart.splice(index, 1);
+            updateCartUI();
+        }
 
       function updateCartUI() {
     const container = document.getElementById('cart-items-container');
@@ -939,24 +937,22 @@ window.removeFromCart = function(index) {
             }
         }
 
-       window.loadProfile = async function() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if(!user) return;
-
-    let { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .maybeSingle(); // Utiliser maybeSingle pour éviter l'erreur 406
-
-    if(profile) {
-        document.getElementById('header-username').innerText = profile.full_name || "Compte";
-        document.getElementById('profile-name').value = profile.full_name || "";
-        document.getElementById('profile-phone').value = profile.phone || "";
-        document.getElementById('profile-wilaya').value = profile.wilaya || "";
-        loadMyMessages(user.id);
-    }
-}
+        // --- 4. GESTION PROFIL ---
+        window.loadProfile = async function() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if(user) {
+                let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+                if(profile) {
+                    if(profile.full_name) {
+                        document.getElementById('header-username').innerText = profile.full_name;
+                        document.getElementById('profile-name').value = profile.full_name;
+                    }
+                    if(profile.phone) document.getElementById('profile-phone').value = profile.phone;
+                    if(profile.wilaya) document.getElementById('profile-wilaya').value = profile.wilaya;
+                }
+                loadMyMessages(user.id);
+            }
+        }
 
         window.saveProfile = async function() {
             const name = document.getElementById('profile-name').value;
@@ -1447,8 +1443,7 @@ const { data: all } = await supabase
         list.innerHTML = '';
         items.forEach(item => {
             const status = item.status || 'en_attente';
-            // Protection contre les commandes parentes nulles
-            const shippingInfo = item.order ? item.order.shipping_address : "Adresse non spécifiée (Erreur ID)";
+            const shippingInfo = item.order ? item.order.shipping_address : "Adresse non disponible";
             
             // --- GÉNÉRATION DYNAMIQUE DES BOUTONS ---
             let buttonsHtml = '';
@@ -2304,12 +2299,14 @@ const { data: all } = await supabase
                 .eq('product_id', id)
                 .maybeSingle();
 
-           const icon = wishBtn.querySelector('i');
-if(existing) {
-    icon.className = "fa-solid fa-heart text-red-500";
-} else {
-    icon.className = "fa-regular fa-heart text-gray-400";
-}
+            const icon = wishBtn.querySelector('i');
+            if(existing) {
+                // OUI : Coeur Rouge
+                icon.className = "fa-solid fa-heart text-red-500";
+            } else {
+                // NON : Coeur Gris
+                icon.className = "fa-regular fa-heart text-gray-400";
+            }
         }
     }
 
