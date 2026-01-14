@@ -2485,10 +2485,6 @@ window.updateStoreDesign = async function(type) {
         window.scrollTo(0, 0);
     }
 
-// ============================================================
-    // 1. FONCTION D'AFFICHAGE (CORRIGÉE AVEC ACCENTS GRAVES ` )
-    // ============================================================
-  // --- CORRECTION DE LA FONCTION RENDERGRID ---
 window.renderGrid = function(containerId, products, isBoostedLayout = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -2504,21 +2500,24 @@ window.renderGrid = function(containerId, products, isBoostedLayout = false) {
         const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
         const prodId = p.id;
 
-        // 👇 UTILISE BIEN L'ACCENT GRAVE ` AU DÉBUT ET À LA FIN 👇
+        // --- STYLE VERT NÉON CLAIR & TRANSPARENT ---
+        // bg-[#CCFF00]/10  -> Fond vert synapse à 10% d'opacité
+        // border-[#CCFF00]/30 -> Bordure verte synapse à 30% d'opacité
+        // shadow-[0_0_15px_rgba(204,255,0,0.1)] -> Légère lueur néon
         let cardHtml = `
         <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${prodId}', '${p.store_id}', '${p.category}')" 
-             class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden border border-gray-100 dark:border-dark-800 hover:border-synapse transition cursor-pointer group relative">
+             class="bg-[#CCFF00]/10 backdrop-blur-sm rounded-xl overflow-hidden border border-[#CCFF00]/30 hover:border-[#CCFF00] hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all duration-300 cursor-pointer group relative">
             
-            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
-                <img src="${p.image_url}" class="h-full object-contain group-hover:scale-110 transition duration-500">
+            <div class="h-48 bg-white/50 p-4 flex items-center justify-center">
+                <img src="${p.image_url}" loading="lazy" class="h-full object-contain group-hover:scale-110 transition duration-500">
             </div>
             
             <div class="p-4">
-                <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 line-clamp-2 mb-2">${p.title}</h3>
+                <h3 class="text-sm font-bold text-gray-800 line-clamp-2 mb-2">${p.title}</h3>
                 <div class="flex items-center justify-between">
-                    <span class="text-lg font-black text-black dark:text-synapse">${p.price} DA</span>
+                    <span class="text-lg font-black text-black">${p.price} DA</span>
                     <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${prodId}'); event.stopPropagation()" 
-                            class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                            class="w-8 h-8 rounded-full bg-black text-white hover:bg-[#CCFF00] hover:text-black transition flex items-center justify-center shadow-lg">
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -2528,6 +2527,7 @@ window.renderGrid = function(containerId, products, isBoostedLayout = false) {
         container.innerHTML += cardHtml;
     });
 }
+
 // Fonction à ajouter dans votre script
 window.syncWishlistState = async function() {
     const { data: { user } } = await supabase.auth.getUser();
