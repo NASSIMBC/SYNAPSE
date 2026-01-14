@@ -2422,12 +2422,16 @@ window.updateStoreDesign = async function(type) {
         // 5. Mise à jour de la table 'stores' avec retour de donnée (.select())
         const updateField = (type === 'logo') ? { logo_url: url } : { banner_url: url };
         const { data: result, error: dbError } = await supabase
-            .from('stores')
-            .update(updateField)
-            .eq('id', store.id)
-            .select(); 
+    .from('stores')
+    .update(updateField)
+    .eq('id', store.id)
+    .select();
 
-        if (dbError) throw dbError;
+if (dbError) {
+    console.error("ERREUR BASE DE DONNEES :", dbError);
+    alert("Détails de l'erreur : " + dbError.message);
+    return;
+}
 
         // 6. Mise à jour visuelle immédiate avec cache-buster
         if (result && result.length > 0) {
