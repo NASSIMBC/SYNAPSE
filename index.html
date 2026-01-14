@@ -2392,54 +2392,70 @@ window.toggleWishlist = async function(productId, btnElement) {
 
 window.updateStoreDesign = async function(type) {
     const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
-    const file = document.getElementById(inputId).files[0];
+    const fileInput = document.getElementById(inputId);
+    const file = fileInput.files[0];
+    
     if(!file) return;
 
     showToast("⏳ Sauvegarde forcée...");
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Veuillez vous connecter.");
+
+        // 1. Trouver l'ID de la boutique
         let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
+        if (!store) throw new Error("Boutique introuvable.");
         
-        // Nom propre pour Supabase
+        // 2. Préparation du fichier
         const fileExt = file.name.split('.').pop();
         const cleanName = `design_${type}_${store.id}_${Date.now()}.${fileExt}`;
         
-        // 1. Upload
+        // 3. Upload vers le Storage
         const { error: upError } = await supabase.storage.from('products').upload(cleanName, file);
         if (upError) throw upError;
 
-        const { data } = supabase.storage.from('products').getPublicUrl(cleanName);
-        const url = data.publicUrl;
+        // 4. Récupérer l'URL publique
+        const { data: urlData } = supabase.storage.from('products').getPublicUrl(cleanName);
+        const url = urlData.publicUrl;
 
-        // 2. Update avec Log de vérification
+        // 5. Mise à jour de la table 'stores' avec retour de donnée (.select())
         const updateField = (type === 'logo') ? { logo_url: url } : { banner_url: url };
-        const { data: result, error: dbError, status } = await supabase
+        const { data: result, error: dbError } = await supabase
             .from('stores')
             .update(updateField)
             .eq('id', store.id)
-            .select(); // On demande le retour pour vérifier
+            .select(); 
 
         if (dbError) throw dbError;
 
-        console.log("Réponse de la base :", result);
-
+        // 6. Mise à jour visuelle immédiate avec cache-buster
         if (result && result.length > 0) {
-            showToast("✅ SAUVEGARDÉ DANS LA BASE !");
-            // Changement visuel
-            if (type === 'logo') document.getElementById('seller-logo-preview').src = url;
-            else {
-                const b = document.getElementById('seller-bg-preview');
-                b.src = url; b.classList.remove('hidden');
+            showToast("✅ Design sauvegardé !");
+            
+            const cacheBuster = "?t=" + Date.now();
+            const finalUrl = url + cacheBuster;
+
+            if (type === 'logo') {
+                const logoImg = document.getElementById('seller-logo-preview');
+                if(logoImg) logoImg.src = finalUrl;
+            } else {
+                const bannerImg = document.getElementById('seller-bg-preview');
+                if(bannerImg) {
+                    bannerImg.src = finalUrl;
+                    bannerImg.classList.remove('hidden');
+                }
             }
-        } else {
-            alert("⚠️ La base de données a ignoré la modification. Vérifiez vos RLS (Policies) !");
+            // On vide l'input file pour permettre une nouvelle sélection identique
+            fileInput.value = "";
         }
 
     } catch (err) {
+        console.error("Erreur complète:", err);
         alert("Erreur : " + err.message);
     }
 }
+
     // Fonction améliorée pour afficher la boutique du vendeur (Visiteur)
     window.filterByStore = async function(storeId) {
         window.hideAllViews();
