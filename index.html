@@ -1627,7 +1627,7 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
     showToast("⏳ Mise à jour...");
 
     try {
-        // 1. Mise à jour du statut
+        // 1. Mise à jour du statut dans order_items
         const { error: updateError } = await supabase
             .from('order_items')
             .update({ status: newStatus })
@@ -1639,24 +1639,27 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
         if (newStatus === 'livre') {
             const { data: itemData, error: fetchError } = await supabase
                 .from('order_items')
-                .select('price, quantity, product:products(id, store_id)') // On récupère aussi l'ID du produit
+                .select('price, quantity, product:products(id, store_id)')
                 .eq('id', itemId)
                 .single();
 
             if (!fetchError && itemData && itemData.product) {
-                const amountToAdd = Math.floor(Number(itemData.price) * Number(itemData.quantity));
+                // NETTOYAGE CRITIQUE : On s'assure que le prix est un nombre pur
+                const cleanPrice = String(itemData.price).replace(/[^\d]/g, '');
+                const amountToAdd = Math.floor(Number(cleanPrice) * Number(itemData.quantity));
+                
                 const storeId = itemData.product.store_id;
                 const productId = itemData.product.id;
 
-                // A. Créditer le revenu de la boutique (Résout l'erreur 400)
-                if (storeId) {
+                // A. Créditer le revenu de la boutique (Erreur 400 fix)
+                if (storeId && amountToAdd > 0) {
                     await supabase.rpc('increment_revenue', { 
-                        store_id_param: String(storeId), // Forcer en texte/UUID
-                        amount: amountToAdd 
+                        store_id_param: String(storeId), 
+                        amount: parseInt(amountToAdd) 
                     });
                 }
 
-                // B. Incrémenter le compteur de ventes du produit (Résout l'erreur 404)
+                // B. Incrémenter le compteur de ventes (Erreur 404 fix)
                 if (productId) {
                     await supabase.rpc('increment_sales', { 
                         row_id: parseInt(productId) 
@@ -1667,17 +1670,15 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
 
         showToast("✅ Statut mis à jour !");
         
-        // Rafraîchir l'interface
-        await loadSellerOrders();
-        await loadSellerStats();
+        // Rafraîchir l'interface pour voir les changements (Chiffre d'affaires, etc.)
+        if (typeof loadSellerOrders === 'function') await loadSellerOrders();
+        if (typeof loadSellerStats === 'function') await loadSellerStats();
 
     } catch (err) {
         console.error("Erreur critique:", err);
         showToast("❌ Erreur lors de la mise à jour");
     }
 }
-
-       
 
         // --- UI UTILS ---
         window.toggleTheme = () => document.documentElement.classList.toggle('dark');
