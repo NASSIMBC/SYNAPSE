@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -171,6 +172,11 @@
                     </div>
                 </div>
 
+<li onclick="showAllStores()" class="flex items-center gap-3 p-3 rounded-xl hover:bg-synapse hover:text-black cursor-pointer transition">
+    <i class="fa-solid fa-store text-lg"></i>
+    <span class="font-bold">Découvrir les Boutiques</span>
+</li>
+
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
                     <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
                         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
@@ -321,6 +327,23 @@
                 </div>
         </div>
     </div>
+
+<div id="stores-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-black dark:text-white uppercase italic">Annuaire <span class="text-synapse">Synapse</span></h1>
+            <p class="text-gray-500 text-sm">Découvrez les meilleurs vendeurs vérifiés en Algérie.</p>
+        </div>
+        <div class="relative">
+            <input type="text" id="search-store" onkeyup="searchStores()" placeholder="Rechercher une boutique..." 
+                   class="w-full md:w-80 p-3 pl-10 bg-white dark:bg-dark-900 border border-gray-200 dark:border-dark-800 rounded-xl outline-none focus:border-synapse transition">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+    </div>
+
+    <div id="stores-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        </div>
+</div>
 
 <div id="auth-view" class="hidden container mx-auto px-4 mt-6 mb-12 flex justify-center items-center min-h-[60vh] animate-fade-in-up z-[100]">
         <div class="w-full max-w-md bg-white dark:bg-dark-900 rounded-2xl shadow-xl border border-gray-100 dark:border-dark-800 overflow-hidden relative">
@@ -496,6 +519,8 @@
             <span class="block text-xs font-bold">Cliquez pour ajouter des photos</span>
             <span class="text-[10px] opacity-70">(Max 10 photos)</span>
         </div>
+
+
 
         <div id="preview-grid" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 w-full relative z-20 mt-2 hidden">
             </div>
@@ -3079,7 +3104,60 @@ window.deleteProduct = async function(productId, imageUrl) {
     }
 }
 
+window.showAllStores = async function() {
+    window.hideAllViews();
+    document.getElementById('stores-view').classList.remove('hidden');
+    window.scrollTo(0, 0);
 
+    const grid = document.getElementById('stores-grid');
+    grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+
+    try {
+        // Récupérer toutes les boutiques dans Supabase
+        const { data: stores, error } = await supabase
+            .from('stores')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (error) throw error;
+        renderStores(stores);
+    } catch (err) {
+        console.error(err);
+        grid.innerHTML = '<div class="col-span-full text-red-500">Erreur de chargement.</div>';
+    }
+};
+
+function renderStores(stores) {
+    const grid = document.getElementById('stores-grid');
+    grid.innerHTML = '';
+
+    if (!stores || stores.length === 0) {
+        grid.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucune boutique trouvée.</div>';
+        return;
+    }
+
+    stores.forEach(store => {
+        const logo = store.logo_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+        const banner = store.banner_url || 'https://images.unsplash.com/photo-1583333032470-76037a505f5e?q=80&w=400';
+        
+        grid.innerHTML += `
+        <div class="bg-white dark:bg-dark-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-dark-800 shadow-sm hover:shadow-xl transition group cursor-pointer" onclick="filterByStore('${store.id}')">
+            <div class="h-24 bg-gray-200 dark:bg-dark-800 overflow-hidden">
+                <img src="${banner}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700 opacity-60">
+            </div>
+            <div class="px-6 pb-6 -mt-10 relative flex flex-col items-center text-center">
+                <img src="${logo}" class="w-20 h-20 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-lg mb-3">
+                <h3 class="font-black text-lg text-black dark:text-white leading-tight">${store.name}</h3>
+                <div class="flex items-center gap-1 text-[10px] text-synapse font-black uppercase mb-3">
+                    <i class="fa-solid fa-circle-check"></i> Vendeur Vérifié
+                </div>
+                <button class="w-full py-2 bg-gray-100 dark:bg-dark-800 text-black dark:text-white rounded-lg text-xs font-black hover:bg-synapse hover:text-black transition">
+                    VOIR LE CATALOGUE
+                </button>
+            </div>
+        </div>`;
+    });
+}
 
     </script>
 </body>
