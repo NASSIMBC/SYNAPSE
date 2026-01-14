@@ -1628,37 +1628,7 @@ const { data: all } = await supabase
              }
         }
 
-        window.submitOrder = async function() {
-            if(window.myCart.length === 0) return alert("Panier vide !");
-            const name = document.getElementById('checkout-name').value;
-            const phone = document.getElementById('checkout-phone').value;
-            const wilaya = document.getElementById('checkout-wilaya').value;
-            if(!name || !phone || !wilaya) return alert("Remplissez l'adresse.");
-
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if(!user) return alert("Connectez-vous !");
-
-                let total = 0;
-                window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
-
-                const { data: order, error: orderError } = await supabase.from('orders').insert([{
-                    user_id: user.id, total_amount: total, shipping_address: `${name}, ${wilaya}, ${phone}`, status: 'en_attente'
-                }]).select().single();
-
-                if(orderError) throw orderError;
-
-                const orderItems = window.myCart.map(item => ({
-                    order_id: order.id, product_id: item.id, price: parseInt(item.price.replace(/\D/g, '')) || 0, quantity: 1
-                }));
-
-                await supabase.from('order_items').insert(orderItems);
-                alert("Commande réussie !");
-                window.myCart = [];
-                updateCartUI();
-                window.goHome();
-            } catch(e) { alert("Erreur: " + e.message); }
-        }
+       
 
         // --- UI UTILS ---
         window.toggleTheme = () => document.documentElement.classList.toggle('dark');
@@ -2174,54 +2144,66 @@ window.shareStore = function(name) {
 
         // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
-        window.submitOrder = async function() {
-            if(window.myCart.length === 0) return alert("Panier vide !");
+      window.submitOrder = async function() {
+    if(window.myCart.length === 0) return alert("Panier vide !");
+    const name = document.getElementById('checkout-name').value;
+    const phone = document.getElementById('checkout-phone').value;
+    const wilaya = document.getElementById('checkout-wilaya').value;
+    if(!name || !phone || !wilaya) return alert("Remplissez l'adresse.");
+
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if(!user) return alert("Connectez-vous !");
+
+        let totalOrderAmount = 0;
+        window.myCart.forEach(i => totalOrderAmount += parseInt(i.price.replace(/\D/g, '')) || 0);
+
+        // 1. Créer la commande principale
+        const { data: order, error: orderError } = await supabase.from('orders').insert([{
+            user_id: user.id, 
+            total_amount: totalOrderAmount, 
+            shipping_address: `${name}, ${wilaya}, ${phone}`, 
+            status: 'en_attente'
+        }]).select().single();
+
+        if(orderError) throw orderError;
+
+        // 2. Préparer les articles et identifier les vendeurs
+        const orderItems = window.myCart.map(item => ({
+            order_id: order.id, 
+            product_id: item.id, 
+            price: parseInt(item.price.replace(/\D/g, '')) || 0, 
+            quantity: 1
+        }));
+
+        await supabase.from('order_items').insert(orderItems);
+
+        // 3. MISE À JOUR DU CHIFFRE D'AFFAIRES (NOUVEAU)
+        // On récupère le store_id du premier produit (si commande multi-vendeur, il faudrait boucler)
+        const firstProductId = window.myCart[0].id;
+        const { data: prod } = await supabase.from('products').select('store_id').eq('id', firstProductId).single();
+        
+        if (prod && prod.store_id) {
+            // On récupère le revenu actuel
+            const { data: store } = await supabase.from('stores').select('revenue').eq('id', prod.store_id).single();
+            const newRevenue = (store.revenue || 0) + totalOrderAmount;
+
+            // On met à jour le montant dans la base de données
+            await supabase.from('stores').update({ revenue: newRevenue }).eq('id', prod.store_id);
             
-            const name = document.getElementById('checkout-name').value;
-            const phone = document.getElementById('checkout-phone').value;
-            const wilaya = document.getElementById('checkout-wilaya').value;
-            
-            if(!name || !phone || !wilaya) return alert("Veuillez remplir l'adresse.");
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) return alert("Veuillez vous connecter !");
-
-            let total = 0;
-            window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
-
-            // Création de la commande
-            const { data: order, error: orderError } = await supabase.from('orders').insert([{
-                user_id: user.id, 
-                total_amount: total, 
-                shipping_address: `${name}, ${wilaya}, ${phone}`, 
-                status: 'en_attente'
-            }]).select().single();
-
-            if(orderError) {
-                // C'est ici que l'erreur 403 s'affiche si le SQL n'est pas fait
-                alert("Erreur commande (403): " + orderError.message + "\n\nATTENTION: Avez-vous exécuté le code SQL dans Supabase ?");
-                return;
-            }
-
-            // Ajout des articles
-            const orderItems = window.myCart.map(item => ({
-                order_id: order.id, 
-                product_id: item.id, 
-                price: parseInt(item.price.replace(/\D/g, '')) || 0, 
-                quantity: 1
-            }));
-
-            const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-            
-            if(itemsError) {
-                alert("Erreur détails commande: " + itemsError.message);
-            } else {
-                alert("✅ Commande validée avec succès !");
-                window.myCart = [];
-                updateCartUI();
-                window.goHome();
-            }
+            // On augmente aussi le compteur de ventes du produit
+            await supabase.rpc('increment_sales', { row_id: firstProductId });
         }
+
+        alert("✅ Commande réussie ! Votre chiffre d'affaires a été mis à jour.");
+        window.myCart = [];
+        updateCartUI();
+        window.goHome();
+
+    } catch(e) { 
+        alert("Erreur: " + e.message); 
+    }
+}
 
         // --- FONCTION ENVOYER MESSAGE ---
         window.sendMessage = async function() {
