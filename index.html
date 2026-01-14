@@ -2144,7 +2144,7 @@ window.shareStore = function(name) {
 
         // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
-      window.submitOrder = async function() {
+   window.submitOrder = async function() {
     if(window.myCart.length === 0) return alert("Panier vide !");
     const name = document.getElementById('checkout-name').value;
     const phone = document.getElementById('checkout-phone').value;
@@ -2155,56 +2155,55 @@ window.shareStore = function(name) {
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) return alert("Connectez-vous !");
 
-        let totalOrderAmount = 0;
-        window.myCart.forEach(i => totalOrderAmount += parseInt(i.price.replace(/\D/g, '')) || 0);
+        let total = 0;
+        window.myCart.forEach(i => total += parseInt(i.price.replace(/\D/g, '')) || 0);
 
-        // 1. Créer la commande principale
+        // 1. Création de la commande
         const { data: order, error: orderError } = await supabase.from('orders').insert([{
             user_id: user.id, 
-            total_amount: totalOrderAmount, 
+            total_amount: total, 
             shipping_address: `${name}, ${wilaya}, ${phone}`, 
             status: 'en_attente'
         }]).select().single();
 
         if(orderError) throw orderError;
 
-        // 2. Préparer les articles et identifier les vendeurs
-        const orderItems = window.myCart.map(item => ({
-            order_id: order.id, 
-            product_id: item.id, 
-            price: parseInt(item.price.replace(/\D/g, '')) || 0, 
-            quantity: 1
-        }));
+        // 2. Ajout des articles et Mise à jour directe du CA du vendeur
+        for (const item of window.myCart) {
+            // Ajouter l'article à la commande
+            await supabase.from('order_items').insert([{
+                order_id: order.id, 
+                product_id: item.id, 
+                price: parseInt(item.price.replace(/\D/g, '')) || 0, 
+                quantity: 1
+            }]);
 
-        await supabase.from('order_items').insert(orderItems);
-
-        // 3. MISE À JOUR DU CHIFFRE D'AFFAIRES (NOUVEAU)
-        // On récupère le store_id du premier produit (si commande multi-vendeur, il faudrait boucler)
-        const firstProductId = window.myCart[0].id;
-        const { data: prod } = await supabase.from('products').select('store_id').eq('id', firstProductId).single();
-        
-        if (prod && prod.store_id) {
-            // On récupère le revenu actuel
-            const { data: store } = await supabase.from('stores').select('revenue').eq('id', prod.store_id).single();
-            const newRevenue = (store.revenue || 0) + totalOrderAmount;
-
-            // On met à jour le montant dans la base de données
-            await supabase.from('stores').update({ revenue: newRevenue }).eq('id', prod.store_id);
+            // Récupérer le store_id pour savoir quel vendeur créditer
+            const { data: prod } = await supabase.from('products').select('store_id').eq('id', item.id).single();
             
-            // On augmente aussi le compteur de ventes du produit
-            await supabase.rpc('increment_sales', { row_id: firstProductId });
+            if(prod && prod.store_id) {
+                // MISE À JOUR DIRECTE DU CHIFFRE D'AFFAIRES
+                // On utilise la fonction SQL 'increment_revenue' pour éviter les erreurs de calcul
+                await supabase.rpc('increment_revenue', { 
+                    store_id_param: prod.store_id, 
+                    amount: parseInt(item.price.replace(/\D/g, '')) 
+                });
+                
+                // On incrémente aussi le compteur de ventes du produit
+                await supabase.rpc('increment_sales', { row_id: item.id });
+            }
         }
 
-        alert("✅ Commande réussie ! Votre chiffre d'affaires a été mis à jour.");
+        alert("✅ Commande réussie ! Le montant a été ajouté au chiffre d'affaires.");
         window.myCart = [];
         updateCartUI();
         window.goHome();
 
     } catch(e) { 
+        console.error(e);
         alert("Erreur: " + e.message); 
     }
 }
-
         // --- FONCTION ENVOYER MESSAGE ---
         window.sendMessage = async function() {
             // 1. Récupérer le contenu et le destinataire
