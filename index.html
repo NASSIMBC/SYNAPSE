@@ -932,6 +932,34 @@ window.toggleCart = function() {
     }
 };
 
+// --- FONCTION POUR PASSER À LA COMMANDE ---
+window.showCheckout = function() {
+    // 1. Vérifier si le panier n'est pas vide
+    if (window.myCart.length === 0) {
+        alert("Votre panier est vide !");
+        return;
+    }
+
+    // 2. Cacher toutes les pages et afficher la vue Checkout
+    window.hideAllViews();
+    const checkoutView = document.getElementById('checkout-view');
+    if (checkoutView) {
+        checkoutView.classList.remove('hidden');
+        
+        // 3. Fermer le tiroir du panier si ouvert
+        const drawer = document.getElementById('cart-drawer');
+        if (drawer) drawer.classList.add('hidden');
+
+        // 4. Mettre à jour le prix total sur la page commande
+        updateCartUI();
+        
+        // 5. Remonter en haut de page
+        window.scrollTo(0, 0);
+    } else {
+        console.error("L'élément #checkout-view est introuvable dans le HTML.");
+    }
+};
+
         window.showToast = (msg) => {
             const toast = document.getElementById('toast');
             toast.querySelector('span').innerText = msg;
