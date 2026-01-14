@@ -1301,47 +1301,65 @@ window.showCheckout = function() {
 
        // --- 8. AFFICHAGE DONNEES & REALTIME ---
 async function fetchAllData() {
-    const { data: hot } = await supabase.from('products').select('*').order('view_count', { ascending: false }).limit(4);
-    const { data: boosted } = await supabase.from('products').select('*').eq('is_boosted', true).limit(2);
-    
-    const lastSearch = localStorage.getItem('synapse_last_search');
-    if(lastSearch) {
-        const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
-        if(recos && recos.length > 0) {
-             document.getElementById('recommended-section').classList.remove('hidden');
-             renderGrid('recommended-grid', recos);
-        }
-    }
-    
-    // --- AJOUT : CHARGEMENT DE LA PUBLICITÉ CIBLÉE ---
-    if (typeof loadPersonalizedProducts === 'function') {
-        await loadPersonalizedProducts();
-    }
-    // ------------------------------------------------
-    
-    // Vérifiez que vous avez bien .order('created_at', { ascending: false })
+    const now = new Date().toISOString();
+
+    // --- 1. NETTOYAGE AUTOMATIQUE DES BOOSTS PÉRIMÉS ---
+    // Cette partie cherche les produits boostés dont la date est passée et les désactive
+    await supabase
+        .from('products')
+        .update({ is_boosted: false, boost_expiry: null, boost_receipt_url: null })
+        .eq('is_boosted', true)
+        .lt('boost_expiry', now); // lt = "Less Than" (plus petit que maintenant)
+
+    // --- 2. CHARGEMENT DES DONNÉES ---
+    // On ne récupère que les produits dont le boost est encore valide
+    const { data: boosted } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_boosted', true)
+        .gt('boost_expiry', now) // gt = "Greater Than" (doit être dans le futur)
+        .limit(4);
+
+    const { data: hot } = await supabase
+        .from('products')
+        .select('*')
+        .order('view_count', { ascending: false })
+        .limit(4);
+
     const { data: all } = await supabase
         .from('products')
         .select('*')
-        .order('created_at', { ascending: false }); // false = du plus récent au plus vieux
+        .order('created_at', { ascending: false });
 
+    // --- 3. AFFICHAGE DANS LES GRILLES ---
     renderGrid('products-grid', all);
-    if(hot && hot.length > 0) renderGrid('hot-grid', hot);
     
-    // --- AJOUT : Charger les publicités ciblées sur l'accueil ---
-    if (typeof loadPersonalizedProducts === 'function') {
-        await loadPersonalizedProducts();
-    }
+    if(hot && hot.length > 0) renderGrid('hot-grid', hot);
 
     if(boosted && boosted.length > 0) {
         document.getElementById('boosted-section').classList.remove('hidden');
         renderGrid('boosted-grid', boosted, true);
+    } else {
+        document.getElementById('boosted-section').classList.add('hidden');
     }
-    
-    // --- ACTIVATION DU REALTIME (Écouteur) ---
+
+    // --- 4. RECOMMANDATIONS & PUB CIBLÉE ---
+    const lastSearch = localStorage.getItem('synapse_last_search');
+    if(lastSearch) {
+        const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
+        if(recos && recos.length > 0) {
+            document.getElementById('recommended-section').classList.remove('hidden');
+            renderGrid('recommended-grid', recos);
+        }
+    }
+
+    if (typeof loadPersonalizedProducts === 'function') {
+        await loadPersonalizedProducts();
+    }
+
+    // --- 5. LOGIQUE SYNC (Realtime & Wishlist) ---
     setupRealtime();
 
-    // Cette ligne vérifie quels produits sont aimés et met les cœurs en rouge
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
@@ -1563,36 +1581,30 @@ window.loadSellerProducts = async function() {
 
         if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
 
-        // --- ICI : On active le Dashboard Vendeur (le dernier true) ---
+        // --- AJOUT : LOGIQUE DE NOTIFICATION DE STATUT ---
+        const now = new Date();
+        products.forEach(p => {
+            let statusLabel = "";
+            const expiry = p.boost_expiry ? new Date(p.boost_expiry) : null;
+
+            if (p.is_boosted && expiry && expiry > now) {
+                const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+                statusLabel = ` [ACTIF: ${diffDays}j剩余]`;
+            } else if (!p.is_boosted && p.boost_receipt_url) {
+                statusLabel = ` [EN VÉRIFICATION...]`;
+            } else if (!p.is_boosted && p.boost_expiry && expiry < now) {
+                statusLabel = ` [BOOST TERMINÉ]`;
+            }
+            
+            // On peut optionnellement modifier le titre temporairement pour l'affichage
+            if(statusLabel) p.title += statusLabel;
+        });
+
+        // Appel de ta grille avec le mode Dashboard activé (true)
         renderGrid('seller-products-list', products, false, true); 
 
     } catch(e) { console.error(e); }
 }
-        window.openEditProduct = function(id, title, price, stock, desc) {
-            document.getElementById('edit-prod-id').value = id;
-            document.getElementById('edit-prod-title').value = title;
-            document.getElementById('edit-prod-price').value = price;
-            document.getElementById('edit-prod-stock').value = stock;
-            document.getElementById('edit-prod-desc').value = desc;
-            document.getElementById('edit-modal').classList.remove('hidden');
-        }
-
-        window.saveProductChanges = async function() {
-            const id = document.getElementById('edit-prod-id').value;
-            const title = document.getElementById('edit-prod-title').value;
-            const price = document.getElementById('edit-prod-price').value;
-            const stock = document.getElementById('edit-prod-stock').value;
-            const desc = document.getElementById('edit-prod-desc').value;
-
-            const { error } = await supabase.from('products').update({ title, price, stock, description: desc }).eq('id', id);
-
-            if(error) alert("Erreur: " + error.message);
-            else {
-                showToast("Produit mis à jour !");
-                document.getElementById('edit-modal').classList.add('hidden');
-                loadSellerProducts();
-            }
-        }
 
     async function loadSellerOrders() {
     const list = document.getElementById('seller-orders-list');
@@ -3427,7 +3439,6 @@ window.previewReceipt = function(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-
 window.requestBoost = async function() {
     const productId = document.getElementById('boost-product-id').value;
     const file = document.getElementById('boost-receipt').files[0];
@@ -3439,7 +3450,7 @@ window.requestBoost = async function() {
     btn.disabled = true;
 
     try {
-        // 1. Upload du reçu dans le storage (Dossier 'products' ou un nouveau 'receipts')
+        // 1. Upload du reçu dans le storage (Dossier 'products')
         const fileName = `receipt_${Date.now()}_${productId}.jpg`;
         const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
         if(upError) throw upError;
@@ -3447,19 +3458,25 @@ window.requestBoost = async function() {
         const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
         const receiptUrl = urlData.publicUrl;
 
-        // 2. On marque le produit comme "En attente" avec l'URL du reçu
-        const { data: p } = await supabase.from('products').select('description').eq('id', productId).single();
-        const tag = `[DEMANDE BOOST : ${receiptUrl}] `;
-        
-        await supabase.from('products').update({ 
-            description: tag + (p.description || "") 
-        }).eq('id', productId);
+        // 2. Mise à jour des colonnes de gestion dans Supabase
+        const { error: updateError } = await supabase
+            .from('products')
+            .update({ 
+                boost_receipt_url: receiptUrl, // Enregistre le lien du reçu ici
+                is_boosted: false              // On force à false tant que TU n'as pas validé
+            })
+            .eq('id', productId);
 
-        showToast("✅ Preuve envoyée ! Votre boost sera activé après vérification.");
+        if (updateError) throw updateError;
+
+        showToast("✅ Reçu envoyé ! Votre boost sera activé après vérification.");
         closeBoostModal();
-        loadSellerProducts();
+        
+        // Rafraîchir la liste pour que le bouton "Booster" affiche un état d'attente (optionnel)
+        if(typeof loadSellerProducts === 'function') loadSellerProducts();
 
     } catch (e) {
+        console.error("Erreur Boost:", e);
         alert("Erreur : " + e.message);
     } finally {
         btn.innerText = "Envoyer la preuve";
