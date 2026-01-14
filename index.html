@@ -1262,6 +1262,8 @@ const { data: all } = await supabase
             if(id) await supabase.rpc('increment_views', { row_id: id });
         }
 
+
+
  window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
     
@@ -2395,6 +2397,95 @@ window.shareStore = function(name) {
             }
         }
     }
+
+// --- VUE PUBLIQUE DE LA BOUTIQUE (PROFIL VENDEUR) ---
+window.filterByStore = async function(storeId) {
+    window.hideAllViews();
+    document.getElementById('home-view').classList.remove('hidden');
+    
+    // Cacher les bannières de l'accueil pour afficher celle du vendeur
+    const elementsToHide = ['boosted-section', 'recommended-section', 'hot-section-container', 'hero-banner'];
+    elementsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+
+    try {
+        // 1. Récupérer les données de la boutique
+        const { data: store, error } = await supabase
+            .from('stores')
+            .select('*')
+            .eq('id', storeId)
+            .single();
+
+        if (error) throw error;
+
+        // 2. Créer le design de l'en-tête (Profil Public)
+        const t = Date.now();
+        const logo = store.logo_url ? `${store.logo_url}?t=${t}` : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+        const banner = store.banner_url ? `${store.banner_url}?t=${t}` : '';
+
+        let headerHtml = `
+        <div class="relative rounded-3xl overflow-hidden mb-8 border border-gray-100 dark:border-dark-800 shadow-lg bg-white dark:bg-dark-900 animate-fade-in-up">
+            <div class="h-32 md:h-48 bg-gray-200 dark:bg-dark-800 relative">
+                ${banner ? `<img src="${banner}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-gradient-to-r from-synapse/20 to-synapse/5"></div>'}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            </div>
+            <div class="relative px-6 pb-6 -mt-12 flex flex-col md:flex-row items-center md:items-end gap-4">
+                <img src="${logo}" class="w-24 h-24 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-xl">
+                <div class="flex-1 text-center md:text-left mb-2">
+                    <h1 class="text-2xl md:text-4xl font-black text-black dark:text-white leading-tight">${store.name}</h1>
+                    <div class="flex items-center justify-center md:justify-start gap-2 mt-1">
+                        <span class="bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Boutique Vérifiée</span>
+                        <span class="text-gray-500 text-xs font-medium"><i class="fa-solid fa-location-dot text-synapse"></i> Algérie</span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="window.location.reload()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-synapse transition">
+                        <i class="fa-solid fa-house"></i>
+                    </button>
+                    <button onclick="shareStore('${store.name.replace(/'/g, "\\'")}')" class="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-xl font-bold text-xs hover:opacity-80 transition shadow-lg">
+                        PARTAGER
+                    </button>
+                </div>
+            </div>
+        </div>
+        <h2 class="text-xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-boxes-stacked text-synapse"></i> Catalogue du vendeur
+        </h2>`;
+
+        // Injection dans le titre de la grille
+        document.getElementById('main-grid-title').innerHTML = headerHtml;
+
+        // 3. Charger uniquement les produits de cette boutique
+        const grid = document.getElementById('products-grid');
+        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+        
+        const { data: products } = await supabase
+            .from('products')
+            .select('*')
+            .eq('store_id', storeId)
+            .order('created_at', { ascending: false });
+
+        renderGrid('products-grid', products);
+        window.scrollTo(0, 0);
+
+    } catch (err) {
+        console.error("Erreur Boutique:", err);
+        showToast("Erreur lors du chargement du profil.");
+    }
+};
+
+window.shareStore = function(name) {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({ title: `Boutique ${name}`, url: url });
+    } else {
+        navigator.clipboard.writeText(url);
+        showToast("✅ Lien de la boutique copié !");
+    }
+};
+
 
 window.toggleWishlist = async function(productId, btnElement) {
         const { data: { user } } = await supabase.auth.getUser();
