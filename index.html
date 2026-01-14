@@ -1589,31 +1589,49 @@ const { data: all } = await supabase
     }
 }
 
-   window.updateOrderItemStatus = async function(itemId, newStatus) {
+ window.updateOrderItemStatus = async function(itemId, newStatus) {
     showToast("⏳ Mise à jour...");
 
     try {
-        const { error } = await supabase
+        // 1. Mise à jour du statut dans la table 'order_items'
+        const { error: updateError } = await supabase
             .from('order_items')
             .update({ status: newStatus })
             .eq('id', itemId);
 
-        if (error) {
-            console.error("Erreur Supabase:", error);
-            alert("Erreur : " + error.message + "\n(Vérifiez vos politiques RLS)");
-            return;
+        if (updateError) throw updateError;
+
+        // 2. SI LE STATUT EST "LIVRÉ", ON AJOUTE L'ARGENT AU VENDEUR
+        if (newStatus === 'livre') {
+            // On récupère le prix de cet article et le store_id
+            const { data: itemData, error: fetchError } = await supabase
+                .from('order_items')
+                .select('price, quantity, product:products(store_id)')
+                .eq('id', itemId)
+                .single();
+
+            if (!fetchError && itemData && itemData.product.store_id) {
+                const amountToAdd = itemData.price * itemData.quantity;
+                const storeId = itemData.product.store_id;
+
+                // On utilise RPC (la fonction SQL créée dans Supabase) pour ajouter l'argent
+                await supabase.rpc('increment_revenue', { 
+                    store_id_param: storeId, 
+                    amount: amountToAdd 
+                });
+            }
         }
 
         // Succès
         showToast("✅ Statut mis à jour : " + newStatus);
         
-        // Rafraîchir les données sans recharger la page
-        if(typeof loadSellerOrders === 'function') loadSellerOrders();
-        if(typeof loadSellerStats === 'function') loadSellerStats();
+        // Rafraîchir les données à l'écran
+        if(typeof loadSellerOrders === 'function') await loadSellerOrders();
+        if(typeof loadSellerStats === 'function') await loadSellerStats();
 
     } catch (err) {
         console.error("Erreur critique:", err);
-        alert("Une erreur est survenue lors de la mise à jour.");
+        alert("Erreur : " + err.message);
     }
 }
 
