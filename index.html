@@ -1651,13 +1651,15 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
                 const storeId = itemData.product.store_id;
                 const productId = itemData.product.id;
 
-                // A. Créditer le revenu de la boutique (Erreur 400 fix)
-                if (storeId && amountToAdd > 0) {
-                    await supabase.rpc('increment_revenue', { 
-                        store_id_param: String(storeId), 
-                        amount: parseInt(amountToAdd) 
-                    });
-                }
+                // Dans ta fonction updateOrderItemStatus, vérifie cette partie :
+if (storeId && amountToAdd > 0) {
+    const { error: rpcError } = await supabase.rpc('increment_revenue', { 
+        store_id_param: String(storeId), // Assure-toi que c'est bien ce nom
+        amount: parseInt(amountToAdd)     // Assure-toi que c'est bien ce nom
+    });
+
+    if (rpcError) console.error("Erreur RPC:", rpcError);
+}
 
                 // B. Incrémenter le compteur de ventes (Erreur 404 fix)
                 if (productId) {
