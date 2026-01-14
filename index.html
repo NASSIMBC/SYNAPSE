@@ -1617,7 +1617,7 @@ const { data: all } = await supabase
        // Remplacez votre ligne window.hideAllViews par ceci :
     window.hideAllViews = () => {
     // AJOUT DE 'wishlist-view' DANS CETTE LISTE 👇
-    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view'].forEach(id => {
+    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view', 'stores-view'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
