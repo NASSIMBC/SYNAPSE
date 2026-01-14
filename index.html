@@ -1593,7 +1593,7 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
     showToast("⏳ Mise à jour...");
 
     try {
-        // 1. Mise à jour du statut dans la table 'order_items'
+        // 1. Mise à jour du statut
         const { error: updateError } = await supabase
             .from('order_items')
             .update({ status: newStatus })
@@ -1601,50 +1601,47 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
 
         if (updateError) throw updateError;
 
-        // 2. SI LE STATUT EST "LIVRÉ", ON AJOUTE L'ARGENT AU VENDEUR
+        // 2. Si "LIVRÉ", on crédite le vendeur
         if (newStatus === 'livre') {
-            // On récupère le prix de cet article et le store_id
             const { data: itemData, error: fetchError } = await supabase
                 .from('order_items')
-                .select('price, quantity, product:products(store_id)')
+                .select('price, quantity, product:products(id, store_id)') // On récupère aussi l'ID du produit
                 .eq('id', itemId)
                 .single();
 
-            if (!fetchError && itemData && itemData.product.store_id) {
-                const amountToAdd = itemData.price * itemData.quantity;
+            if (!fetchError && itemData && itemData.product) {
+                const amountToAdd = Math.floor(Number(itemData.price) * Number(itemData.quantity));
                 const storeId = itemData.product.store_id;
+                const productId = itemData.product.id;
 
-                // On utilise RPC (la fonction SQL créée dans Supabase) pour ajouter l'argent
-                await supabase.rpc('increment_revenue', { 
-                    store_id_param: storeId, 
-                    amount: amountToAdd 
-                });
+                // A. Créditer le revenu de la boutique (Résout l'erreur 400)
+                if (storeId) {
+                    await supabase.rpc('increment_revenue', { 
+                        store_id_param: String(storeId), // Forcer en texte/UUID
+                        amount: amountToAdd 
+                    });
+                }
+
+                // B. Incrémenter le compteur de ventes du produit (Résout l'erreur 404)
+                if (productId) {
+                    await supabase.rpc('increment_sales', { 
+                        row_id: parseInt(productId) 
+                    });
+                }
             }
         }
 
-        // Succès
-        showToast("✅ Statut mis à jour : " + newStatus);
+        showToast("✅ Statut mis à jour !");
         
-        // Rafraîchir les données à l'écran
-        if(typeof loadSellerOrders === 'function') await loadSellerOrders();
-        if(typeof loadSellerStats === 'function') await loadSellerStats();
+        // Rafraîchir l'interface
+        await loadSellerOrders();
+        await loadSellerStats();
 
     } catch (err) {
         console.error("Erreur critique:", err);
-        alert("Erreur : " + err.message);
+        showToast("❌ Erreur lors de la mise à jour");
     }
 }
-
-        async function loadSellerStats() {
-             const { data: { user } } = await supabase.auth.getUser();
-             if(!user) return;
-             const { data: store } = await supabase.from('stores').select('id, revenue').eq('owner_id', user.id).maybeSingle();
-             if(store) {
-                 const { count } = await supabase.from('products').select('*', { count: 'exact', head: true }).eq('store_id', store.id);
-                 document.getElementById('stat-products').innerText = count || 0;
-                 document.getElementById('stat-revenue').innerText = (store.revenue || 0) + ' DA'; 
-             }
-        }
 
        
 
