@@ -173,18 +173,18 @@
                 </div>
 
                 <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                 <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
-    <div id="hero-bg" class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070');">
-        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-    </div>
-    <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
-        <div class="max-w-lg">
-            <span id="hero-tag" class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
-            <h1 id="hero-title" class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
-            <button id="hero-button" class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
-        </div>
-    </div>
-</div>
+                    <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
+                            <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                        </div>
+                        <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
+                            <div class="max-w-lg">
+                                <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
+                                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
+                                <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
+                            </div>
+                        </div>
+                    </div>
 
                     <div id="boosted-section" class="hidden mb-8">
                         <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-bolt text-synapse"></i> Produits Boostés</h2>
@@ -427,44 +427,24 @@
     </div>
 
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-2 text-xs text-gray-500">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-synapse font-bold uppercase tracking-widest">Espace Vendeur</span>
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+                <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="text-synapse font-bold uppercase tracking-widest">Espace Vendeur</span>
+            </div>
+            <button onclick="showDashboard()" class="text-xs font-bold text-gray-500 hover:text-white">Retour au mode Acheteur</button>
         </div>
-        <button onclick="showDashboard()" class="text-xs font-bold text-gray-500 hover:text-white">Retour au mode Acheteur</button>
-    </div>
 
-    <div class="bg-dark-900 border border-synapse/20 rounded-2xl p-6 mb-8 shadow-2xl relative overflow-hidden group">
-        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-30 transition-opacity">
-            <i class="fa-solid fa-wand-magic-sparkles text-6xl text-synapse"></i>
-        </div>
-        <div class="relative z-10">
-            <h3 class="font-black text-white text-lg mb-2 flex items-center gap-2">
-                <i class="fa-solid fa-palette text-synapse"></i> Design de l'Accueil
-            </h3>
-            <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-4">Modifier l'image Hero principale (Unsplash / Lien direct)</p>
-            
-            <div class="flex flex-col md:flex-row gap-3">
-                <input type="text" id="new-banner-url" placeholder="https://images.unsplash.com/photo-123456789..." 
-                       class="flex-1 p-3 bg-black border border-gray-800 rounded-xl text-white text-sm focus:border-synapse outline-none transition">
-                <button onclick="updateHeroBanner()" class="bg-synapse text-black px-8 py-3 rounded-xl font-black hover:bg-white transition shadow-lg text-sm">
-                    METTRE À JOUR
-                </button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
+                <div class="text-gray-400 text-xs font-bold uppercase">Produits en ligne</div>
+                <div class="text-2xl font-black text-white" id="stat-products">0</div>
+            </div>
+            <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
+                <div class="text-gray-400 text-xs font-bold uppercase">Chiffre d'affaires</div>
+                <div class="text-2xl font-black text-white text-synapse" id="stat-revenue">0 DA</div>
             </div>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
-            <div class="text-gray-400 text-xs font-bold uppercase">Produits en ligne</div>
-            <div class="text-2xl font-black text-white" id="stat-products">0</div>
-        </div>
-        <div class="bg-dark-900 border border-gray-800 rounded-xl p-4">
-            <div class="text-gray-400 text-xs font-bold uppercase">Chiffre d'affaires</div>
-            <div class="text-2xl font-black text-white text-synapse" id="stat-revenue">0 DA</div>
-        </div>
-    </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div class="col-span-1">
@@ -3100,33 +3080,7 @@ window.deleteProduct = async function(productId, imageUrl) {
     }
 }
 
-// ==========================================
-// NOUVEAU : SYSTÈME DE BANNIÈRE DYNAMIQUE
-// ==========================================
 
-async function loadHeroBanner() {
-    try {
-        // On demande à Supabase l'URL enregistrée sous la clé 'main_hero_banner'
-        const { data, error } = await supabase
-            .from('site_settings')
-            .select('value')
-            .eq('key', 'main_hero_banner')
-            .maybeSingle();
-
-        if (data && data.value) {
-            const heroBg = document.getElementById('hero-bg');
-            if (heroBg) {
-                // On change l'image de fond du HTML par celle de la base de données
-                heroBg.style.backgroundImage = `url('${data.value}')`;
-            }
-        }
-    } catch (err) {
-        console.error("Erreur lors du chargement de la bannière :", err);
-    }
-}
-
-// On lance la fonction immédiatement au chargement de la page
-loadHeroBanner();
 
     </script>
 </body>
