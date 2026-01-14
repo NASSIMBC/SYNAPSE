@@ -857,6 +857,34 @@
         </div>
     </footer>
 
+<div id="boost-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-[100] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-dark-900 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-yellow-400/30">
+        <h2 class="text-2xl font-black mb-2 text-black dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-rocket text-yellow-500"></i> Propulsez votre vente
+        </h2>
+        <p class="text-gray-500 text-sm mb-6">Votre annonce apparaîtra en haut de la page d'accueil pour 7 jours.</p>
+        
+        <input type="hidden" id="boost-product-id">
+        
+        <div class="p-4 border-2 border-yellow-400 bg-yellow-50 dark:bg-yellow-900/10 rounded-xl mb-6">
+            <div class="flex justify-between items-center font-bold">
+                <span class="dark:text-white">Pack Visibilité 7 jours</span>
+                <span class="text-yellow-600">500 DA</span>
+            </div>
+        </div>
+
+        <div class="p-4 bg-gray-50 dark:bg-dark-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+            <p class="text-[10px] text-gray-400 uppercase font-bold mb-2">Instructions BaridiMob</p>
+            <p class="text-xs font-medium dark:text-gray-300">Envoyez 500 DA au RIP : <br> <span class="text-synapse font-mono text-sm">00799999000123456789</span></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-6">
+            <button onclick="closeBoostModal()" class="px-4 py-3 bg-gray-100 dark:bg-dark-800 dark:text-white rounded-xl font-bold">Annuler</button>
+            <button onclick="requestBoost()" class="px-4 py-3 bg-yellow-400 text-black rounded-xl font-bold hover:bg-yellow-500">J'ai payé</button>
+        </div>
+    </div>
+</div>
+
     <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -2873,62 +2901,63 @@ window.renderGrid = function(containerId, products, isBoostedLayout = false, isS
     container.innerHTML = '';
     
     if(!products || products.length === 0) {
-        if(containerId === 'products-grid') container.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucun produit.</div>';
+        if(containerId === 'products-grid') container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-10">Aucun produit trouvé.</div>';
         return;
     }
 
     products.forEach(p => {
         const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
         const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
-        const prodId = p.id;
+        
+        // Arguments pour ouvrir le détail
+        const detailArgs = `'${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}'`;
 
-        // --- AJOUT : LOGIQUE BOUTONS GESTION (Dashboard Vendeur) ---
+        // --- BLOC BOUTONS (Dashboard Vendeur) ---
         let managementButtons = "";
         if (isSellerDashboard) {
             managementButtons = `
                 <div class="mt-3 space-y-2">
                     ${p.is_boosted 
-                        ? `<div class="py-2 text-center text-[10px] font-bold text-green-500 bg-green-500/10 rounded-lg border border-green-500/20 uppercase tracking-widest"><i class="fa-solid fa-check-circle"></i> Annonce Boostée</div>`
-                        : `<button onclick="event.stopPropagation(); openBoostModal('${prodId}')" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-1 shadow-lg hover:scale-105 transition uppercase tracking-tighter">
+                        ? `<div class="py-2 text-center text-[10px] font-bold text-green-500 bg-green-500/10 rounded-lg border border-green-500/20 uppercase"><i class="fa-solid fa-check-circle"></i> Annonce Boostée</div>`
+                        : `<button onclick="openBoostModal('${p.id}')" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-1 shadow-lg hover:scale-105 transition uppercase">
                             <i class="fa-solid fa-bolt"></i> Propulser l'annonce
                            </button>`
                     }
                     <div class="flex gap-2">
-                        <button onclick="event.stopPropagation(); openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock || 0}', '${safeDesc}')" class="flex-1 bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-[10px] font-bold hover:bg-synapse hover:text-black transition">MODIFIER</button>
-                        <button onclick="event.stopPropagation(); deleteProduct('${p.id}', '${p.image_url}')" class="bg-red-50 dark:bg-red-900/20 text-red-500 p-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition border border-red-500/10"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock || 0}', '${safeDesc}')" class="flex-1 bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-[10px] font-bold hover:bg-synapse hover:text-black transition uppercase">Modifier</button>
+                        <button onclick="deleteProduct('${p.id}', '${p.image_url}')" class="bg-red-50 text-red-500 p-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>`;
         }
 
-        // --- AJOUT : Badge Sponsorisé ---
-        const boostedBadge = p.is_boosted ? `<div class="absolute top-2 left-2 bg-black/80 backdrop-blur-md text-synapse text-[9px] font-black px-2 py-1 rounded-md z-10 border border-synapse/30 uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt-lightning mr-1"></i> Sponsorisé</div>` : '';
+        const boostedBadge = p.is_boosted ? `<div class="absolute top-2 left-2 bg-black/80 backdrop-blur-md text-synapse text-[9px] font-black px-2 py-1 rounded-md z-10 border border-synapse/30 uppercase tracking-widest"><i class="fa-solid fa-bolt-lightning mr-1"></i> Sponsorisé</div>` : '';
 
-        // --- STYLE VERT NÉON CLAIR & TRANSPARENT (Inchangé mais complété) ---
-        let cardHtml = `
-        <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${prodId}', '${p.store_id}', '${p.category}')" 
-             class="bg-[#CCFF00]/10 backdrop-blur-sm rounded-xl overflow-hidden border border-[#CCFF00]/30 hover:border-[#CCFF00] hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] transition-all duration-300 cursor-pointer group relative">
+        // --- LA STRUCTURE CHANGE ICI : Pas de onclick sur la div principale ---
+        container.innerHTML += `
+        <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden border border-gray-100 dark:border-dark-800 hover:shadow-md transition-all duration-300 group relative flex flex-col shadow-sm">
             
             ${boostedBadge}
-            <div class="h-48 bg-white/50 p-4 flex items-center justify-center">
+
+            <div onclick="openDetail(${detailArgs})" class="h-40 bg-gray-50 dark:bg-dark-800 p-4 flex items-center justify-center cursor-pointer">
                 <img src="${p.image_url}" loading="lazy" class="h-full object-contain group-hover:scale-110 transition duration-500">
             </div>
             
-            <div class="p-4">
-                <h3 class="text-sm font-bold text-gray-800 dark:text-white line-clamp-2 mb-2">${p.title}</h3>
+            <div class="p-4 flex-1 flex flex-col">
+                <h3 onclick="openDetail(${detailArgs})" class="text-xs font-bold text-gray-800 dark:text-white line-clamp-1 mb-1 cursor-pointer hover:text-synapse">${p.title}</h3>
+                
                 <div class="flex items-center justify-between">
-                    <span class="text-lg font-black text-black dark:text-synapse">${p.price} DA</span>
+                    <span class="text-sm font-black text-black dark:text-synapse">${p.price} DA</span>
                     
                     ${!isSellerDashboard ? `
-                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${prodId}'); event.stopPropagation()" 
-                                class="w-8 h-8 rounded-full bg-black text-white hover:bg-[#CCFF00] hover:text-black transition flex items-center justify-center shadow-lg">
-                            <i class="fa-solid fa-plus"></i>
+                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}')" 
+                                class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center shadow-lg">
+                            <i class="fa-solid fa-plus text-xs"></i>
                         </button>` : ''}
                 </div>
+
                 ${managementButtons}
             </div>
-        </div>`; 
-
-        container.innerHTML += cardHtml;
+        </div>`;
     });
 }
 // Fonction à ajouter dans votre script
@@ -3334,6 +3363,46 @@ function renderStores(stores) {
             </div>
         </div>`;
     });
+}
+
+// --- FONCTION POUR OUVRIR LA MODALE DE BOOST ---
+window.openBoostModal = function(productId) {
+    // On stocke l'ID du produit dans un champ caché pour savoir lequel booster
+    const modal = document.getElementById('boost-modal');
+    if(modal) {
+        document.getElementById('boost-product-id').value = productId;
+        modal.classList.remove('hidden');
+    } else {
+        alert("Erreur : La modale de boost n'est pas présente dans le HTML.");
+    }
+}
+
+window.closeBoostModal = function() {
+    document.getElementById('boost-modal').classList.add('hidden');
+}
+
+window.requestBoost = async function() {
+    const productId = document.getElementById('boost-product-id').value;
+    showToast("⌛ Envoi de la demande...");
+
+    try {
+        // On ajoute un tag dans la description pour que tu puisses le voir dans ton admin
+        const { data: p } = await supabase.from('products').select('description').eq('id', productId).single();
+        const newDesc = "[DEMANDE BOOST EN COURS] " + (p.description || "");
+
+        const { error } = await supabase
+            .from('products')
+            .update({ description: newDesc })
+            .eq('id', productId);
+
+        if (error) throw error;
+
+        showToast("✅ Demande envoyée ! Le boost sera actif après vérification.");
+        closeBoostModal();
+        loadSellerProducts(); // On rafraîchit la liste
+    } catch (err) {
+        alert("Erreur: " + err.message);
+    }
 }
 
     </script>
