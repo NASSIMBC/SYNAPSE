@@ -1289,6 +1289,11 @@ async function fetchAllData() {
     renderGrid('products-grid', all);
     if(hot && hot.length > 0) renderGrid('hot-grid', hot);
     
+    // --- AJOUT : Charger les publicités ciblées sur l'accueil ---
+    if (typeof loadPersonalizedProducts === 'function') {
+        await loadPersonalizedProducts();
+    }
+
     if(boosted && boosted.length > 0) {
         document.getElementById('boosted-section').classList.remove('hidden');
         renderGrid('boosted-grid', boosted, true);
