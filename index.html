@@ -912,6 +912,26 @@
             if(totalCheckout) totalCheckout.innerText = formattedTotal;
         }
 
+// --- FONCTION POUR OUVRIR/FERMER LE PANIER ---
+window.toggleCart = function() {
+    const drawer = document.getElementById('cart-drawer');
+    const content = document.getElementById('cart-content');
+
+    if (drawer.classList.contains('hidden')) {
+        // Ouvrir
+        drawer.classList.remove('hidden');
+        setTimeout(() => {
+            content.classList.remove('translate-x-full');
+        }, 50);
+    } else {
+        // Fermer
+        content.classList.add('translate-x-full');
+        setTimeout(() => {
+            drawer.classList.add('hidden');
+        }, 300);
+    }
+};
+
         window.showToast = (msg) => {
             const toast = document.getElementById('toast');
             toast.querySelector('span').innerText = msg;
