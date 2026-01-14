@@ -1589,7 +1589,7 @@ const { data: all } = await supabase
     }
 }
 
- window.updateOrderItemStatus = async function(itemId, newStatus) {
+window.updateOrderItemStatus = async function(itemId, newStatus) {
     showToast("⏳ Mise à jour...");
 
     try {
@@ -1621,6 +1621,19 @@ const { data: all } = await supabase
                 });
             }
         }
+
+        // Succès
+        showToast("✅ Statut mis à jour : " + newStatus);
+        
+        // Rafraîchir les données à l'écran
+        if(typeof loadSellerOrders === 'function') await loadSellerOrders();
+        if(typeof loadSellerStats === 'function') await loadSellerStats();
+
+    } catch (err) {
+        console.error("Erreur critique:", err);
+        alert("Erreur : " + err.message);
+    }
+}
 
         // Succès
         showToast("✅ Statut mis à jour : " + newStatus);
