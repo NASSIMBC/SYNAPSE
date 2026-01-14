@@ -1653,12 +1653,17 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
 
                 // Dans ta fonction updateOrderItemStatus, vérifie cette partie :
 if (storeId && amountToAdd > 0) {
+    // On convertit tout en String pour éviter l'erreur "operator does not exist"
     const { error: rpcError } = await supabase.rpc('increment_revenue', { 
-        store_id_param: String(storeId), // Assure-toi que c'est bien ce nom
-        amount: parseInt(amountToAdd)     // Assure-toi que c'est bien ce nom
+        store_id_param: String(storeId), 
+        amount: parseInt(amountToAdd) 
     });
 
-    if (rpcError) console.error("Erreur RPC:", rpcError);
+    if (rpcError) {
+        console.error("Détail erreur RPC:", rpcError);
+    } else {
+        console.log("Revenu mis à jour avec succès !");
+    }
 }
 
                 // B. Incrémenter le compteur de ventes (Erreur 404 fix)
@@ -2236,10 +2241,10 @@ window.shareStore = function(name) {
             if(prod && prod.store_id) {
                 // MISE À JOUR DIRECTE DU CHIFFRE D'AFFAIRES
                 // On utilise la fonction SQL 'increment_revenue' pour éviter les erreurs de calcul
-                await supabase.rpc('increment_revenue', { 
-                    store_id_param: prod.store_id, 
-                    amount: parseInt(item.price.replace(/\D/g, '')) 
-                });
+               await supabase.rpc('increment_revenue', { 
+    store_id_param: String(prod.store_id), 
+    amount: parseInt(totalOrderAmount) 
+});
                 
                 // On incrémente aussi le compteur de ventes du produit
                 await supabase.rpc('increment_sales', { row_id: item.id });
