@@ -1589,6 +1589,40 @@ const { data: all } = await supabase
     }
 }
 
+async function loadSellerStats() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        // Récupérer les données de la boutique (revenu)
+        const { data: store } = await supabase
+            .from('stores')
+            .select('id, revenue')
+            .eq('owner_id', user.id)
+            .maybeSingle();
+
+        if (store) {
+            // Récupérer le nombre de produits
+            const { count } = await supabase
+                .from('products')
+                .select('*', { count: 'exact', head: true })
+                .eq('store_id', store.id);
+
+            // Mise à jour du HTML avec formatage propre
+            const productsEl = document.getElementById('stat-products');
+            const revenueEl = document.getElementById('stat-revenue');
+
+            if (productsEl) productsEl.innerText = count || 0;
+            if (revenueEl) {
+                const total = store.revenue || 0;
+                revenueEl.innerText = total.toLocaleString() + ' DA';
+            }
+        }
+    } catch (err) {
+        console.error("Erreur stats:", err);
+    }
+}
+
 window.updateOrderItemStatus = async function(itemId, newStatus) {
     showToast("⏳ Mise à jour...");
 
