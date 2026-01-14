@@ -266,12 +266,12 @@
                     </div>
                 </div>
                 
-                <div class="flex gap-2">
-  <button id="detail-wishlist-btn" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center text-gray-400">
-    <i class="fa-regular fa-heart"></i>
-</button>
-    <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center">
-        <i class="fa-solid fa-plus"></i>
+               <div class="flex gap-2">
+    <button id="detail-wishlist-btn" class="w-12 h-12 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-red-100 hover:text-red-500 transition flex items-center justify-center text-gray-400">
+        <i class="fa-regular fa-heart text-xl"></i>
+    </button>
+    <button id="detail-cart-btn" class="flex-1 bg-black text-white dark:bg-white dark:text-black font-black rounded-xl hover:bg-synapse hover:text-black transition flex items-center justify-center gap-3">
+        <i class="fa-solid fa-cart-plus"></i> AJOUTER AU PANIER
     </button>
 </div>
 
