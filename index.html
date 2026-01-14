@@ -1635,19 +1635,6 @@ window.updateOrderItemStatus = async function(itemId, newStatus) {
     }
 }
 
-        // Succès
-        showToast("✅ Statut mis à jour : " + newStatus);
-        
-        // Rafraîchir les données à l'écran
-        if(typeof loadSellerOrders === 'function') await loadSellerOrders();
-        if(typeof loadSellerStats === 'function') await loadSellerStats();
-
-    } catch (err) {
-        console.error("Erreur critique:", err);
-        alert("Erreur : " + err.message);
-    }
-}
-
         async function loadSellerStats() {
              const { data: { user } } = await supabase.auth.getUser();
              if(!user) return;
