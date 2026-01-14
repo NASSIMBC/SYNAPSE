@@ -1596,20 +1596,45 @@ const { data: all } = await supabase
             // 👇 C'EST CETTE LIGNE QUI MANQUAIT POUR AFFICHER LES COMMANDES 👇
             await loadBuyerOrders(); 
         }
-        window.showSellerDashboard = () => { window.hideAllViews(); document.getElementById('seller-dashboard-view').classList.remove('hidden'); loadSellerStats(); loadSellerOrders(); loadSellerProducts(); }
-        window.showCheckout = () => { window.hideAllViews(); document.getElementById('checkout-view').classList.remove('hidden'); }
+    window.showSellerDashboard = async function() {
+    window.hideAllViews();
+    document.getElementById('seller-dashboard-view').classList.remove('hidden');
+    
+    // --- FIX : CHARGEMENT DU DESIGN DE LA BOUTIQUE ---
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: store, error } = await supabase
+                .from('stores')
+                .select('*')
+                .eq('owner_id', user.id)
+                .maybeSingle();
 
-        window.toggleCart = () => {
-            const drawer = document.getElementById('cart-drawer');
-            const content = document.getElementById('cart-content');
-            if (drawer.classList.contains('hidden')) {
-                drawer.classList.remove('hidden');
-                setTimeout(() => { content.classList.remove('translate-x-full'); }, 50);
-            } else {
-                content.classList.add('translate-x-full');
-                setTimeout(() => { drawer.classList.add('hidden'); }, 300);
+            if (store) {
+                const cacheBuster = "?t=" + Date.now();
+                // Charger le logo s'il existe
+                if (store.logo_url) {
+                    document.getElementById('seller-logo-preview').src = store.logo_url + cacheBuster;
+                }
+                // Charger la bannière s'elle existe
+                if (store.banner_url) {
+                    const banner = document.getElementById('seller-bg-preview');
+                    banner.src = store.banner_url + cacheBuster;
+                    banner.classList.remove('hidden');
+                }
+                // Optionnel : Mettre à jour le nom de la boutique si tu as un élément pour ça
+                // document.getElementById('store-name-display').innerText = store.name;
             }
         }
+    } catch (err) {
+        console.error("Erreur lors du chargement du design de la boutique:", err);
+    }
+
+    // Charger les autres données du dashboard
+    loadSellerStats();
+    loadSellerOrders();
+    loadSellerProducts();
+}
 
         window.toggleMobileMenu = () => {
             const menu = document.getElementById('mobile-menu');
