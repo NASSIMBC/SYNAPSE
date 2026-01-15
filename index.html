@@ -1296,67 +1296,62 @@ async function fetchAllData() {
     const nowTime = new Date().getTime();
     const nowISO = new Date().toISOString();
 
-    // --- 1. NETTOYAGE SILENCIEUX DES BOOSTS PÉRIMÉS ---
-    try {
-        supabase.from('products')
-            .update({ is_boosted: false, boost_receipt_url: null })
-            .eq('is_boosted', true)
-            .lt('boost_expiry', nowISO)
-            .then(() => {});
-    } catch (e) { console.warn("Erreur nettoyage auto:", e); }
+    // --- 1. NETTOYAGE SILENCIEUX ---
+    supabase.from('products').update({ is_boosted: false }).eq('is_boosted', true).lt('boost_expiry', nowISO).then(()=>{});
 
-    // --- 2. CIBLAGE PUBLICITAIRE INTELLIGENT ---
-    // On récupère l'historique de recherche (mots-clés)
+    // --- 2. ALGORITHME DE CIBLAGE ---
     const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
-    let boosted = [];
+    let boostedToShow = [];
 
     try {
-        let query = supabase.from('products').select('*').eq('is_boosted', true);
+        // A. On récupère TOUS les produits boostés valides en une seule fois (pour la performance)
+        const { data: allBoosted } = await supabase
+            .from('products')
+            .select('*')
+            .eq('is_boosted', true);
 
-        // Si l'utilisateur a un historique, on cherche les pubs qui correspondent
-        if (searchHistory.length > 0) {
-            const orFilter = searchHistory.map(term => `title.ilike.%${term}%`).join(',');
-            query = query.or(orFilter);
-        }
+        if (allBoosted && allBoosted.length > 0) {
+            // Filtrer par date d'abord
+            const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
-        const { data: boostedRaw } = await query;
+            if (searchHistory.length > 0) {
+                // B. Filtrage par Mots-Clés (Priorité 1)
+                boostedToShow = activeBoosts.filter(p => 
+                    searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
+                );
 
-        if (boostedRaw && boostedRaw.length > 0) {
-            // Filtre date + Rotation (mélange aléatoire)
-            boosted = boostedRaw.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime)
-                                .sort(() => 0.5 - Math.random());
-        }
+                // C. Si pas assez de résultats, on complète avec la même catégorie (Priorité 2)
+                if (boostedToShow.length < 4) {
+                    const interestedCategories = [...new Set(boostedToShow.map(p => p.category))];
+                    const extraBoosts = activeBoosts.filter(p => 
+                        interestedCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
+                    );
+                    boostedToShow = [...boostedToShow, ...extraBoosts];
+                }
+            }
 
-        // Si aucun produit boosté ne correspond aux mots-clés, on prend des boosts généraux au hasard
-        if (boosted.length === 0) {
-            const { data: fallback } = await supabase.from('products').select('*').eq('is_boosted', true).limit(20);
-            if (fallback) {
-                boosted = fallback.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime)
-                                  .sort(() => 0.5 - Math.random());
+            // D. Si toujours rien (nouveau compte) ou pour boucher les trous (Priorité 3)
+            if (boostedToShow.length < 4) {
+                const randomBoosts = activeBoosts
+                    .filter(p => !boostedToShow.find(b => b.id === p.id))
+                    .sort(() => 0.5 - Math.random());
+                boostedToShow = [...boostedToShow, ...randomBoosts];
             }
         }
-    } catch (err) { console.error("Erreur ciblage:", err); }
+    } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    // On limite l'affichage à 4 produits pour la grille
-    const finalBoosted = boosted.slice(0, 4);
+    // E. Rotation finale (Mélange aléatoire pour le tour de rôle)
+    const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 4);
 
-    // --- 3. CHARGEMENT DES AUTRES DONNÉES ---
-    const { data: hot } = await supabase
-        .from('products')
-        .select('*')
-        .order('view_count', { ascending: false })
-        .limit(4);
-
+    // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
     const { data: all } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
 
-    // --- 4. AFFICHAGE DANS LES GRILLES ---
+    // --- 4. AFFICHAGE DES GRILLES ---
     renderGrid('products-grid', all);
     
-    if(hot && hot.length > 0) renderGrid('hot-grid', hot);
-
     const boostedSection = document.getElementById('boosted-section');
     if(finalBoosted.length > 0) {
         boostedSection.classList.remove('hidden');
@@ -1365,149 +1360,20 @@ async function fetchAllData() {
         boostedSection.classList.add('hidden');
     }
 
-    // --- 5. RECOMMANDATIONS & LOGIQUE SYNC ---
-    const lastSearch = localStorage.getItem('synapse_last_search');
-    if(lastSearch) {
-        const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
-        if(recos && recos.length > 0) {
-            document.getElementById('recommended-section').classList.remove('hidden');
-            renderGrid('recommended-grid', recos);
-        }
-    }
-
-    if (typeof loadPersonalizedProducts === 'function') {
-        await loadPersonalizedProducts();
-    }
-
+    // --- 5. LOGIQUE SYNC ---
+    if (typeof loadPersonalizedProducts === 'function') await loadPersonalizedProducts();
     setupRealtime();
-    if (typeof window.syncWishlistState === 'function') {
-        await window.syncWishlistState();
-    }
+    if (typeof window.syncWishlistState === 'function') await window.syncWishlistState();
 }
 
-// --- ACTUALISATION AUTOMATIQUE (ROTATION) ---
-// On relance fetchAllData toutes les 60 secondes pour changer les pubs
-if (!window.boostInterval) {
-    window.boostInterval = setInterval(() => {
-        console.log("🔄 Rotation des publicités sponsorisées...");
+// --- ROTATION AUTOMATIQUE TOUTES LES MINUTES ---
+if (!window.boostRotationActive) {
+    setInterval(() => {
+        console.log("🔄 Rotation de l'algorithme publicitaire...");
         fetchAllData();
     }, 60000);
+    window.boostRotationActive = true;
 }
-function setupRealtime() {
-    supabase
-    .channel('public:products')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, payload => {
-        // Dès qu'un produit est modifié (ex: nouvelle vente)
-        const newSales = payload.new.sales;
-        const productId = payload.new.id;
-        
-        // On met à jour l'affichage si le produit est visible
-        const element = document.getElementById(`sales-count-${productId}`);
-        if(element) {
-            element.innerText = newSales;
-            element.classList.add('text-green-500', 'scale-125'); // Petit effet visuel
-            setTimeout(() => { element.classList.remove('text-green-500', 'scale-125'); }, 1000);
-        }
-    })
-    .subscribe();
-}
-    function renderGrid(containerId, products, isBoostedLayout = false, isSellerDashboard = false) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    if(!products || products.length === 0) {
-        if(containerId === 'products-grid') container.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucun produit trouvé.</div>';
-        return;
-    }
-    products.forEach(p => {
-        const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-        const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
-        const safeStoreId = p.store_id || '';
-        const safeCat = p.category || ''; 
-        
-        const salesTag = `<div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-fire text-orange-500"></i> <span id="sales-count-${p.id}" class="font-bold">${p.sales || 0}</span> vendus</div>`;
-
-        // --- AJOUT : Badge Sponsorisé si le produit est déjà boosté ---
-        const boostedBadge = p.is_boosted ? `<div class="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-synapse text-[9px] font-black px-2 py-1 rounded-md z-10 border border-synapse/30 uppercase tracking-widest"><i class="fa-solid fa-bolt-lightning mr-1"></i> Sponsorisé</div>` : '';
-
-        // --- AJOUT : Bouton Booster (uniquement pour le dashboard vendeur) ---
-        let boostButton = "";
-        if (isSellerDashboard) {
-            if (p.is_boosted) {
-                boostButton = `<div class="mt-3 py-2 text-center text-[10px] font-bold text-green-500 bg-green-500/10 rounded-lg border border-green-500/20"><i class="fa-solid fa-check-circle"></i> BOOSTÉ</div>`;
-            } else {
-                boostButton = `
-                <button onclick="openBoostModal('${p.id}'); event.stopPropagation()" class="mt-3 w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-1 shadow-lg hover:scale-[1.02] transition uppercase tracking-tighter">
-                    <i class="fa-solid fa-bolt"></i> Propulser l'annonce
-                </button>`;
-            }
-        }
-
-        let cardHtml = `
-        <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
-            ${boostedBadge}
-            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
-                <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
-            </div>
-            <div class="p-4">
-                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
-                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span></div>
-                <div class="flex items-center justify-between">
-                    ${salesTag}
-                    <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                ${boostButton}
-            </div>
-        </div>`;
-        
-        container.innerHTML += cardHtml;
-    });
-}
-
-       window.openDetail = async function(t, p, d, i, id, storeId, category) {
-            document.getElementById('detail-title').innerText = t;
-            document.getElementById('detail-price').innerText = p + " DA";
-            document.getElementById('detail-desc').innerText = d || "Pas de description.";
-            document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
-            document.getElementById('detail-id').value = id;
-            document.getElementById('detail-category-hidden').value = category;
-
-            // Affichage des ventes
-            // On fait un fetch rapide pour avoir le chiffre exact à jour
-            const { data: prodData } = await supabase.from('products').select('sales').eq('id', id).single();
-            const sales = prodData ? prodData.sales : 0;
-            document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
-
-          // Charger Infos Vendeur (CORRIGÉ & ACTIF)
-            const btnSeller = document.getElementById('btn-seller-profile');
-            
-            if(storeId) {
-                 const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
-                 if(store) {
-                     document.getElementById('detail-store-id').value = store.owner_id;
-                     document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
-                     
-                     // ACTIVER LE CLIC SUR LE BOUTON
-                     btnSeller.style.display = 'block';
-                     btnSeller.onclick = function() { filterByStore(storeId); };
-                 }
-            } else {
-                document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
-                btnSeller.style.display = 'none'; // On cache le bouton si c'est Synapse
-            }
-
-            // Charger Produits Similaires
-            loadSimilarProducts(category, id);
-
-            // Charger Commentaires
-            loadComments(id);
-
-            window.hideAllViews();
-            document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0,0);
-            
-            if(id) await supabase.rpc('increment_views', { row_id: id });
-        }
-
 
 
  window.publishProduct = async function() {
