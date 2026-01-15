@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -1324,34 +1325,49 @@ async function fetchAllData() {
     // --- 1. NETTOYAGE SILENCIEUX ---
     supabase.from('products').update({ is_boosted: false }).eq('is_boosted', true).lt('boost_expiry', nowISO).then(()=>{});
 
-    // --- 2. ALGORITHME DE CIBLAGE PERSONNALISÉ ---
+    // --- 2. ALGORITHME DE CIBLAGE ---
     const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
     let boostedToShow = [];
 
     try {
+        // A. On récupère TOUS les produits boostés valides en une seule fois (pour la performance)
         const { data: allBoosted } = await supabase
             .from('products')
             .select('*')
             .eq('is_boosted', true);
 
         if (allBoosted && allBoosted.length > 0) {
-            // Filtrer par date
+            // Filtrer par date d'abord
             const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
             if (searchHistory.length > 0) {
-                // CIBLAGE STRICT : Uniquement si le titre correspond à l'un des mots cherchés
+                // B. Filtrage par Mots-Clés (Priorité 1)
                 boostedToShow = activeBoosts.filter(p => 
                     searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
                 );
-            } else {
-                // Pour un nouveau compte (pas d'historique), on montre tout en rotation
-                boostedToShow = activeBoosts;
+
+                // C. Si pas assez de résultats, on complète avec la même catégorie (Priorité 2)
+                if (boostedToShow.length < 4) {
+                    const interestedCategories = [...new Set(boostedToShow.map(p => p.category))];
+                    const extraBoosts = activeBoosts.filter(p => 
+                        interestedCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
+                    );
+                    boostedToShow = [...boostedToShow, ...extraBoosts];
+                }
+            }
+
+            // D. Si toujours rien (nouveau compte) ou pour boucher les trous (Priorité 3)
+            if (boostedToShow.length < 4) {
+                const randomBoosts = activeBoosts
+                    .filter(p => !boostedToShow.find(b => b.id === p.id))
+                    .sort(() => 0.5 - Math.random());
+                boostedToShow = [...boostedToShow, ...randomBoosts];
             }
         }
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    // Mélange pour la rotation "à tour de rôle" et limite linéaire à 6
-    const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
+    // E. Rotation finale (Mélange aléatoire pour le tour de rôle)
+    const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 4);
 
     // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
     const { data: all } = await supabase
@@ -1367,7 +1383,6 @@ async function fetchAllData() {
         boostedSection.classList.remove('hidden');
         renderGrid('boosted-grid', finalBoosted, true);
     } else {
-        // Cache la section si rien ne correspond aux intérêts de l'utilisateur
         boostedSection.classList.add('hidden');
     }
 
@@ -1380,11 +1395,12 @@ async function fetchAllData() {
 // --- ROTATION AUTOMATIQUE TOUTES LES MINUTES ---
 if (!window.boostRotationActive) {
     setInterval(() => {
-        console.log("🔄 Rotation des publicités basées sur vos intérêts...");
+        console.log("🔄 Rotation de l'algorithme publicitaire...");
         fetchAllData();
     }, 60000);
     window.boostRotationActive = true;
 }
+
  window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
     
