@@ -294,31 +294,64 @@
     </div>
 </div>
 
-<div class="mb-8">
+<div class="mb-8 w-full">
     <div class="flex items-center justify-between mb-4 px-2">
         <h2 class="text-xl font-black text-white uppercase tracking-tighter">Explorer les <span class="text-synapse">Catégories</span></h2>
     </div>
     
-    <div class="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth">
-        <button onclick="filterByCategory('all')" class="category-pill active bg-synapse text-black px-6 py-2 rounded-full font-bold whitespace-nowrap transition">Tout</button>
+    <div class="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth w-full touch-pan-x">
+        <button onclick="filterByCategory('all')" class="category-pill active">Tout</button>
         
-        <button onclick="filterByCategory('H-')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">👕 Homme</button>
-        <button onclick="filterByCategory('F-')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">👗 Femme</button>
-        <button onclick="filterByCategory('Smartphones')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">📱 Téléphonie</button>
-        <button onclick="filterByCategory('PC')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">💻 Informatique</button>
-        <button onclick="filterByCategory('Voitures')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🚗 Véhicules</button>
-        <button onclick="filterByCategory('Jeux')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🎮 Gaming</button>
-        <button onclick="filterByCategory('Electro')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">❄️ Électroménager</button>
-        <button onclick="filterByCategory('Animaux')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🐾 Animaux</button>
-        <button onclick="filterByCategory('Service')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🛠️ Services</button>
+        <button onclick="filterByCategory('H-')" class="category-pill">👕 Homme</button>
+        <button onclick="filterByCategory('F-')" class="category-pill">👗 Femme</button>
+        <button onclick="filterByCategory('Smartphones')" class="category-pill">📱 Téléphonie</button>
+        <button onclick="filterByCategory('PC')" class="category-pill">💻 Informatique</button>
+        <button onclick="filterByCategory('Voitures')" class="category-pill">🚗 Véhicules</button>
+        <button onclick="filterByCategory('Jeux')" class="category-pill">🎮 Gaming</button>
+        <button onclick="filterByCategory('Electro')" class="category-pill">❄️ Électro</button>
+        <button onclick="filterByCategory('Animaux')" class="category-pill">🐾 Animaux</button>
+        <button onclick="filterByCategory('Service')" class="category-pill">🛠️ Services</button>
+        <button onclick="filterByCategory('Emplois')" class="category-pill">💼 Emplois</button>
+        <button onclick="filterByCategory('Divers')" class="category-pill">📦 Divers</button>
     </div>
 </div>
 
 <style>
-/* Cache la barre de défilement mais permet le scroll */
+/* Style des boutons (Pills) pour une visibilité maximale */
+.category-pill {
+    background-color: #1a1a1a; /* Fond gris très foncé presque noir */
+    color: #ffffff; /* Texte blanc pur */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 24px;
+    border-radius: 9999px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* État au survol */
+.category-pill:hover {
+    border-color: #CAFF33; /* Vert Synapse */
+    background-color: #262626;
+}
+
+/* État Actif (Sélectionné) */
+.category-pill.active {
+    background-color: #CAFF33 !important; /* Vert Synapse */
+    color: #000000 !important; /* Texte noir pour contraste */
+    border-color: #CAFF33 !important;
+}
+
+/* Gestion du défilement */
 .no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.category-pill.active { background-color: #CAFF33; color: black; border-color: #CAFF33; }
+.no-scrollbar { 
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+    display: flex;
+    -webkit-overflow-scrolling: touch; /* Défilement fluide sur iPhone */
+}
 </style>
 
                 <div id="boosted-section" class="hidden mb-8">
