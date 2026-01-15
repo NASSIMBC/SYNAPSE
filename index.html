@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -3328,7 +3330,7 @@ window.requestBoost = async function() {
     try {
         // On ajoute un tag dans la description pour que tu puisses le voir dans ton admin
         const { data: p } = await supabase.from('products').select('description').eq('id', productId).single();
-        const newDesc = "[DEMANDE BOOST EN COURS] " + (p.description || "");
+        const newDesc = "" + (p.description || "");
 
         const { error } = await supabase
             .from('products')
