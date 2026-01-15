@@ -896,7 +896,7 @@
     </div>
 </div>
 
-    <script type="module">
+   <script type="module">
    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
         // --- 1. CONFIGURATION SUPABASE ---
@@ -924,7 +924,9 @@
             const totalDrawer = document.getElementById('cart-drawer-total');
             const totalCheckout = document.getElementById('cart-total-price');
 
-            badge.innerText = window.myCart.length;
+            if(badge) badge.innerText = window.myCart.length;
+            if(!container) return;
+            
             container.innerHTML = '';
             let total = 0;
 
@@ -932,8 +934,10 @@
                 container.innerHTML = '<div class="text-center text-gray-500 mt-10">Votre panier est vide</div>';
             } else {
                 window.myCart.forEach((item, index) => {
-                    let cleanPrice = parseInt(item.price.replace(/\D/g, '')) || 0;
-                    total += cleanPrice;
+                    // Conversion sécurisée du prix en nombre
+                    let cleanPrice = typeof item.price === 'string' ? parseInt(item.price.replace(/\D/g, '')) : item.price;
+                    total += (cleanPrice || 0);
+                    
                     const html = `
                     <div class="flex gap-3 bg-gray-50 dark:bg-dark-800 p-3 rounded-lg relative group">
                         <img src="${item.image}" class="w-16 h-16 object-contain bg-white rounded-md">
@@ -961,13 +965,11 @@ window.toggleCart = function() {
     const content = document.getElementById('cart-content');
 
     if (drawer.classList.contains('hidden')) {
-        // Ouvrir
         drawer.classList.remove('hidden');
         setTimeout(() => {
             content.classList.remove('translate-x-full');
         }, 50);
     } else {
-        // Fermer
         content.classList.add('translate-x-full');
         setTimeout(() => {
             drawer.classList.add('hidden');
@@ -977,34 +979,26 @@ window.toggleCart = function() {
 
 // --- FONCTION POUR PASSER À LA COMMANDE ---
 window.showCheckout = function() {
-    // 1. Vérifier si le panier n'est pas vide
     if (window.myCart.length === 0) {
         alert("Votre panier est vide !");
         return;
     }
-
-    // 2. Cacher toutes les pages et afficher la vue Checkout
     window.hideAllViews();
     const checkoutView = document.getElementById('checkout-view');
     if (checkoutView) {
         checkoutView.classList.remove('hidden');
-        
-        // 3. Fermer le tiroir du panier si ouvert
         const drawer = document.getElementById('cart-drawer');
         if (drawer) drawer.classList.add('hidden');
-
-        // 4. Mettre à jour le prix total sur la page commande
         updateCartUI();
-        
-        // 5. Remonter en haut de page
         window.scrollTo(0, 0);
     } else {
-        console.error("L'élément #checkout-view est introuvable dans le HTML.");
+        console.error("L'élément #checkout-view est introuvable.");
     }
 };
 
         window.showToast = (msg) => {
             const toast = document.getElementById('toast');
+            if(!toast) return;
             toast.querySelector('span').innerText = msg;
             toast.classList.remove('translate-y-40', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-40', 'opacity-0'); }, 3000);
@@ -1103,20 +1097,17 @@ window.showCheckout = function() {
 
       window.sendMessage = async function() {
         const content = document.getElementById('msg-content').value;
-        const sellerId = document.getElementById('detail-store-id').value; // ID récupéré depuis la page produit
+        const sellerId = document.getElementById('detail-store-id').value; 
 
         if(!content) return alert("Le message est vide !");
         
-        // Sécurité : On vérifie si on est connecté
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) {
-            // Si pas connecté, on ferme la modale message et on ouvre la connexion
             document.getElementById('message-modal').classList.add('hidden');
             document.getElementById('auth-view').classList.remove('hidden');
             return;
         }
         
-        // Si le vendeur n'est pas identifié (ex: produit ajouté sans boutique)
         if(!sellerId) return alert("Erreur : Impossible de contacter ce vendeur.");
 
         const { error } = await supabase.from('messages').insert([{
@@ -1134,363 +1125,11 @@ window.showCheckout = function() {
         }
     }
 
-      window.loadMyMessages = async function(userId) {
-            const list = document.getElementById('my-messages-list');
-            list.innerHTML = '<div class="text-center py-2"><span class="loader w-4 h-4"></span></div>';
-
-            // 1. Récupérer les messages reçus
-            const { data: msgs, error } = await supabase
-                .from('messages')
-                .select('*')
-                .eq('receiver_id', userId)
-                .order('created_at', { ascending: false });
-
-            if(error || !msgs || msgs.length === 0) {
-                list.innerHTML = '<div class="text-gray-400 text-center italic">Aucun message reçu.</div>';
-                return;
-            }
-
-            // 2. Récupérer les noms des expéditeurs (Pour savoir QUI a écrit)
-            const senderIds = msgs.map(m => m.sender_id);
-            const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', senderIds);
-            
-            // Création d'un dictionnaire pour retrouver les noms rapidement
-            const namesMap = {};
-            if(profiles) profiles.forEach(p => { namesMap[p.id] = p.full_name || 'Utilisateur inconnu'; });
-
-            // 3. Afficher les messages avec le bouton RÉPONDRE
-            list.innerHTML = '';
-            msgs.forEach(m => {
-                const name = namesMap[m.sender_id] || 'Utilisateur';
-                const time = new Date(m.created_at).toLocaleDateString();
-                
-                // On prépare les données pour la réponse
-                // On échappe les guillemets pour éviter les bugs
-                const safeName = name.replace(/'/g, "\\'"); 
-
-                list.innerHTML += `
-                <div class="p-3 bg-gray-50 dark:bg-black rounded-lg border border-gray-200 dark:border-gray-800 mb-2">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="font-bold text-synapse text-xs">${name}</span>
-                        <span class="text-[10px] text-gray-400">${time}</span>
-                    </div>
-                    <p class="text-xs text-gray-600 dark:text-gray-300 mb-2">${m.content}</p>
-                    
-                    <button onclick="openReplyModal('${m.sender_id}', '${safeName}')" class="w-full bg-white dark:bg-dark-800 border border-gray-200 dark:border-gray-700 text-xs font-bold py-1 rounded hover:bg-synapse hover:text-black transition">
-                        <i class="fa-solid fa-reply"></i> Répondre
-                    </button>
-                </div>`;
-            });
-        }
-
-        // --- FONCTION POUR RÉPONDRE ---
-        window.openReplyModal = function(senderId, senderName) {
-            // 1. On "détourne" l'input caché qui sert à stocker l'ID du destinataire
-            // On met l'ID de la personne qui nous a écrit à la place de l'ID du vendeur
-            document.getElementById('detail-store-id').value = senderId;
-            
-            // 2. On change le titre pour que ce soit clair
-            // (Optionnel : vous pouvez ajouter un ID au titre h3 dans le HTML pour le cibler proprement, 
-            // mais ici on laisse le titre par défaut "Envoyer un message")
-            
-            // 3. On vide le champ texte et on ouvre la modale
-            document.getElementById('msg-content').value = "";
-            document.getElementById('msg-content').placeholder = "Réponse pour " + senderName + "...";
-            document.getElementById('message-modal').classList.remove('hidden');
-        }
-
-        // --- 7. RECHERCHE & FILTRES ---
-        window.handleSearch = async function() {
-            const term = document.getElementById('search-input').value;
-            if(term) performSearch(term);
-        }
-
-        window.handleSearchMobile = async function() {
-            const term = document.getElementById('mobile-search-input').value;
-            if(term) {
-                window.toggleMobileMenu();
-                performSearch(term);
-            }
-        }
-
-     async function performSearch(term) {
-        // --- AJOUT : Capture pour publicité ciblée ---
-        let searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
-        if (term && !searchHistory.includes(term.toLowerCase())) {
-            searchHistory.push(term.toLowerCase());
-            if (searchHistory.length > 5) searchHistory.shift(); 
-            localStorage.setItem('synapse_search_history', JSON.stringify(searchHistory));
-        }
-        // --------------------------------------------
-
-        localStorage.setItem('synapse_last_search', term);
-        window.hideAllViews();
-        document.getElementById('home-view').classList.remove('hidden');
-        window.scrollTo(0, 0);
-        document.getElementById('products-grid').innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span> Recherche...</div>';
-        const { data } = await supabase.from('products').select('*').ilike('title', `%${term}%`);
-        renderGrid('products-grid', data);
-    }
-
-    window.filterByCategory = async function(category) {
-        // --- AJOUT : On capture aussi la catégorie comme intérêt ---
-        let searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
-        if (category && !searchHistory.includes(category.toLowerCase())) {
-            searchHistory.push(category.toLowerCase());
-            if (searchHistory.length > 5) searchHistory.shift();
-            localStorage.setItem('synapse_search_history', JSON.stringify(searchHistory));
-        }
-        // ---------------------------------------------------------
-
-        window.hideAllViews();
-        document.getElementById('home-view').classList.remove('hidden');
-        
-        document.getElementById('boosted-section').classList.add('hidden');
-        document.getElementById('recommended-section').classList.add('hidden');
-        document.getElementById('hot-section-container').classList.add('hidden');
-        document.getElementById('hero-banner').classList.add('hidden');
-        if(document.getElementById('personalized-section')) document.getElementById('personalized-section').classList.add('hidden');
-
-        document.getElementById('main-grid-title').innerHTML = `<i class="fa-solid fa-filter text-synapse"></i> Catégorie : ${category}`;
-
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-
-        const { data } = await supabase.from('products').select('*').eq('category', category);
-        renderGrid('products-grid', data);
-        window.scrollTo(0, 0);
-    }
-
-    window.updatePriceLabel = function(val) {
-        document.getElementById('price-value').innerText = parseInt(val).toLocaleString() + ' DA';
-    }
-
-    window.applyPriceFilter = async function(val) {
-        const max = parseInt(val);
-        const { data } = await supabase.from('products').select('*').lte('price', max).order('created_at', { ascending: false });
-        renderGrid('products-grid', data);
-        document.getElementById('hot-section-container').classList.add('hidden');
-    }
-
-    // --- NOUVELLE FONCTION POUR CHARGER LES PRODUITS CIBLÉS ---
-    window.loadPersonalizedProducts = async function() {
-        const history = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
-        const container = document.getElementById('personalized-section');
-        const grid = document.getElementById('personalized-grid');
-
-        if (!history.length || !container || !grid) return;
-
-        try {
-            // On crée un filtre OR pour chaque mot-clé de l'historique
-            const filters = history.map(term => `title.ilike.%${term}%`).join(',');
-            
-            const { data: products } = await supabase
-                .from('products')
-                .select('*')
-                .or(filters)
-                .limit(5);
-
-            if (products && products.length > 0) {
-                container.classList.remove('hidden');
-                renderGrid('personalized-grid', products);
-            }
-        } catch (err) {
-            console.error("Erreur ciblage:", err);
-        }
-    }
-
-       // --- 8. AFFICHAGE DONNEES & REALTIME ---
-async function fetchAllData() {
-    const now = new Date().toISOString();
-
-    // --- 1. NETTOYAGE AUTOMATIQUE DES BOOSTS PÉRIMÉS ---
-    // Cette partie cherche les produits boostés dont la date est passée et les désactive
-    await supabase
-        .from('products')
-        .update({ is_boosted: false, boost_expiry: null, boost_receipt_url: null })
-        .eq('is_boosted', true)
-        .lt('boost_expiry', now); // lt = "Less Than" (plus petit que maintenant)
-
-    // --- 2. CHARGEMENT DES DONNÉES ---
-    // On ne récupère que les produits dont le boost est encore valide
-    const { data: boosted } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_boosted', true)
-        .gt('boost_expiry', now) // gt = "Greater Than" (doit être dans le futur)
-        .limit(4);
-
-    const { data: hot } = await supabase
-        .from('products')
-        .select('*')
-        .order('view_count', { ascending: false })
-        .limit(4);
-
-    const { data: all } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    // --- 3. AFFICHAGE DANS LES GRILLES ---
-    renderGrid('products-grid', all);
-    
-    if(hot && hot.length > 0) renderGrid('hot-grid', hot);
-
-    if(boosted && boosted.length > 0) {
-        document.getElementById('boosted-section').classList.remove('hidden');
-        renderGrid('boosted-grid', boosted, true);
-    } else {
-        document.getElementById('boosted-section').classList.add('hidden');
-    }
-
-    // --- 4. RECOMMANDATIONS & PUB CIBLÉE ---
-    const lastSearch = localStorage.getItem('synapse_last_search');
-    if(lastSearch) {
-        const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
-        if(recos && recos.length > 0) {
-            document.getElementById('recommended-section').classList.remove('hidden');
-            renderGrid('recommended-grid', recos);
-        }
-    }
-
-    if (typeof loadPersonalizedProducts === 'function') {
-        await loadPersonalizedProducts();
-    }
-
-    // --- 5. LOGIQUE SYNC (Realtime & Wishlist) ---
-    setupRealtime();
-
-    if (typeof window.syncWishlistState === 'function') {
-        await window.syncWishlistState();
-    }
-}
-
-function setupRealtime() {
-    supabase
-    .channel('public:products')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'products' }, payload => {
-        // Dès qu'un produit est modifié (ex: nouvelle vente)
-        const newSales = payload.new.sales;
-        const productId = payload.new.id;
-        
-        // On met à jour l'affichage si le produit est visible
-        const element = document.getElementById(`sales-count-${productId}`);
-        if(element) {
-            element.innerText = newSales;
-            element.classList.add('text-green-500', 'scale-125'); // Petit effet visuel
-            setTimeout(() => { element.classList.remove('text-green-500', 'scale-125'); }, 1000);
-        }
-    })
-    .subscribe();
-}
-    function renderGrid(containerId, products, isBoostedLayout = false, isSellerDashboard = false) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    if(!products || products.length === 0) {
-        if(containerId === 'products-grid') container.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucun produit trouvé.</div>';
-        return;
-    }
-    products.forEach(p => {
-        const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
-        const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
-        const safeStoreId = p.store_id || '';
-        const safeCat = p.category || ''; 
-        
-        const salesTag = `<div class="flex items-center text-[10px] text-gray-500 gap-1"><i class="fa-solid fa-fire text-orange-500"></i> <span id="sales-count-${p.id}" class="font-bold">${p.sales || 0}</span> vendus</div>`;
-
-        // --- AJOUT : Badge Sponsorisé si le produit est déjà boosté ---
-        const boostedBadge = p.is_boosted ? `<div class="absolute top-2 left-2 bg-black/70 backdrop-blur-md text-synapse text-[9px] font-black px-2 py-1 rounded-md z-10 border border-synapse/30 uppercase tracking-widest"><i class="fa-solid fa-bolt-lightning mr-1"></i> Sponsorisé</div>` : '';
-
-        // --- AJOUT : Bouton Booster (uniquement pour le dashboard vendeur) ---
-        let boostButton = "";
-        if (isSellerDashboard) {
-            if (p.is_boosted) {
-                boostButton = `<div class="mt-3 py-2 text-center text-[10px] font-bold text-green-500 bg-green-500/10 rounded-lg border border-green-500/20"><i class="fa-solid fa-check-circle"></i> BOOSTÉ</div>`;
-            } else {
-                boostButton = `
-                <button onclick="openBoostModal('${p.id}'); event.stopPropagation()" class="mt-3 w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-1 shadow-lg hover:scale-[1.02] transition uppercase tracking-tighter">
-                    <i class="fa-solid fa-bolt"></i> Propulser l'annonce
-                </button>`;
-            }
-        }
-
-        let cardHtml = `
-        <div onclick="openDetail('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${safeStoreId}', '${safeCat}')" class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden hover:shadow-xl dark:hover:shadow-synapse/20 transition cursor-pointer group border border-gray-100 dark:border-dark-800 relative">
-            ${boostedBadge}
-            <div class="h-48 bg-gray-100 dark:bg-dark-800 p-4 flex items-center justify-center">
-                <img src="${p.image_url || 'https://pngimg.com/d/box_PNG120.png'}" class="h-full object-contain group-hover:scale-110 transition">
-            </div>
-            <div class="p-4">
-                <h3 class="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2 font-semibold">${p.title}</h3>
-                <div class="flex items-center gap-2 mb-2"><span class="text-lg font-bold text-black dark:text-white">${p.price} DA</span></div>
-                <div class="flex items-center justify-between">
-                    ${salesTag}
-                    <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}'); event.stopPropagation()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-dark-700 hover:bg-synapse hover:text-black transition flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
-                </div>
-                ${boostButton}
-            </div>
-        </div>`;
-        
-        container.innerHTML += cardHtml;
-    });
-}
-
-       window.openDetail = async function(t, p, d, i, id, storeId, category) {
-            document.getElementById('detail-title').innerText = t;
-            document.getElementById('detail-price').innerText = p + " DA";
-            document.getElementById('detail-desc').innerText = d || "Pas de description.";
-            document.getElementById('detail-img').src = i || "https://pngimg.com/d/box_PNG120.png";
-            document.getElementById('detail-id').value = id;
-            document.getElementById('detail-category-hidden').value = category;
-
-            // Affichage des ventes
-            // On fait un fetch rapide pour avoir le chiffre exact à jour
-            const { data: prodData } = await supabase.from('products').select('sales').eq('id', id).single();
-            const sales = prodData ? prodData.sales : 0;
-            document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
-
-          // Charger Infos Vendeur (CORRIGÉ & ACTIF)
-            const btnSeller = document.getElementById('btn-seller-profile');
-            
-            if(storeId) {
-                 const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
-                 if(store) {
-                     document.getElementById('detail-store-id').value = store.owner_id;
-                     document.getElementById('detail-seller-name').innerText = store.name || "Vendeur Synapse";
-                     
-                     // ACTIVER LE CLIC SUR LE BOUTON
-                     btnSeller.style.display = 'block';
-                     btnSeller.onclick = function() { filterByStore(storeId); };
-                 }
-            } else {
-                document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
-                btnSeller.style.display = 'none'; // On cache le bouton si c'est Synapse
-            }
-
-            // Charger Produits Similaires
-            loadSimilarProducts(category, id);
-
-            // Charger Commentaires
-            loadComments(id);
-
-            window.hideAllViews();
-            document.getElementById('product-view').classList.remove('hidden');
-            window.scrollTo(0,0);
-            
-            if(id) await supabase.rpc('increment_views', { row_id: id });
-        }
-
-
-
- window.publishProduct = async function() {
+    window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
-    
-    // 👇 MODIFICATION ICI : On utilise notre liste globale au lieu de l'input
-    const imageFiles = window.productFiles; 
-    
+    const imageFiles = window.productFiles || []; 
     const digitalFile = document.getElementById('prod-file').files[0];
     
-    // Vérifications
     if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
         
         btn.innerText = "Envoi..."; btn.disabled = true;
@@ -1499,65 +1138,60 @@ function setupRealtime() {
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) throw new Error("Connectez-vous !");
 
-            // 1. Upload des images (Boucle)
             let uploadedUrls = [];
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
-                
-                // --- RENOMMAGE FORCÉ (SÉCURITÉ MAXIMALE) ---
-                // On garde juste l'extension (ex: .jpg)
                 const fileExt = file.name.split('.').pop();
-                // On crée un nom aléatoire (ex: img_837482.jpg)
                 const safeName = `img_${Date.now()}_${Math.floor(Math.random() * 10000)}.${fileExt}`;
-                
-                console.log(`Ancien nom: ${file.name} -> Nouveau nom: ${safeName}`);
 
                 const { error: upError } = await supabase.storage.from('products').upload(safeName, file);
                 
-                if(upError) {
-                    console.error("Erreur Supabase:", upError);
-                    throw new Error("Erreur upload. Vérifiez le nom du fichier.");
-                }
+                if(upError) throw new Error("Erreur upload image.");
                 
                 const { data } = supabase.storage.from('products').getPublicUrl(safeName);
                 uploadedUrls.push(data.publicUrl);
             }
 
-            // 2. Upload fichier numérique
             let digitalPath = null;
             if(digitalFile) {
                 const ext = digitalFile.name.split('.').pop();
                 const safeName = `file_${Date.now()}_${Math.floor(Math.random() * 10000)}.${ext}`;
-                
                 await supabase.storage.from('digital_vault').upload(safeName, digitalFile);
                 digitalPath = safeName;
             }
 
-            // 3. Boutique
             let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
             if (!store) { 
-                const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
+                const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }]).select().single(); 
                 store = data; 
             }
 
-            // 4. Insertion
             const title = document.getElementById('prod-title').value;
             const price = document.getElementById('prod-price').value;
             const stock = document.getElementById('prod-stock').value;
             const desc = document.getElementById('prod-desc').value;
             const category = document.getElementById('prod-category').value;
 
-            await supabase.from('products').insert([{
-                store_id: store.id, title, description: desc, price, stock, category,
+            const { error: insertError } = await supabase.from('products').insert([{
+                store_id: store.id, 
+                title, 
+                description: desc, 
+                price: parseInt(price), 
+                stock: parseInt(stock) || 0, 
+                category,
                 image_url: uploadedUrls[0], 
                 images: uploadedUrls,       
                 digital_file: digitalPath,
-                is_hot: false, is_boosted: false, sales: 0
+                is_hot: false, 
+                is_boosted: false, 
+                sales: 0
             }]);
+
+            if(insertError) throw insertError;
 
             alert("✅ Produit publié avec succès !");
             window.goHome();
-            await fetchAllData();
+            if(typeof fetchAllData === 'function') await fetchAllData();
 
         } catch (err) {
             console.error(err);
@@ -1566,7 +1200,6 @@ function setupRealtime() {
             btn.innerText = "Publier"; btn.disabled = false;
         }
     }
-     /* --- REMPLACE TES FONCTIONS EXISTANTES PAR CELLES-CI DANS TON SCRIPT --- */
 
 window.loadSellerProducts = async function() {
     const list = document.getElementById('seller-products-list');
@@ -1581,7 +1214,7 @@ window.loadSellerProducts = async function() {
 
         if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
 
-        // --- AJOUT : LOGIQUE DE NOTIFICATION DE STATUT ---
+        // --- LOGIQUE DE NOTIFICATION DE STATUT ---
         const now = new Date();
         products.forEach(p => {
             let statusLabel = "";
@@ -1589,24 +1222,22 @@ window.loadSellerProducts = async function() {
 
             if (p.is_boosted && expiry && expiry > now) {
                 const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
-                statusLabel = ` [ACTIF: ${diffDays}j剩余]`;
+                statusLabel = ` [ACTIF: ${diffDays}j restant]`; // Correction du caractère chinois erroné
             } else if (!p.is_boosted && p.boost_receipt_url) {
                 statusLabel = ` [EN VÉRIFICATION...]`;
             } else if (!p.is_boosted && p.boost_expiry && expiry < now) {
                 statusLabel = ` [BOOST TERMINÉ]`;
             }
             
-            // On peut optionnellement modifier le titre temporairement pour l'affichage
             if(statusLabel) p.title += statusLabel;
         });
 
-        // Appel de ta grille avec le mode Dashboard activé (true)
         renderGrid('seller-products-list', products, false, true); 
 
     } catch(e) { console.error(e); }
 }
 
-    async function loadSellerOrders() {
+async function loadSellerOrders() {
     const list = document.getElementById('seller-orders-list');
     list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
     
@@ -1618,7 +1249,6 @@ window.loadSellerProducts = async function() {
             return;
         }
 
-        // On récupère les articles liés à VOTRE boutique
         const { data: items, error } = await supabase
             .from('order_items')
             .select('*, order:orders(*), product:products!inner(*)') 
@@ -1637,9 +1267,7 @@ window.loadSellerProducts = async function() {
             const status = item.status || 'en_attente';
             const shippingInfo = item.order ? item.order.shipping_address : "Adresse non disponible";
             
-            // --- GÉNÉRATION DYNAMIQUE DES BOUTONS ---
             let buttonsHtml = '';
-            
             if (status === 'en_attente') {
                 buttonsHtml = `
                 <button onclick="updateOrderItemStatus('${item.id}', 'en_livraison')" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition flex items-center justify-center gap-2">
@@ -1673,7 +1301,6 @@ window.loadSellerProducts = async function() {
                         <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${status === 'en_attente' ? 'bg-orange-500/20 text-orange-500' : 'bg-blue-500/20 text-blue-500'}">${status}</span>
                     </div>
                 </div>
-                
                 <div class="flex gap-4 items-center mb-4">
                     <img src="${item.product.image_url}" class="w-12 h-12 bg-white rounded-lg object-contain p-1">
                     <div>
@@ -1681,14 +1308,12 @@ window.loadSellerProducts = async function() {
                         <div class="text-[10px] text-gray-400 font-bold uppercase">Quantité: ${item.quantity}</div>
                     </div>
                 </div>
-
                 <div class="bg-black/40 p-3 rounded-lg text-xs text-gray-300 mb-4 border border-gray-800">
                     <div class="font-bold text-synapse mb-1 uppercase tracking-widest text-[9px] flex items-center gap-1">
                         <i class="fa-solid fa-location-dot"></i> Client & Livraison
                     </div>
                     <p class="italic">"${shippingInfo}"</p>
                 </div>
-
                 <div id="status-container-${item.id}">
                     ${buttonsHtml}
                 </div>
@@ -1700,638 +1325,202 @@ window.loadSellerProducts = async function() {
     }
 }
 
-async function loadSellerStats() {
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+// --- LOGIQUE DU CHAT (Correction et Finalisation) ---
+let currentChatOrderId = null;
 
-        // Récupérer les données de la boutique (revenu)
-        const { data: store } = await supabase
-            .from('stores')
-            .select('id, revenue')
-            .eq('owner_id', user.id)
-            .maybeSingle();
+window.openOrderChat = async function(orderId, productTitle) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if(!user) return alert("Connectez-vous !");
 
-        if (store) {
-            // Récupérer le nombre de produits
-            const { count } = await supabase
-                .from('products')
-                .select('*', { count: 'exact', head: true })
-                .eq('store_id', store.id);
-
-            // Mise à jour du HTML avec formatage propre
-            const productsEl = document.getElementById('stat-products');
-            const revenueEl = document.getElementById('stat-revenue');
-
-            if (productsEl) productsEl.innerText = count || 0;
-            if (revenueEl) {
-                const total = store.revenue || 0;
-                revenueEl.innerText = total.toLocaleString() + ' DA';
-            }
-        }
-    } catch (err) {
-        console.error("Erreur stats:", err);
-    }
-}
-
-window.updateOrderItemStatus = async function(itemId, newStatus) {
-    showToast("⏳ Mise à jour...");
-
-    try {
-        // 1. Mise à jour du statut dans order_items
-        const { error: updateError } = await supabase
-            .from('order_items')
-            .update({ status: newStatus })
-            .eq('id', itemId);
-
-        if (updateError) throw updateError;
-
-        // 2. Si "LIVRÉ", on crédite le vendeur
-        if (newStatus === 'livre') {
-            const { data: itemData, error: fetchError } = await supabase
-                .from('order_items')
-                .select('price, quantity, product:products(id, store_id)')
-                .eq('id', itemId)
-                .single();
-
-            if (!fetchError && itemData && itemData.product) {
-                // NETTOYAGE CRITIQUE : On s'assure que le prix est un nombre pur
-                const cleanPrice = String(itemData.price).replace(/[^\d]/g, '');
-                const amountToAdd = Math.floor(Number(cleanPrice) * Number(itemData.quantity));
-                
-                const storeId = itemData.product.store_id;
-                const productId = itemData.product.id;
-
-                // Dans ta fonction updateOrderItemStatus, vérifie cette partie :
-if (storeId && amountToAdd > 0) {
-    // On convertit tout en String pour éviter l'erreur "operator does not exist"
-    const { error: rpcError } = await supabase.rpc('increment_revenue', { 
-        store_id_param: String(storeId), 
-        amount: parseInt(amountToAdd) 
-    });
-
-    if (rpcError) {
-        console.error("Détail erreur RPC:", rpcError);
-    } else {
-        console.log("Revenu mis à jour avec succès !");
-    }
-}
-
-                // B. Incrémenter le compteur de ventes (Erreur 404 fix)
-                if (productId) {
-                    await supabase.rpc('increment_sales', { 
-                        row_id: parseInt(productId) 
-                    });
-                }
-            }
-        }
-
-        showToast("✅ Statut mis à jour !");
-        
-        // Rafraîchir l'interface pour voir les changements (Chiffre d'affaires, etc.)
-        if (typeof loadSellerOrders === 'function') await loadSellerOrders();
-        if (typeof loadSellerStats === 'function') await loadSellerStats();
-
-    } catch (err) {
-        console.error("Erreur critique:", err);
-        showToast("❌ Erreur lors de la mise à jour");
-    }
-}
-
-        // --- UI UTILS ---
-        window.toggleTheme = () => document.documentElement.classList.toggle('dark');
-       // Remplacez votre ligne window.hideAllViews par ceci :
-    window.hideAllViews = () => {
-    // AJOUT DE 'wishlist-view' DANS CETTE LISTE 👇
-    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view', 'stores-view'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-    });
-}
-        window.goHome = () => { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchAllData(); window.scrollTo(0,0); }
-        window.showAuth = () => { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
-      window.showDashboard = async () => { 
-            window.hideAllViews(); 
-            document.getElementById('dashboard-view').classList.remove('hidden'); 
-            
-            // CHARGEMENT DES DONNÉES
-            loadProfile(); 
-            // 👇 C'EST CETTE LIGNE QUI MANQUAIT POUR AFFICHER LES COMMANDES 👇
-            await loadBuyerOrders(); 
-        }
-    window.showSellerDashboard = async function() {
-    window.hideAllViews();
-    document.getElementById('seller-dashboard-view').classList.remove('hidden');
+    currentChatOrderId = orderId;
+    document.getElementById('chat-modal').classList.remove('hidden');
     
-    // --- FIX : CHARGEMENT DU DESIGN DE LA BOUTIQUE ---
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data: store, error } = await supabase
-                .from('stores')
-                .select('*')
-                .eq('owner_id', user.id)
-                .maybeSingle();
+    const chatBox = document.getElementById('chat-messages');
+    chatBox.innerHTML = '<div class="text-center py-10 text-gray-500"><span class="loader"></span> Chargement...</div>';
 
-            if (store) {
-                const cacheBuster = "?t=" + Date.now();
-                // Charger le logo s'il existe
-                if (store.logo_url) {
-                    document.getElementById('seller-logo-preview').src = store.logo_url + cacheBuster;
-                }
-                // Charger la bannière s'elle existe
-                if (store.banner_url) {
-                    const banner = document.getElementById('seller-bg-preview');
-                    banner.src = store.banner_url + cacheBuster;
-                    banner.classList.remove('hidden');
-                }
-                // Optionnel : Mettre à jour le nom de la boutique si tu as un élément pour ça
-                // document.getElementById('store-name-display').innerText = store.name;
-            }
-        }
-    } catch (err) {
-        console.error("Erreur lors du chargement du design de la boutique:", err);
+    // On charge l'historique et on active le Realtime (Appels de tes fonctions existantes)
+    if (typeof loadChatHistory === 'function') await loadChatHistory(orderId, user.id);
+    if (typeof setupChatRealtime === 'function') setupChatRealtime(orderId, user.id);
+    
+    // Message de bienvenue IA ou Système
+    if(chatBox.innerHTML === '') {
+        chatBox.innerHTML = `
+            <div class="text-center text-xs text-gray-400 my-4 uppercase tracking-widest">Transaction sécurisée pour : ${productTitle}</div>
+            <div class="flex justify-start"><div class="bg-white dark:bg-dark-800 dark:text-white p-3 rounded-xl rounded-tl-none shadow-sm max-w-[80%] text-sm">Bonjour, vous pouvez discuter ici de votre commande en toute sécurité.</div></div>
+        `;
     }
-
-    // Charger les autres données du dashboard
-    loadSellerStats();
-    loadSellerOrders();
-    loadSellerProducts();
+    
+    scrollToBottom();
 }
 
-        window.toggleMobileMenu = () => {
-            const menu = document.getElementById('mobile-menu');
-            const content = document.getElementById('mobile-menu-content');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-                setTimeout(() => { content.classList.remove('-translate-x-full'); }, 50);
-            } else {
-                content.classList.add('-translate-x-full');
-                setTimeout(() => { menu.classList.add('hidden'); }, 300);
-            }
-        }
-        
-        window.toggleAuthMode = (m) => { document.getElementById('form-login').classList.toggle('hidden', m!=='login'); document.getElementById('form-signup').classList.toggle('hidden', m==='login'); }
-        window.switchSellerTab = (t) => { document.querySelectorAll('.seller-tab-content').forEach(e=>e.classList.add('hidden')); document.getElementById('seller-tab-'+t).classList.remove('hidden'); }
-        window.previewImage = (i) => { if(i.files && i.files[0]) { const r = new FileReader(); r.onload = (e) => { document.getElementById('image-preview').src = e.target.result; document.getElementById('image-preview').classList.remove('hidden'); document.getElementById('upload-placeholder').classList.add('hidden'); }; r.readAsDataURL(i.files[0]); } }
+// --- UTILITAIRES UI ---
+function scrollToBottom() {
+    const chatBox = document.getElementById('chat-messages');
+    if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+}
 
-// --- FONCTIONS PRODUITS SIMILAIRES ---
-        async function loadSimilarProducts(category, currentId) {
-            const container = document.getElementById('similar-products-grid');
-            container.innerHTML = '<div class="col-span-full text-center text-gray-400 text-xs">Recherche...</div>';
-            
-            if(!category || category === 'undefined') {
-                container.innerHTML = '<div class="col-span-full text-center text-gray-400 text-xs">Pas de suggestions.</div>';
-                return;
-            }
+window.closeChat = function() {
+    document.getElementById('chat-modal').classList.add('hidden');
+    currentChatOrderId = null;
+    if(chatSubscription) supabase.removeChannel(chatSubscription);
+    cancelUpload();
+}
 
-            const { data: products } = await supabase
-                .from('products')
-                .select('*')
-                .eq('category', category)
-                .neq('id', currentId) // On exclut le produit actuel
-                .limit(4);
+window.prepareUpload = function(type) {
+    const inputId = type === 'product' ? 'chat-upload-product' : 'chat-upload-proof';
+    const file = document.getElementById(inputId).files[0];
+    if(!file) return;
 
-            container.innerHTML = '';
-            if(!products || products.length === 0) {
-                container.innerHTML = '<div class="col-span-full text-center text-gray-400 text-xs">Aucun autre produit similaire.</div>';
-                return;
-            }
-
-            products.forEach(p => {
-                const safeTitle = p.title.replace(/'/g, "\\'");
-                // Carte simplifiée pour les suggestions
-                container.innerHTML += `
-                <div onclick="openDetail('${safeTitle}', '${p.price}', '${(p.description||'').replace(/'/g, "\\'")}', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}')" class="bg-white dark:bg-dark-800 rounded-lg p-3 border border-gray-100 dark:border-dark-700 cursor-pointer hover:shadow-md transition">
-                    <img src="${p.image_url}" class="w-full h-24 object-contain mb-2 rounded">
-                    <div class="font-bold text-xs line-clamp-1 dark:text-white">${p.title}</div>
-                    <div class="text-synapse-dark dark:text-synapse font-black text-sm">${p.price} DA</div>
-                </div>`;
-            });
-        }
-
-        // --- FONCTIONS COMMENTAIRES (AVIS) ---
-     // --- VERSION BLINDÉE (SANS JOINTURE COMPLEXE) ---
-        async function loadComments(productId) {
-            const list = document.getElementById('comments-list');
-            list.innerHTML = '<div class="text-center text-gray-400 text-xs">Chargement...</div>';
-
-            // 1. On récupère les commentaires BRUTS (sans demander le profil)
-            // Cela évite l'erreur PGRST200
-            const { data: comments, error } = await supabase
-                .from('product_comments')
-                .select('*') // On prend juste tout ce qu'il y a dans la table
-                .eq('product_id', productId)
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error("Erreur SQL:", error);
-                list.innerHTML = '<div class="text-red-500 text-xs text-center">Erreur technique.</div>';
-                return;
-            }
-
-            if (!comments || comments.length === 0) {
-                list.innerHTML = '<div class="text-center text-gray-400 text-sm py-4">Soyez le premier à donner votre avis !</div>';
-                return;
-            }
-
-            // 2. On récupère la liste des IDs des auteurs pour chercher leurs noms
-            const userIds = comments.map(c => c.user_id);
-            
-            // 3. On demande les noms séparément (Requête simple, pas de bug de relation)
-            const { data: profiles } = await supabase
-                .from('profiles')
-                .select('id, full_name')
-                .in('id', userIds);
-
-            // 4. On crée un dictionnaire pour retrouver les noms facilement
-            const namesMap = {};
-            if(profiles) {
-                profiles.forEach(p => { namesMap[p.id] = p.full_name; });
-            }
-
-            // 5. On affiche le tout
-            list.innerHTML = '';
-            comments.forEach(c => {
-                // Si on trouve le nom, on l'affiche, sinon "Utilisateur"
-                const name = namesMap[c.user_id] || 'Utilisateur';
-                const date = new Date(c.created_at).toLocaleDateString();
-
-                list.innerHTML += `
-                <div class="border-b border-gray-100 dark:border-dark-800 pb-4 last:border-0 mb-4">
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="font-bold text-sm text-black dark:text-white">${name}</span>
-                        <span class="text-[10px] text-gray-400">${date}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">${c.content}</p>
-                </div>`;
-            });
-        }
-
-        window.postComment = async function() {
-            const content = document.getElementById('new-comment-input').value;
-            const productId = document.getElementById('detail-id').value;
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if(!user) return alert("Connectez-vous pour commenter !");
-            if(!content) return alert("Écrivez quelque chose...");
-
-            const { error } = await supabase.from('product_comments').insert([{
-                product_id: productId,
-                user_id: user.id,
-                content: content
-            }]);
-
-            if(error) alert("Erreur: " + error.message);
-            else {
-                document.getElementById('new-comment-input').value = "";
-                loadComments(productId); // Recharger la liste
-                showToast("Avis publié !");
-            }
-        }
-
-     window.filterByStore = async function(storeId) {
-    window.hideAllViews();
-    document.getElementById('home-view').classList.remove('hidden');
+    pendingUpload = { file, type: type === 'product' ? 'PRODUIT' : 'PREUVE' };
     
-    // On cache les éléments de l'accueil général
-    document.getElementById('boosted-section').classList.add('hidden');
-    document.getElementById('recommended-section').classList.add('hidden');
-    document.getElementById('hot-section-container').classList.add('hidden');
-    document.getElementById('hero-banner').classList.add('hidden');
+    document.getElementById('upload-preview').classList.remove('hidden');
+    document.getElementById('preview-name').innerText = file.name;
+    document.getElementById('preview-type').innerText = pendingUpload.type;
+}
 
-    try {
-        // 1. Récupérer les infos de la boutique
-        const { data: store, error } = await supabase
-            .from('stores')
-            .select('*')
-            .eq('id', storeId)
-            .single();
+window.cancelUpload = function() {
+    pendingUpload = null;
+    document.getElementById('upload-preview').classList.add('hidden');
+    document.getElementById('chat-upload-product').value = "";
+    document.getElementById('chat-upload-proof').value = "";
+}
 
-        if (error) throw error;
+// --- LOGIQUE ENVOI MESSAGE CHAT ---
+window.sendChatMessage = async function() {
+    const input = document.getElementById('chat-input');
+    const content = input.value;
 
-        // 2. Créer l'en-tête de la boutique publique
-        const cacheBuster = "?t=" + Date.now();
-        const logo = store.logo_url ? store.logo_url + cacheBuster : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+    if(!content && !pendingUpload) return;
+    if(!currentChatOrderId) return alert("Erreur : Aucune commande sélectionnée.");
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if(!user) return alert("Veuillez vous connecter.");
+
+    // 1. Gestion de l'affichage immédiat (Attachement)
+    let attachmentHtml = '';
+    if(pendingUpload) {
+        const isProof = pendingUpload.type === 'PREUVE';
+        const icon = isProof ? 'fa-receipt' : 'fa-gift';
+        const uniqueId = Date.now();
         
-        let headerHtml = `
-        <div class="relative rounded-3xl overflow-hidden mb-8 border border-gray-100 dark:border-dark-800 shadow-lg bg-white dark:bg-dark-900">
-            <div class="h-32 md:h-48 bg-gray-200 dark:bg-dark-800 relative">
-                ${store.banner_url ? `<img src="${store.banner_url + cacheBuster}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-gradient-to-r from-synapse/20 to-synapse/5"></div>'}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
-            
-            <div class="relative px-6 pb-6 -mt-12 flex flex-col md:flex-row items-center md:items-end gap-4">
-                <img src="${logo}" class="w-24 h-24 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-xl">
-                <div class="flex-1 text-center md:text-left mb-2">
-                    <h1 class="text-2xl md:text-4xl font-black text-black dark:text-white leading-tight">${store.name}</h1>
-                    <div class="flex items-center justify-center md:justify-start gap-2 mt-1">
-                        <span class="bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Vendeur Vérifié</span>
-                        <span class="text-gray-500 text-xs font-medium"><i class="fa-solid fa-location-dot"></i> Algérie</span>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="window.location.reload()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-synapse hover:text-black transition">
-                        <i class="fa-solid fa-house"></i>
-                    </button>
-                    <button onclick="shareStore('${store.name}')" class="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-xl font-bold text-xs hover:opacity-80 transition">
-                        PARTAGER LA BOUTIQUE
-                    </button>
+        attachmentHtml = `
+        <div class="mt-2 p-3 bg-white dark:bg-dark-900 rounded-lg border border-gray-200 dark:border-dark-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gray-100 dark:bg-dark-700 rounded flex items-center justify-center text-xl text-gray-500"><i class="fa-solid ${icon}"></i></div>
+                <div class="flex-1 overflow-hidden">
+                    <div class="truncate text-sm font-bold dark:text-white">${pendingUpload.file.name}</div>
+                    <div class="text-[10px] text-gray-400">Analyse de sécurité...</div>
                 </div>
             </div>
-        </div>
-        <h2 class="text-xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-boxes-stacked text-synapse"></i> Catalogue Produits
-        </h2>`;
+            <div id="ai-status-${uniqueId}" class="mt-2 bg-yellow-100 text-yellow-800 text-[10px] p-2 rounded flex items-center gap-2">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> L'IA analyse le fichier...
+            </div>
+        </div>`;
 
-        document.getElementById('main-grid-title').innerHTML = headerHtml;
-
-        // 3. Charger les produits de cette boutique uniquement
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span> Chargement du catalogue...</div>';
-        
-        const { data: products } = await supabase
-            .from('products')
-            .select('*')
-            .eq('store_id', storeId)
-            .order('created_at', { ascending: false });
-
-        renderGrid('products-grid', products);
-        window.scrollTo(0, 0);
-
-    } catch (err) {
-        console.error(err);
-        showToast("Impossible de charger la boutique.");
-    }
-};
-
-// --- FONCTION POUR PARTAGER LA BOUTIQUE ---
-window.shareStore = function(name) {
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({
-            title: `Boutique ${name} sur SYNAPSE`,
-            text: `Découvrez les produits de ${name} sur Synapse !`,
-            url: url
-        }).catch(err => console.log("Erreur:", err));
-    } else {
-        navigator.clipboard.writeText(url);
-        showToast("✅ Lien de la boutique copié !");
-    }
-};
-
-// --- GESTION DES COMMANDES & CHAT INTELLIGENT ---
-
- async function loadBuyerOrders() {
-        const container = document.getElementById('buyer-orders-container');
-        if(!container) return;
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) {
-            container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
-            return;
-        }
-
-        container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
-
-        const { data: orders, error } = await supabase
-            .from('order_items')
-            .select('*, order:orders(*), product:products(*)')
-            .eq('order.user_id', user.id)
-            .order('created_at', { ascending: false });
-
-        if(error) {
-            console.error(error);
-            container.innerHTML = '<div class="text-center text-red-500">Erreur chargement.</div>';
-            return;
-        }
-
-        if(orders && orders.length > 0) {
-            container.innerHTML = '';
-            orders.forEach(item => {
-                // --- 1. DÉFINITION DES VARIABLES (Indispensable pour le HTML) ---
-                
-                // Statut : On prend celui de l'article en priorité, sinon celui de la commande
-                const status = item.status || (item.order ? item.order.status : 'en_attente');
-                
-                let color = 'bg-gray-100 text-gray-600';
-                let statusText = 'En attente';
-
-                if(status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
-                if(status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Livré'; }
-                if(status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
-
-                // Sécurisation des données
-                const safeOrderId = item.order_id ? String(item.order_id).slice(0,8) : '???';
-                
-                // Titre brut pour l'affichage (avec apostrophes normales)
-                const rawTitle = item.product ? item.product.title : 'Produit supprimé';
-                
-                // Titre sécurisé pour le bouton onclick (apostrophes échappées)
-                const safeTitle = rawTitle.replace(/'/g, "\\'"); 
-                
-                const safeImg = item.product ? item.product.image_url : 'https://pngimg.com/d/box_PNG120.png';
-
-                // --- 2. CONSTRUCTION DU HTML (Votre partie) ---
-                container.innerHTML += `
-                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
-                    <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
-                    
-                    <div class="flex-1 text-center md:text-left">
-                        <h4 class="font-bold text-sm text-black dark:text-white">${rawTitle}</h4>
-                        <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${statusText}</span>
-                    </div>
-
-                    <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-comments"></i> Chat & Suivi
-                    </button>
-                </div>`;
-            });
-        } else {
-            container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
-        }
-    }
-
-        // --- LOGIQUE DU CHAT ---
-        let currentChatOrderId = null;
-        let pendingUpload = null;
-
-        window.openOrderChat = function(orderId, productTitle) {
-            currentChatOrderId = orderId;
-            document.getElementById('chat-modal').classList.remove('hidden');
-            // Simulation : Chargement des messages (faux messages pour l'exemple)
-            const chatBox = document.getElementById('chat-messages');
-            chatBox.innerHTML = `
-                <div class="text-center text-xs text-gray-400 my-4">Début de la transaction sécurisée pour "${productTitle}"</div>
-                <div class="flex justify-start"><div class="bg-white dark:bg-dark-800 dark:text-white p-3 rounded-xl rounded-tl-none shadow-sm max-w-[80%] text-sm">Bonjour, merci pour votre achat. Je prépare le fichier.</div></div>
-            `;
-        }
-
-        window.closeChat = function() {
-            document.getElementById('chat-modal').classList.add('hidden');
-            currentChatOrderId = null;
-            cancelUpload();
-        }
-
-        window.prepareUpload = function(type) {
-            const inputId = type === 'product' ? 'chat-upload-product' : 'chat-upload-proof';
-            const file = document.getElementById(inputId).files[0];
-            if(!file) return;
-
-            pendingUpload = { file, type: type === 'product' ? 'PRODUIT' : 'PREUVE' };
-            
-            document.getElementById('upload-preview').classList.remove('hidden');
-            document.getElementById('preview-name').innerText = file.name;
-            document.getElementById('preview-type').innerText = pendingUpload.type;
-        }
-
-        window.cancelUpload = function() {
-            pendingUpload = null;
-            document.getElementById('upload-preview').classList.add('hidden');
-            document.getElementById('chat-upload-product').value = "";
-            document.getElementById('chat-upload-proof').value = "";
-        }
-
-        window.sendChatMessage = async function() {
-            const input = document.getElementById('chat-input');
-            const chatBox = document.getElementById('chat-messages');
-            const content = input.value;
-
-            if(!content && !pendingUpload) return;
-
-            // 1. Afficher mon message (Simulation immédiate)
-            let attachmentHtml = '';
-            
-            // SIMULATION DE L'IA (Visuel)
-            if(pendingUpload) {
-                const isProof = pendingUpload.type === 'PREUVE';
-                const icon = isProof ? 'fa-receipt' : 'fa-gift';
-                const uniqueId = Date.now();
-                
-                attachmentHtml = `
-                <div class="mt-2 p-3 bg-white dark:bg-dark-900 rounded-lg border border-gray-200 dark:border-dark-700">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-gray-100 dark:bg-dark-700 rounded flex items-center justify-center text-xl text-gray-500"><i class="fa-solid ${icon}"></i></div>
-                        <div class="flex-1 overflow-hidden">
-                            <div class="truncate text-sm font-bold dark:text-white">${pendingUpload.file.name}</div>
-                            <div class="text-[10px] text-gray-400">Fichier en quarantaine</div>
-                        </div>
-                    </div>
-                    <div id="ai-status-${uniqueId}" class="mt-2 bg-yellow-100 text-yellow-800 text-[10px] p-2 rounded flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> L'IA analyse le fichier...
-                    </div>
-                </div>`;
-
-                // Simulation : L'IA valide après 3 secondes
-                setTimeout(() => {
-                    const badge = document.getElementById(`ai-status-${uniqueId}`);
-                    if(badge) {
-                        badge.className = "mt-2 bg-green-100 text-green-800 text-[10px] p-2 rounded flex items-center gap-2 font-bold animate-pulse";
-                        badge.innerHTML = `<i class="fa-solid fa-shield-check"></i> Validé par Synapse AI`;
-                        showToast("L'IA a validé le fichier !");
-                    }
-                }, 3000);
+        // Simulation Validation IA
+        setTimeout(() => {
+            const badge = document.getElementById(`ai-status-${uniqueId}`);
+            if(badge) {
+                badge.className = "mt-2 bg-green-100 text-green-800 text-[10px] p-2 rounded flex items-center gap-2 font-bold animate-pulse";
+                badge.innerHTML = `<i class="fa-solid fa-shield-check"></i> Validé par Synapse AI`;
+                showToast("L'IA a validé le fichier !");
             }
+        }, 3000);
+    }
 
-            const html = `
-            <div class="flex justify-end">
-                <div class="max-w-[85%] bg-synapse text-black p-3 rounded-2xl rounded-tr-none shadow-sm text-sm">
-                    ${content ? `<p>${content}</p>` : ''}
-                    ${attachmentHtml}
-                    <div class="text-[10px] mt-1 text-black/60 text-right">À l'instant</div>
+    // 2. Envoi à Supabase
+    try {
+        const { error } = await supabase.from('messages').insert([{
+            order_id: currentChatOrderId,
+            sender_id: user.id,
+            content: content
+        }]);
+
+        if(error) throw error;
+
+        // Reset UI
+        input.value = "";
+        cancelUpload();
+        // Le message s'affichera via le Realtime (setupChatRealtime)
+    } catch (err) {
+        alert("Erreur envoi : " + err.message);
+    }
+}
+
+// ============================================================
+// 2. FONCTION COMMANDES (FIXÉ)
+// ============================================================
+window.loadBuyerOrders = async function() {
+    const container = document.getElementById('buyer-orders-container');
+    if(!container) return; 
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if(!user) {
+        container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
+        return;
+    }
+
+    container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
+
+    const { data: orders, error } = await supabase
+        .from('order_items')
+        .select('*, order:orders(*), product:products(*)')
+        .eq('order.user_id', user.id)
+        .order('created_at', { ascending: false });
+
+    if(orders && orders.length > 0) {
+        container.innerHTML = '';
+        orders.forEach(item => {
+            const status = item.status || (item.order ? item.order.status : 'en_attente');
+            let color = 'bg-gray-100 text-gray-600';
+
+            if(status === 'en_livraison') color = 'bg-blue-100 text-blue-600';
+            if(status === 'livre') color = 'bg-green-100 text-green-600';
+            if(status === 'annule') color = 'bg-red-100 text-red-600';
+
+            const safeOrderId = item.order_id ? String(item.order_id).slice(0, 8) : '???';
+            const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
+            const safeImg = item.product ? item.product.image_url : '';
+
+            container.innerHTML += `
+            <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
+                <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
+                <div class="flex-1 text-center md:text-left">
+                    <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
+                    <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
+                    <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
                 </div>
+                <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-comments"></i> Chat & Suivi
+                </button>
             </div>`;
-            
-            chatBox.innerHTML += html;
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Reset
-            input.value = "";
-            cancelUpload();
-        } 
-
-   // ============================================================
-    // 2. FONCTION COMMANDES (CORRECTION ERREUR SLICE)
-    // ============================================================
-    window.loadBuyerOrders = async function() {
-        const container = document.getElementById('buyer-orders-container');
-        if(!container) return; 
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) {
-            container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
-            return;
-        }
-
-        container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
-
-        const { data: orders, error } = await supabase
-            .from('order_items')
-            .select('*, order:orders(*), product:products(*)')
-            .eq('order.user_id', user.id)
-            .order('created_at', { ascending: false });
-
-        if(orders && orders.length > 0) {
-            container.innerHTML = '';
-            orders.forEach(item => {
-                const status = item.order ? item.order.status : 'en_attente';
-                let color = 'bg-gray-100 text-gray-600'; // Couleur par défaut
-
-                if(status === 'en_livraison') color = 'bg-blue-100 text-blue-600';
-                if(status === 'livre') color = 'bg-green-100 text-green-600';
-                if(status === 'annule') color = 'bg-red-100 text-red-600';
-
-                // 👇 CORRECTION CRITIQUE POUR L'ERREUR SLICE 👇
-                // On transforme le numéro en texte (String) AVANT de le couper
-                let orderIdRaw = item.order_id || '???';
-                const safeOrderId = String(orderIdRaw).slice(0, 8);
-                
-                const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
-                const safeImg = item.product ? item.product.image_url : '';
-
-                // Ici aussi, on utilise les accents graves ( ` )
-                container.innerHTML += `
-                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
-                    <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
-                    <div class="flex-1 text-center md:text-left">
-                        <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
-                        <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
-                    </div>
-                   // Dans loadSellerOrders (il faut trouver la ligne du bouton) :
-<button onclick="openOrderChat('${item.order_id}', '${item.product.title.replace(/'/g, "\\'")}')" class="bg-gray-700 text-white px-4 py-2 rounded text-xs font-bold hover:bg-white hover:text-black transition">
-    <i class="fa-regular fa-comments"></i> Discuter
-</button>
-                </div>`;
-            });
-        } else {
-            container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
-        }
+        });
+    } else {
+        container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
     }
+}
 
-        // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
-        // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
-   window.submitOrder = async function() {
+// ============================================================
+// 3. SOUMETTRE COMMANDE (FIXÉ)
+// ============================================================
+window.submitOrder = async function() {
     if(window.myCart.length === 0) return alert("Panier vide !");
     const name = document.getElementById('checkout-name').value;
     const phone = document.getElementById('checkout-phone').value;
     const wilaya = document.getElementById('checkout-wilaya').value;
     
-    if(!name || !phone || !wilaya) return alert("Remplissez l'adresse.");
+    if(!name || !phone || !wilaya) return alert("Veuillez remplir vos coordonnées.");
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return alert("Connectez-vous !");
+        if(!user) return alert("Veuillez vous connecter.");
 
-        // --- CORRECTION : Définition propre du montant total ---
         let total = 0;
         window.myCart.forEach(item => {
             const cleanPrice = String(item.price).replace(/[^\d]/g, '');
             total += parseInt(cleanPrice) || 0;
         });
 
-        // 1. Création de la commande
         const { data: order, error: orderError } = await supabase.from('orders').insert([{
             user_id: user.id, 
             total_amount: total, 
@@ -2341,7 +1530,6 @@ window.shareStore = function(name) {
 
         if(orderError) throw orderError;
 
-        // 2. Ajout des articles et Mise à jour du CA
         for (const item of window.myCart) {
             await supabase.from('order_items').insert([{
                 order_id: order.id, 
@@ -2350,11 +1538,8 @@ window.shareStore = function(name) {
                 quantity: 1
             }]);
 
-            // Récupérer le store_id du produit
             const { data: prod } = await supabase.from('products').select('store_id').eq('id', item.id).single();
-            
             if(prod && prod.store_id) {
-                // Utilisation de la variable 'total' définie plus haut
                 await supabase.rpc('increment_revenue', { 
                     store_id_param: String(prod.store_id), 
                     amount: parseInt(total) 
@@ -2364,560 +1549,17 @@ window.shareStore = function(name) {
 
         alert("✅ Commande réussie !");
         window.myCart = [];
-        updateCartUI();
+        if(typeof updateCartUI === 'function') updateCartUI();
         window.goHome();
 
     } catch(e) { 
-        console.error("Erreur commande:", e);
-        alert("Erreur: " + e.message); 
-    }
-}
-        // --- FONCTION ENVOYER MESSAGE ---
-        window.sendMessage = async function() {
-            // 1. Récupérer le contenu et le destinataire
-            const content = document.getElementById('msg-content').value;
-            // Ce champ caché est rempli quand on ouvre la page produit (voir openDetail)
-            const receiverId = document.getElementById('detail-store-id').value; 
-
-            if(!content) return alert("Le message est vide !");
-            if(!receiverId) return alert("Impossible d'identifier le vendeur.");
-
-            // 2. Vérifier connexion
-            const { data: { user } } = await supabase.auth.getUser();
-            if(!user) return alert("Veuillez vous connecter pour envoyer un message.");
-
-            // 3. Envoyer à Supabase
-            const { error } = await supabase.from('messages').insert([{
-                sender_id: user.id,
-                receiver_id: receiverId,
-                content: content
-            }]);
-
-            if(error) {
-                alert("Erreur lors de l'envoi : " + error.message);
-            } else {
-                // 4. Succès
-                showToast("Message envoyé au vendeur !");
-                document.getElementById('message-modal').classList.add('hidden'); // Fermer la modale
-                document.getElementById('msg-content').value = ""; // Vider le champ
-            }
-        
-    }
-
-       // Ajoutez cette fonction n'importe où dans votre script (ex: après les utils UI)
-    window.previewMultipleImages = function(input) {
-        const count = input.files ? input.files.length : 0;
-        const badge = document.getElementById('preview-count');
-        const text = document.getElementById('upload-text');
-        
-        if(count > 0 && badge) {
-            badge.innerText = count + " photos";
-            badge.classList.remove('hidden');
-            text.innerText = count + " fichiers prêts";
-        }
-    }
-
- window.publishProduct = async function() {
-    const btn = document.getElementById('btn-publish');
-    
-    // Récupération des images (depuis la liste globale ou l'input)
-    let imageFiles = (window.productFiles && window.productFiles.length > 0) 
-        ? window.productFiles 
-        : Array.from(document.getElementById('prod-images').files || []);
-
-    if (imageFiles.length === 0) return alert("⚠️ Mettez au moins une photo !");
-
-    const title = document.getElementById('prod-title').value;
-    const price = document.getElementById('prod-price').value;
-    const category = document.getElementById('prod-category').value;
-
-    if (!title || !price || !category) return alert("⚠️ Remplissez tous les champs.");
-    
-    btn.innerText = "Envoi..."; 
-    btn.disabled = true;
-
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Veuillez vous connecter.");
-
-        // 1. GESTION DE LA BOUTIQUE
-        let { data: store, error: storeError } = await supabase
-            .from('stores')
-            .select('id')
-            .eq('owner_id', user.id)
-            .maybeSingle();
-
-        if (!store) { 
-            // Tentative de création
-            const { data: newStore, error: createError } = await supabase
-                .from('stores')
-                .insert([{ 
-                    owner_id: user.id, 
-                    name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") 
-                }])
-                .select()
-                .single();
-
-            if (createError) {
-                console.error("Erreur creation boutique:", createError);
-                throw new Error("Action bloquée (403) : Vérifiez vos politiques RLS Supabase sur la table 'stores'.");
-            }
-            store = newStore; 
-        }
-
-        // 2. UPLOAD DES IMAGES
-        let uploadedUrls = [];
-        for (let i = 0; i < imageFiles.length; i++) {
-            const file = imageFiles[i];
-            const fileName = `img_${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-            const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
-            if(upError) throw upError;
-            const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-            uploadedUrls.push(publicUrl.publicUrl);
-        }
-
-        // 3. INSERTION DU PRODUIT
-        const { error: prodError } = await supabase.from('products').insert([{
-            store_id: store.id, // Ici, store n'est plus null, ou alors l'erreur a été levée avant
-            title,
-            description: document.getElementById('prod-desc').value,
-            price: parseInt(price),
-            stock: parseInt(document.getElementById('prod-stock').value || 1),
-            category,
-            image_url: uploadedUrls[0],
-            images: uploadedUrls
-        }]);
-
-        if (prodError) throw prodError;
-
-        alert("✅ Produit publié avec succès !");
-        window.goHome();
-
-    } catch (err) {
-        console.error("Crash évité :", err);
-        alert("Erreur : " + err.message);
-    } finally {
-        btn.innerText = "Publier"; 
-        btn.disabled = false;
+        alert("Erreur lors de la commande : " + e.message); 
     }
 }
 
-    window.openDetail = async function(t, p, d, i, id, storeId, category) {
-        // 1. Remplir les textes
-        document.getElementById('detail-title').innerText = t;
-        document.getElementById('detail-price').innerText = p + " DA";
-        document.getElementById('detail-desc').innerText = d || "Pas de description.";
-        
-        // Image principale
-        const mainImg = document.getElementById('detail-img');
-        mainImg.src = i || "https://pngimg.com/d/box_PNG120.png";
-        
-        // IDs cachés
-        document.getElementById('detail-id').value = id;
-        document.getElementById('detail-category-hidden').value = category;
-
-        // 👇👇👇 AJOUT VITAL 1 : CORRECTION DES BOUTONS 👇👇👇
-        // On connecte dynamiquement les boutons au produit actuel pour éviter l'erreur "null"
-        
-        // 1. Bouton Wishlist
-        const wishBtn = document.getElementById('detail-wishlist-btn');
-        if(wishBtn) {
-            wishBtn.setAttribute('onclick', `toggleWishlist('${id}', this); event.stopPropagation()`);
-            // On le remet en gris par défaut (en attendant la vérification)
-            const icon = wishBtn.querySelector('i');
-            if(icon) icon.className = "fa-regular fa-heart"; 
-        }
-
-        // 2. Bouton Panier
-        const cartBtn = document.getElementById('detail-cart-btn');
-        if(cartBtn) {
-            const safeTitle = t.replace(/'/g, "\\'"); // Sécurité pour les titres avec apostrophes
-            cartBtn.setAttribute('onclick', `addToCart('${safeTitle}', '${p}', '${i}', '${id}'); event.stopPropagation()`);
-        }
-        // 👆👆👆 FIN AJOUT 1 👆👆👆
-
-
-        // --- GESTION GALERIE ---
-        const galleryContainer = document.getElementById('detail-gallery');
-        galleryContainer.innerHTML = '<div class="text-xs text-gray-400">Chargement...</div>';
-
-        try {
-            const { data: product, error } = await supabase
-                .from('products')
-                .select('images, sales') 
-                .eq('id', id)
-                .single();
-
-            if (error) throw error;
-
-            // Mise à jour des ventes
-            const sales = product ? (product.sales || 0) : 0;
-            document.getElementById('detail-sales-badge').innerHTML = `<i class="fa-solid fa-fire text-orange-500"></i> ${sales} ventes`;
-
-            // Construction de la galerie
-            galleryContainer.innerHTML = ''; 
-            let imagesList = [];
-            
-            if (product && product.images && product.images.length > 0) {
-                imagesList = product.images;
-            } else {
-                imagesList = [i]; 
-            }
-
-            imagesList.forEach(imgUrl => {
-                if(imgUrl) {
-                    galleryContainer.innerHTML += `
-                    <img src="${imgUrl}" 
-                         onclick="document.getElementById('detail-img').src = '${imgUrl}'" 
-                         class="w-20 h-20 object-cover rounded-lg border border-gray-200 cursor-pointer hover:border-synapse hover:scale-105 transition flex-shrink-0 bg-white">
-                    `;
-                }
-            });
-
-        } catch (err) {
-            console.error("Erreur galerie:", err);
-            galleryContainer.innerHTML = `<img src="${i}" class="w-20 h-20 object-cover rounded-lg border border-red-200 cursor-pointer">`;
-        }
-
-        // --- GESTION VENDEUR ---
-        const btnSeller = document.getElementById('btn-seller-profile');
-        if(storeId && storeId !== 'undefined') {
-             const { data: store } = await supabase.from('stores').select('owner_id, name').eq('id', storeId).maybeSingle();
-             if(store) {
-                  document.getElementById('detail-store-id').value = store.owner_id; 
-                  document.getElementById('detail-seller-name').innerText = store.name || "Vendeur";
-                  if(btnSeller) {
-                      btnSeller.style.display = 'block'; 
-                      btnSeller.onclick = function() { filterByStore(storeId); }; 
-                  }
-             }
-        } else {
-            document.getElementById('detail-seller-name').innerText = "Synapse Officiel";
-            if(btnSeller) btnSeller.style.display = 'none';
-        }
-
-        // --- NAVIGATION & COMMENTAIRES ---
-        loadSimilarProducts(category, id);
-        loadComments(id);
-
-        // Affichage de la vue
-        window.hideAllViews();
-        document.getElementById('product-view').classList.remove('hidden');
-        window.scrollTo(0,0);
-        
-        // Compteur de vues
-        if(id) await supabase.rpc('increment_views', { row_id: id });
-
-        // 👇👇👇 AJOUT VITAL 2 : VÉRIFICATION DU COEUR ROUGE 👇👇👇
-        const { data: { user } } = await supabase.auth.getUser();
-        if(user && wishBtn) {
-            // On demande à la base de données : "Est-ce que ce produit est dans ma liste ?"
-            const { data: existing } = await supabase
-                .from('wishlist')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('product_id', id)
-                .maybeSingle();
-
-            const icon = wishBtn.querySelector('i');
-            if(existing) {
-                // OUI : Coeur Rouge
-                icon.className = "fa-solid fa-heart text-red-500";
-            } else {
-                // NON : Coeur Gris
-                icon.className = "fa-regular fa-heart text-gray-400";
-            }
-        }
-    }
-
-// --- VUE PUBLIQUE DE LA BOUTIQUE (PROFIL VENDEUR) ---
-window.filterByStore = async function(storeId) {
-    window.hideAllViews();
-    document.getElementById('home-view').classList.remove('hidden');
-    
-    // Cacher les bannières de l'accueil pour afficher celle du vendeur
-    const elementsToHide = ['boosted-section', 'recommended-section', 'hot-section-container', 'hero-banner'];
-    elementsToHide.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.classList.add('hidden');
-    });
-
-    try {
-        // 1. Récupérer les données de la boutique
-        const { data: store, error } = await supabase
-            .from('stores')
-            .select('*')
-            .eq('id', storeId)
-            .single();
-
-        if (error) throw error;
-
-        // 2. Créer le design de l'en-tête (Profil Public)
-        const t = Date.now();
-        const logo = store.logo_url ? `${store.logo_url}?t=${t}` : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
-        const banner = store.banner_url ? `${store.banner_url}?t=${t}` : '';
-
-        let headerHtml = `
-        <div class="relative rounded-3xl overflow-hidden mb-8 border border-gray-100 dark:border-dark-800 shadow-lg bg-white dark:bg-dark-900 animate-fade-in-up">
-            <div class="h-32 md:h-48 bg-gray-200 dark:bg-dark-800 relative">
-                ${banner ? `<img src="${banner}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-gradient-to-r from-synapse/20 to-synapse/5"></div>'}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
-            <div class="relative px-6 pb-6 -mt-12 flex flex-col md:flex-row items-center md:items-end gap-4">
-                <img src="${logo}" class="w-24 h-24 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-xl">
-                <div class="flex-1 text-center md:text-left mb-2">
-                    <h1 class="text-2xl md:text-4xl font-black text-black dark:text-white leading-tight">${store.name}</h1>
-                    <div class="flex items-center justify-center md:justify-start gap-2 mt-1">
-                        <span class="bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Boutique Vérifiée</span>
-                        <span class="text-gray-500 text-xs font-medium"><i class="fa-solid fa-location-dot text-synapse"></i> Algérie</span>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="window.location.reload()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-synapse transition">
-                        <i class="fa-solid fa-house"></i>
-                    </button>
-                    <button onclick="shareStore('${store.name.replace(/'/g, "\\'")}')" class="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-xl font-bold text-xs hover:opacity-80 transition shadow-lg">
-                        PARTAGER
-                    </button>
-                </div>
-            </div>
-        </div>
-        <h2 class="text-xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-boxes-stacked text-synapse"></i> Catalogue du vendeur
-        </h2>`;
-
-        // Injection dans le titre de la grille
-        document.getElementById('main-grid-title').innerHTML = headerHtml;
-
-        // 3. Charger uniquement les produits de cette boutique
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-        
-        const { data: products } = await supabase
-            .from('products')
-            .select('*')
-            .eq('store_id', storeId)
-            .order('created_at', { ascending: false });
-
-        renderGrid('products-grid', products);
-        window.scrollTo(0, 0);
-
-    } catch (err) {
-        console.error("Erreur Boutique:", err);
-        showToast("Erreur lors du chargement du profil.");
-    }
-};
-
-window.shareStore = function(name) {
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({ title: `Boutique ${name}`, url: url });
-    } else {
-        navigator.clipboard.writeText(url);
-        showToast("✅ Lien de la boutique copié !");
-    }
-};
-
-
-window.toggleWishlist = async function(productId, btnElement) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return alert("Connectez-vous pour ajouter aux favoris !");
-
-        // 👇 CORRECTION : On s'assure que c'est bien un nombre
-        const safeId = parseInt(productId); 
-        
-        // On vérifie si c'est déjà en favoris
-        const { data: existing } = await supabase
-            .from('wishlist')
-            .select('id')
-            .eq('user_id', user.id)
-            .eq('product_id', safeId) // Utiliser safeId
-            .maybeSingle();
-
-        const icon = btnElement.querySelector('i');
-
-        if(existing) {
-            // Supprimer
-            const { error } = await supabase.from('wishlist').delete().eq('id', existing.id);
-            if(error) {
-                console.error("Erreur suppression:", error);
-                return alert("Erreur lors du retrait.");
-            }
-            
-            icon.classList.remove('fa-solid', 'text-red-500');
-            icon.classList.add('fa-regular', 'text-gray-400');
-            showToast("Retiré des favoris.");
-            
-            // Rafraichir si on est sur la page wishlist
-            if(!document.getElementById('wishlist-view').classList.contains('hidden')) loadWishlist();
-        } else {
-            // Ajouter
-            const { error } = await supabase.from('wishlist').insert([{ 
-                user_id: user.id, 
-                product_id: safeId // Utiliser safeId ici aussi
-            }]);
-
-            if(error) {
-                console.error("Erreur ajout:", error);
-                return alert("Impossible d'ajouter : " + error.message);
-            }
-
-            icon.classList.remove('fa-regular', 'text-gray-400');
-            icon.classList.add('fa-solid', 'text-red-500', 'animate-bounce');
-            showToast("❤️ Ajouté aux favoris !");
-        }
-    }
-
-  window.openWishlist = function() {
-    window.hideAllViews();
-    document.getElementById('wishlist-view').classList.remove('hidden');
-    window.scrollTo(0, 0); // <-- AJOUTEZ CECI (C'est plus propre)
-    loadWishlist();
-}
-
-    window.loadWishlist = async function() {
-        const container = document.getElementById('wishlist-grid');
-        container.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if(!user) {
-            container.innerHTML = '<div class="col-span-full text-center text-gray-500">Connectez-vous.</div>';
-            return;
-        }
-
-        const { data: wishes } = await supabase.from('wishlist').select('product_id').eq('user_id', user.id);
-        
-        if(!wishes || wishes.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-gray-500 py-20 flex flex-col items-center"><i class="fa-regular fa-heart text-4xl mb-4 text-gray-300"></i>Votre wishlist est vide.</div>';
-            return;
-        }
-
-        const productIds = wishes.map(w => w.product_id);
-        const { data: products } = await supabase.from('products').select('*').in('id', productIds);
-
-        renderGrid('wishlist-grid', products);
-        
-        // Petite astuce pour colorier les cœurs en rouge sur la page wishlist
-        setTimeout(() => {
-            container.querySelectorAll('.fa-heart').forEach(i => i.classList.add('fa-solid', 'text-red-500'));
-        }, 100);
-    }
-
-window.updateStoreDesign = async function(type) {
-    const inputId = type === 'logo' ? 'upload-logo' : 'upload-banner';
-    const fileInput = document.getElementById(inputId);
-    const file = fileInput.files[0];
-    
-    if(!file) return;
-
-    showToast("⏳ Sauvegarde forcée...");
-
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Veuillez vous connecter.");
-
-        // 1. Trouver l'ID de la boutique
-        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).single();
-        if (!store) throw new Error("Boutique introuvable.");
-        
-        // 2. Préparation du fichier
-        const fileExt = file.name.split('.').pop();
-        const cleanName = `design_${type}_${store.id}_${Date.now()}.${fileExt}`;
-        
-        // 3. Upload vers le Storage
-        const { error: upError } = await supabase.storage.from('products').upload(cleanName, file);
-        if (upError) throw upError;
-
-        // 4. Récupérer l'URL publique
-        const { data: urlData } = supabase.storage.from('products').getPublicUrl(cleanName);
-        const url = urlData.publicUrl;
-
-        // 5. Mise à jour de la table 'stores' avec retour de donnée (.select())
-        const updateField = (type === 'logo') ? { logo_url: url } : { banner_url: url };
-        const { data: result, error: dbError } = await supabase
-    .from('stores')
-    .update(updateField)
-    .eq('id', store.id)
-    .select();
-
-if (dbError) {
-    console.error("ERREUR BASE DE DONNEES :", dbError);
-    alert("Détails de l'erreur : " + dbError.message);
-    return;
-}
-
-        // 6. Mise à jour visuelle immédiate avec cache-buster
-        if (result && result.length > 0) {
-            showToast("✅ Design sauvegardé !");
-            
-            const cacheBuster = "?t=" + Date.now();
-            const finalUrl = url + cacheBuster;
-
-            if (type === 'logo') {
-                const logoImg = document.getElementById('seller-logo-preview');
-                if(logoImg) logoImg.src = finalUrl;
-            } else {
-                const bannerImg = document.getElementById('seller-bg-preview');
-                if(bannerImg) {
-                    bannerImg.src = finalUrl;
-                    bannerImg.classList.remove('hidden');
-                }
-            }
-            // On vide l'input file pour permettre une nouvelle sélection identique
-            fileInput.value = "";
-        }
-
-    } catch (err) {
-        console.error("Erreur complète:", err);
-        alert("Erreur : " + err.message);
-    }
-}
-
-    // Fonction améliorée pour afficher la boutique du vendeur (Visiteur)
-    window.filterByStore = async function(storeId) {
-        window.hideAllViews();
-        document.getElementById('home-view').classList.remove('hidden');
-        
-        // Reset UI
-        document.getElementById('boosted-section').classList.add('hidden');
-        document.getElementById('recommended-section').classList.add('hidden');
-        document.getElementById('hot-section-container').classList.add('hidden');
-        document.getElementById('hero-banner').classList.add('hidden');
-
-        // Charger infos boutique
-        const { data: store } = await supabase.from('stores').select('*').eq('id', storeId).single();
-        
-        // Construction de l'en-tête boutique
-        let headerHtml = `<div class="bg-gray-900 rounded-2xl overflow-hidden mb-8 relative">`;
-        
-        // Bannière
-        if(store.banner_url) {
-            headerHtml += `<div class="h-48 bg-cover bg-center opacity-60" style="background-image: url('${store.banner_url}')"></div>`;
-        } else {
-            headerHtml += `<div class="h-32 bg-gradient-to-r from-gray-800 to-black"></div>`;
-        }
-
-        // Logo et Nom
-        headerHtml += `
-            <div class="absolute bottom-0 left-0 p-6 flex items-end gap-4 w-full bg-gradient-to-t from-black/90 to-transparent">
-                <img src="${store.logo_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="w-20 h-20 rounded-full border-4 border-black bg-white object-cover">
-                <div class="mb-1">
-                    <h1 class="text-3xl font-black text-white">${store.name}</h1>
-                    <div class="text-synapse text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Vendeur Vérifié</div>
-                </div>
-            </div>
-        </div>`;
-
-        document.getElementById('main-grid-title').innerHTML = headerHtml;
-
-        // Charger produits
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-        const { data } = await supabase.from('products').select('*').eq('store_id', storeId);
-        renderGrid('products-grid', data);
-        window.scrollTo(0, 0);
-    }
-
+// ============================================================
+// 4. RENDER GRID (VERSION FINALE SÉCURISÉE)
+// ============================================================
 window.renderGrid = function(containerId, products, isBoostedLayout = false, isSellerDashboard = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -2931,63 +1573,51 @@ window.renderGrid = function(containerId, products, isBoostedLayout = false, isS
     products.forEach(p => {
         const safeTitle = p.title.replace(/'/g, "\\'").replace(/"/g, "&quot;");
         const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/"/g, "&quot;").replace(/(\r\n|\n|\r)/gm, " ");
-        
-        // Arguments pour ouvrir le détail
         const detailArgs = `'${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}'`;
 
-        // --- BLOC BOUTONS (Dashboard Vendeur) ---
         let managementButtons = "";
         if (isSellerDashboard) {
             managementButtons = `
                 <div class="mt-3 space-y-2">
                     ${p.is_boosted 
-                        ? `<div class="py-2 text-center text-[10px] font-bold text-green-500 bg-green-500/10 rounded-lg border border-green-500/20 uppercase"><i class="fa-solid fa-check-circle"></i> Annonce Boostée</div>`
-                        : `<button onclick="openBoostModal('${p.id}')" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-1 shadow-lg hover:scale-105 transition uppercase">
+                        ? `<div class="py-2 text-center text-[10px] font-bold text-green-500 bg-green-500/10 rounded-lg border border-green-500/20 uppercase"><i class="fa-solid fa-check-circle"></i> Sponsorisé</div>`
+                        : `<button onclick="event.stopPropagation(); openBoostModal('${p.id}')" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black py-2 rounded-lg font-black text-[10px] flex items-center justify-center gap-1 shadow-lg hover:scale-105 transition uppercase">
                             <i class="fa-solid fa-bolt"></i> Propulser l'annonce
                            </button>`
                     }
                     <div class="flex gap-2">
-                        <button onclick="openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock || 0}', '${safeDesc}')" class="flex-1 bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-[10px] font-bold hover:bg-synapse hover:text-black transition uppercase">Modifier</button>
-                        <button onclick="deleteProduct('${p.id}', '${p.image_url}')" class="bg-red-50 text-red-500 p-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="event.stopPropagation(); openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock || 0}', '${safeDesc}')" class="flex-1 bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-[10px] font-bold hover:bg-synapse hover:text-black transition">MODIFIER</button>
+                        <button onclick="event.stopPropagation(); deleteProduct('${p.id}', '${p.image_url}')" class="bg-red-50 text-red-500 p-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>`;
         }
 
-        const boostedBadge = p.is_boosted ? `<div class="absolute top-2 left-2 bg-black/80 backdrop-blur-md text-synapse text-[9px] font-black px-2 py-1 rounded-md z-10 border border-synapse/30 uppercase tracking-widest"><i class="fa-solid fa-bolt-lightning mr-1"></i> Sponsorisé</div>` : '';
+        const boostedBadge = p.is_boosted ? `<div class="absolute top-2 left-2 bg-black/80 backdrop-blur-md text-synapse text-[9px] font-black px-2 py-1 rounded-md z-10 border border-synapse/30 uppercase tracking-widest animate-pulse"><i class="fa-solid fa-bolt-lightning mr-1"></i> Sponsorisé</div>` : '';
 
-        // --- LA STRUCTURE CHANGE ICI : Pas de onclick sur la div principale ---
         container.innerHTML += `
         <div class="bg-white dark:bg-dark-900 rounded-xl overflow-hidden border border-gray-100 dark:border-dark-800 hover:shadow-md transition-all duration-300 group relative flex flex-col shadow-sm">
-            
             ${boostedBadge}
-
             <div onclick="openDetail(${detailArgs})" class="h-40 bg-gray-50 dark:bg-dark-800 p-4 flex items-center justify-center cursor-pointer">
                 <img src="${p.image_url}" loading="lazy" class="h-full object-contain group-hover:scale-110 transition duration-500">
             </div>
-            
             <div class="p-4 flex-1 flex flex-col">
                 <h3 onclick="openDetail(${detailArgs})" class="text-xs font-bold text-gray-800 dark:text-white line-clamp-1 mb-1 cursor-pointer hover:text-synapse">${p.title}</h3>
-                
                 <div class="flex items-center justify-between">
                     <span class="text-sm font-black text-black dark:text-synapse">${p.price} DA</span>
-                    
                     ${!isSellerDashboard ? `
-                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}')" 
-                                class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center shadow-lg">
+                        <button onclick="event.stopPropagation(); addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}')" 
+                                class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center">
                             <i class="fa-solid fa-plus text-xs"></i>
                         </button>` : ''}
                 </div>
-
                 ${managementButtons}
             </div>
         </div>`;
     });
 }
-// Fonction à ajouter dans votre script
+// --- GESTION DE LA WISHLIST ---
 window.syncWishlistState = async function() {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    // 1. Si pas connecté, on remet tout à zéro (gris)
     if (!user) {
         document.querySelectorAll('.fa-heart').forEach(icon => {
             icon.classList.remove('fa-solid', 'text-red-500');
@@ -2996,7 +1626,6 @@ window.syncWishlistState = async function() {
         return;
     }
 
-    // 2. On récupère TOUS les IDs des produits que l'utilisateur a likés
     const { data: wishlistItems } = await supabase
         .from('wishlist')
         .select('product_id')
@@ -3004,27 +1633,19 @@ window.syncWishlistState = async function() {
 
     if (!wishlistItems) return;
 
-    // On crée une liste simple des IDs (ex: [12, 45, 89])
     const likedProductIds = wishlistItems.map(item => item.product_id);
 
-    // 3. On parcourt tous les cœurs affichés sur l'écran
-    // Note: On cible les boutons qui ont une fonction toggleWishlist
     document.querySelectorAll('button[onclick^="toggleWishlist"]').forEach(btn => {
-        // On extrait l'ID du produit depuis l'attribut onclick
-        // Le format est toggleWishlist('123', this)
         const onclickText = btn.getAttribute('onclick');
-        const productIdMatch = onclickText.match(/'([^']+)'/); // On cherche l'ID entre les guillemets
+        const productIdMatch = onclickText.match(/'([^']+)'/); 
         
         if (productIdMatch) {
-            const prodId = parseInt(productIdMatch[1]); // ex: 123
+            const prodId = parseInt(productIdMatch[1]);
             const icon = btn.querySelector('i');
-
             if (likedProductIds.includes(prodId)) {
-                // C'est liké : Rouge + Plein
                 icon.classList.remove('fa-regular', 'text-gray-400');
                 icon.classList.add('fa-solid', 'text-red-500');
             } else {
-                // Pas liké : Gris + Vide
                 icon.classList.remove('fa-solid', 'text-red-500');
                 icon.classList.add('fa-regular', 'text-gray-400');
             }
@@ -3032,68 +1653,48 @@ window.syncWishlistState = async function() {
     });
 }
 
-// --- GESTION AVANCÉE DES PHOTOS (AVEC SUPPRESSION) ---
-
-// 1. Liste globale pour stocker les fichiers
+// --- GESTION AVANCÉE DES PHOTOS ---
 window.productFiles = []; 
 
-// 2. Fonction pour ajouter des fichiers sans écraser les précédents
 window.addFilesToQueue = function(input) {
     const newFiles = Array.from(input.files);
-    
-    // Vérification de la limite (15 max)
     if (window.productFiles.length + newFiles.length > 15) {
         alert("⚠️ Vous ne pouvez pas dépasser 15 photos au total.");
         return;
     }
-
-    // On ajoute les nouveaux fichiers à notre liste
     window.productFiles = [...window.productFiles, ...newFiles];
-    
-    // On vide l'input pour pouvoir ré-ajouter les mêmes fichiers si besoin (cas rare mais possible)
     input.value = ''; 
-    
     renderPreviews();
 }
 
-// 3. Fonction pour retirer une photo spécifique
 window.removeFile = function(index) {
-    // On retire le fichier à l'index donné
     window.productFiles.splice(index, 1);
     renderPreviews();
 }
 
-// 4. Fonction d'affichage (Render)
 window.renderPreviews = function() {
     const container = document.getElementById('preview-grid');
     const placeholder = document.getElementById('upload-placeholder');
-
-    container.innerHTML = ''; // On nettoie l'affichage
+    if(!container) return;
+    container.innerHTML = ''; 
 
     if (window.productFiles.length === 0) {
         container.classList.add('hidden');
-        placeholder.classList.remove('hidden');
+        if(placeholder) placeholder.classList.remove('hidden');
     } else {
         container.classList.remove('hidden');
-        placeholder.classList.add('hidden'); // On cache le texte "Cliquez ici"
-
-        // On boucle sur chaque fichier pour créer la vignette
+        if(placeholder) placeholder.classList.add('hidden');
         window.productFiles.forEach((file, index) => {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const html = `
                 <div class="relative group aspect-square bg-gray-800 rounded-lg overflow-hidden border border-gray-600">
                     <img src="${e.target.result}" class="w-full h-full object-cover">
-                    
-                    <button onclick="removeFile(${index})" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md transition transform hover:scale-110 z-30">
+                    <button onclick="removeFile(${index})" class="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 shadow-md transition z-30">
                         <i class="fa-solid fa-xmark text-xs"></i>
                     </button>
-                    
                     <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[10px] px-1.5 rounded">${index + 1}</span>
                 </div>`;
-                
-                // Astuce : on insère au fur et à mesure que les images chargent
-                // Note : Pour garantir l'ordre, on pourrait créer les div vides d'abord, mais ceci suffit pour l'instant.
                 container.insertAdjacentHTML('beforeend', html);
             };
             reader.readAsDataURL(file);
@@ -3101,105 +1702,61 @@ window.renderPreviews = function() {
     }
 }
 
-        // Init
-        fetchAllData();
-
 // --- MOTEUR DE CHAT TEMPS RÉEL ---
+let chatSubscription = null; 
+let pendingUpload = null; 
+let currentChatContext = null;
 
-let chatSubscription = null; // Pour stocker la connexion live
-let currentChatContext = null; // Pour savoir à qui on parle
-
-// 1. OUVRIR LE CHAT (Appelé par les boutons "Chat")
 window.openOrderChat = async function(orderId, productTitle) {
     const { data: { user } } = await supabase.auth.getUser();
     if(!user) return alert("Connectez-vous !");
-
-    // On sauvegarde le contexte actuel
     currentChatContext = { orderId: orderId, userId: user.id };
-    
-    // UI : On ouvre la modale
     document.getElementById('chat-modal').classList.remove('hidden');
     document.getElementById('chat-messages').innerHTML = '<div class="text-center text-gray-500 py-4"><span class="loader"></span> Chargement...</div>';
-    
-    // 2. On charge l'historique des messages existants
     await loadChatHistory(orderId, user.id);
-
-    // 3. On se connecte au canal "Live" pour cette commande spécifique
     setupChatRealtime(orderId, user.id);
 }
 
-// 2. CHARGER L'HISTORIQUE
 async function loadChatHistory(orderId, myUserId) {
     const container = document.getElementById('chat-messages');
-    
-    const { data: messages } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('order_id', orderId)
-        .order('created_at', { ascending: true }); // Du plus vieux au plus récent
-
-    container.innerHTML = ''; // On vide le loader
-    
+    const { data: messages } = await supabase.from('messages').select('*').eq('order_id', orderId).order('created_at', { ascending: true });
+    container.innerHTML = ''; 
     if(messages && messages.length > 0) {
-        messages.forEach(msg => {
-            renderMessageBubble(msg, myUserId);
-        });
+        messages.forEach(msg => renderMessageBubble(msg, myUserId));
         scrollToBottom();
     } else {
         container.innerHTML = '<div class="text-center text-xs text-gray-400 my-4">Début de la discussion.</div>';
     }
 }
 
-// 3. ÉCOUTER LES NOUVEAUX MESSAGES (Realtime)
 function setupChatRealtime(orderId, myUserId) {
-    // Si on était déjà connecté ailleurs, on coupe pour éviter les doublons
     if(chatSubscription) supabase.removeChannel(chatSubscription);
-
-    chatSubscription = supabase
-        .channel(`order-chat-${orderId}`) // Un canal unique par commande
+    chatSubscription = supabase.channel(`order-chat-${orderId}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `order_id=eq.${orderId}` }, 
         payload => {
-            // Un nouveau message vient d'arriver dans la base !
-            const newMsg = payload.new;
-            // On l'affiche seulement si on ne l'a pas déjà affiché (astuce anti-doublon visuel)
-            renderMessageBubble(newMsg, myUserId);
+            renderMessageBubble(payload.new, myUserId);
             scrollToBottom();
-        })
-        .subscribe();
+        }).subscribe();
 }
 
-// 4. ENVOYER UN MESSAGE
 window.sendChatMessage = async function() {
     const input = document.getElementById('chat-input');
     const content = input.value;
     if(!content || !currentChatContext) return;
-
-    // On vide l'input tout de suite pour l'UX
     input.value = '';
-
-    // On envoie à Supabase
-    const { error } = await supabase.from('messages').insert([{
+    await supabase.from('messages').insert([{
         order_id: currentChatContext.orderId,
         sender_id: currentChatContext.userId,
         content: content
     }]);
-
-    if(error) console.error("Erreur envoi:", error);
-    // Note : On n'affiche pas le message ici, c'est le Realtime (setupChatRealtime) qui va le recevoir et l'afficher
 }
 
-// 5. FONCTION D'AFFICHAGE DES BULLES (HTML)
 function renderMessageBubble(msg, myUserId) {
     const container = document.getElementById('chat-messages');
     const isMe = msg.sender_id === myUserId;
-    
-    // Si le message précédent était "Début de la discussion", on l'enlève
-    if(container.innerHTML.includes('Début de la discussion')) container.innerHTML = '';
-
     const alignment = isMe ? 'justify-end' : 'justify-start';
     const color = isMe ? 'bg-synapse text-black rounded-tr-none' : 'bg-white dark:bg-dark-800 dark:text-white rounded-tl-none';
     const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
     const html = `
     <div class="flex ${alignment} mb-2 animate-fade-in-up">
         <div class="max-w-[80%] p-3 rounded-2xl shadow-sm text-sm ${color}">
@@ -3207,225 +1764,85 @@ function renderMessageBubble(msg, myUserId) {
             <div class="text-[10px] mt-1 opacity-50 text-right">${time}</div>
         </div>
     </div>`;
-
     container.insertAdjacentHTML('beforeend', html);
 }
 
 function scrollToBottom() {
     const chatBox = document.getElementById('chat-messages');
-    chatBox.scrollTop = chatBox.scrollHeight;
+    if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// 6. FERMETURE PROPRE
 window.closeChat = function() {
     document.getElementById('chat-modal').classList.add('hidden');
-    if(chatSubscription) supabase.removeChannel(chatSubscription); // On coupe la connexion
-    currentChatContext = null;
+    if(chatSubscription) supabase.removeChannel(chatSubscription);
+    cancelUpload();
 }
 
-// Fonction pour ouvrir/fermer le menu des pièces jointes
 window.toggleAttachMenu = function() {
-    const menu = document.getElementById('attach-menu');
-    // Si le menu est caché, on l'affiche. Sinon on le cache.
-    menu.classList.toggle('hidden');
+    document.getElementById('attach-menu').classList.toggle('hidden');
 }
 
-// --- SYSTÈME DE SUGGESTIONS DE RECHERCHE ---
+window.prepareUpload = function(type) {
+    const inputId = type === 'product' ? 'chat-upload-product' : 'chat-upload-proof';
+    const file = document.getElementById(inputId).files[0];
+    if(!file) return;
+    pendingUpload = { file, type: type === 'product' ? 'PRODUIT' : 'PREUVE' };
+    document.getElementById('upload-preview').classList.remove('hidden');
+    document.getElementById('preview-name').innerText = file.name;
+    document.getElementById('preview-type').innerText = pendingUpload.type;
+}
 
+window.cancelUpload = function() {
+    pendingUpload = null;
+    document.getElementById('upload-preview').classList.add('hidden');
+}
+
+// --- RECHERCHE ET SUGGESTIONS ---
 window.showSuggestions = async function(val) {
     const suggestionBox = document.getElementById('search-suggestions');
-    
-    // On ne cherche qu'à partir de 2 ou 3 lettres pour ne pas saturer la base
     if (val.length < 2) {
         suggestionBox.innerHTML = '';
         suggestionBox.classList.add('hidden');
         return;
     }
-
-    // Requête rapide sur les titres des produits
-    const { data: products, error } = await supabase
-        .from('products')
-        .select('id, title, price, image_url, category, store_id, description')
-        .ilike('title', `%${val}%`)
-        .limit(6); // On limite à 6 suggestions pour rester propre
-
-    if (error || !products || products.length === 0) {
+    const { data: products } = await supabase.from('products').select('*').ilike('title', `%${val}%`).limit(6);
+    if (!products || products.length === 0) {
         suggestionBox.classList.add('hidden');
         return;
     }
-
-    // Construction du HTML des suggestions
     suggestionBox.innerHTML = '';
     products.forEach(p => {
         const safeTitle = p.title.replace(/'/g, "\\'");
-        const safeDesc = (p.description || '').replace(/'/g, "\\'").replace(/(\r\n|\n|\r)/gm, " ");
-        
         suggestionBox.innerHTML += `
-        <div onclick="selectSuggestion('${safeTitle}', '${p.price}', '${safeDesc}', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}')" 
+        <div onclick="selectSuggestion('${safeTitle}', '${p.price}', '', '${p.image_url}', '${p.id}', '${p.store_id}', '${p.category}')" 
              class="flex items-center gap-3 p-3 hover:bg-gray-50 dark:hover:bg-dark-800 cursor-pointer border-b border-gray-50 dark:border-dark-800 last:border-none transition">
             <img src="${p.image_url}" class="w-10 h-10 object-contain bg-white rounded-lg p-1">
             <div class="flex-1">
                 <div class="text-sm font-bold text-black dark:text-white truncate">${p.title}</div>
                 <div class="text-[10px] text-synapse-dark dark:text-synapse font-black">${p.price} DA</div>
             </div>
-            <i class="fa-solid fa-arrow-right text-gray-300 text-xs"></i>
         </div>`;
     });
-
     suggestionBox.classList.remove('hidden');
 }
 
-// Fonction appelée quand on clique sur une suggestion
 window.selectSuggestion = function(t, p, d, i, id, storeId, cat) {
-    // 1. On remplit l'input
     document.getElementById('search-input').value = t;
-    // 2. On cache la boite
     document.getElementById('search-suggestions').classList.add('hidden');
-    // 3. On ouvre directement le détail du produit !
     openDetail(t, p, d, i, id, storeId, cat);
 }
 
-// Fermer les suggestions si on clique ailleurs sur la page
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('#search-input')) {
-        document.getElementById('search-suggestions').classList.add('hidden');
-    }
-});
-
-// --- FONCTION DE SUPPRESSION DE PRODUIT ---
-window.deleteProduct = async function(productId, imageUrl) {
-    const confirmDelete = confirm("⚠️ Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.");
-    
-    if (!confirmDelete) return;
-
-    try {
-        showToast("⏳ Suppression en cours...");
-
-        // 1. Supprimer l'image du Storage (si elle existe)
-        if (imageUrl) {
-            // On extrait le nom du fichier depuis l'URL (le texte après le dernier '/')
-            const fileName = imageUrl.split('/').pop();
-            const { error: storageError } = await supabase.storage
-                .from('products')
-                .remove([fileName]);
-            
-            if (storageError) console.warn("Note: L'image n'a pas pu être retirée du stockage.");
-        }
-
-        // 2. Supprimer la ligne dans la table 'products'
-        const { error: dbError } = await supabase
-            .from('products')
-            .delete()
-            .eq('id', productId);
-
-        if (dbError) throw dbError;
-
-        // 3. Succès
-        showToast("🗑️ Produit supprimé avec succès.");
-        
-        // Actualiser les listes
-        await loadSellerProducts();
-        await loadSellerStats();
-        
-    } catch (err) {
-        console.error("Erreur suppression:", err);
-        alert("Impossible de supprimer le produit : " + err.message);
-    }
-}
-
-window.showAllStores = async function() {
-    window.hideAllViews();
-    document.getElementById('stores-view').classList.remove('hidden');
-    window.scrollTo(0, 0);
-
-    const grid = document.getElementById('stores-grid');
-    grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-
-    try {
-        // Récupérer toutes les boutiques dans Supabase
-        const { data: stores, error } = await supabase
-            .from('stores')
-            .select('*')
-            .order('name', { ascending: true });
-
-        if (error) throw error;
-        renderStores(stores);
-    } catch (err) {
-        console.error(err);
-        grid.innerHTML = '<div class="col-span-full text-red-500">Erreur de chargement.</div>';
-    }
-};
-
-function renderStores(stores) {
-    const grid = document.getElementById('stores-grid');
-    grid.innerHTML = '';
-
-    if (!stores || stores.length === 0) {
-        grid.innerHTML = '<div class="col-span-full text-center text-gray-500">Aucune boutique trouvée.</div>';
-        return;
-    }
-
-    stores.forEach(store => {
-        const logo = store.logo_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
-        const banner = store.banner_url || 'https://images.unsplash.com/photo-1583333032470-76037a505f5e?q=80&w=400';
-        
-        grid.innerHTML += `
-        <div class="bg-white dark:bg-dark-900 rounded-2xl overflow-hidden border border-gray-100 dark:border-dark-800 shadow-sm hover:shadow-xl transition group cursor-pointer" onclick="filterByStore('${store.id}')">
-            <div class="h-24 bg-gray-200 dark:bg-dark-800 overflow-hidden">
-                <img src="${banner}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700 opacity-60">
-            </div>
-            <div class="px-6 pb-6 -mt-10 relative flex flex-col items-center text-center">
-                <img src="${logo}" class="w-20 h-20 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-lg mb-3">
-                <h3 class="font-black text-lg text-black dark:text-white leading-tight">${store.name}</h3>
-                <div class="flex items-center gap-1 text-[10px] text-synapse font-black uppercase mb-3">
-                    <i class="fa-solid fa-circle-check"></i> Vendeur Vérifié
-                </div>
-                <button class="w-full py-2 bg-gray-100 dark:bg-dark-800 text-black dark:text-white rounded-lg text-xs font-black hover:bg-synapse hover:text-black transition">
-                    VOIR LE CATALOGUE
-                </button>
-            </div>
-        </div>`;
-    });
-}
-
-// --- FONCTION POUR OUVRIR LA MODALE DE BOOST ---
+// --- LOGIQUE DE BOOST (VERSION FINALE) ---
 window.openBoostModal = function(productId) {
-    // On stocke l'ID du produit dans un champ caché pour savoir lequel booster
     const modal = document.getElementById('boost-modal');
     if(modal) {
         document.getElementById('boost-product-id').value = productId;
         modal.classList.remove('hidden');
-    } else {
-        alert("Erreur : La modale de boost n'est pas présente dans le HTML.");
     }
 }
 
 window.closeBoostModal = function() {
     document.getElementById('boost-modal').classList.add('hidden');
-}
-
-window.requestBoost = async function() {
-    const productId = document.getElementById('boost-product-id').value;
-    showToast("⌛ Envoi de la demande...");
-
-    try {
-        // On ajoute un tag dans la description pour que tu puisses le voir dans ton admin
-        const { data: p } = await supabase.from('products').select('description').eq('id', productId).single();
-        const newDesc = "[DEMANDE BOOST EN COURS] " + (p.description || "");
-
-        const { error } = await supabase
-            .from('products')
-            .update({ description: newDesc })
-            .eq('id', productId);
-
-        if (error) throw error;
-
-        showToast("✅ Demande envoyée ! Le boost sera actif après vérification.");
-        closeBoostModal();
-        loadSellerProducts(); // On rafraîchit la liste
-    } catch (err) {
-        alert("Erreur: " + err.message);
-    }
 }
 
 window.previewReceipt = function(input) {
@@ -3439,44 +1856,32 @@ window.previewReceipt = function(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
 window.requestBoost = async function() {
     const productId = document.getElementById('boost-product-id').value;
     const file = document.getElementById('boost-receipt').files[0];
     const btn = document.getElementById('btn-confirm-boost');
-
     if(!file) return alert("⚠️ Veuillez joindre une capture d'écran de votre reçu BaridiMob.");
-
     btn.innerText = "ENVOI...";
     btn.disabled = true;
 
     try {
-        // 1. Upload du reçu dans le storage (Dossier 'products')
         const fileName = `receipt_${Date.now()}_${productId}.jpg`;
         const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
         if(upError) throw upError;
-
         const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
         const receiptUrl = urlData.publicUrl;
 
-        // 2. Mise à jour des colonnes de gestion dans Supabase
-        const { error: updateError } = await supabase
-            .from('products')
-            .update({ 
-                boost_receipt_url: receiptUrl, // Enregistre le lien du reçu ici
-                is_boosted: false              // On force à false tant que TU n'as pas validé
-            })
-            .eq('id', productId);
+        const { error: updateError } = await supabase.from('products').update({ 
+            boost_receipt_url: receiptUrl, 
+            is_boosted: false 
+        }).eq('id', productId);
 
         if (updateError) throw updateError;
-
-        showToast("✅ Reçu envoyé ! Votre boost sera activé après vérification.");
+        showToast("✅ Reçu envoyé ! En attente de validation.");
         closeBoostModal();
-        
-        // Rafraîchir la liste pour que le bouton "Booster" affiche un état d'attente (optionnel)
         if(typeof loadSellerProducts === 'function') loadSellerProducts();
-
     } catch (e) {
-        console.error("Erreur Boost:", e);
         alert("Erreur : " + e.message);
     } finally {
         btn.innerText = "Envoyer la preuve";
@@ -3484,7 +1889,9 @@ window.requestBoost = async function() {
     }
 }
 
+// Lancement de l'application
+fetchAllData();
 
-    </script>
+        </script>
 </body>
 </html>
