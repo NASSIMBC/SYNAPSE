@@ -253,16 +253,16 @@
                     </div>
                 </div> 
                 <div class="bg-white dark:bg-dark-900 rounded-xl shadow-sm p-4 border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold mb-4 text-sm text-black dark:text-white">Filtrer par Prix (Max)</h3>
-                    <div class="mb-4">
-                        <input type="range" id="price-slider" min="0" max="20000000" step="1000" value="50000000" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700" oninput="updatePriceLabel(this.value)" onchange="applyPriceFilter(this.value)">
-                        <div class="flex justify-between text-xs mt-2 text-gray-500">
-                            <span>0 DA</span>
-                            <span id="price-value">20000k DA</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <h3 class="font-bold mb-4 text-sm text-black dark:text-white uppercase tracking-wider">Budget (DA)</h3>
+    <div class="space-y-3">
+        <div class="flex items-center gap-2">
+            <input type="number" id="price-min" placeholder="Min" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg text-xs outline-none focus:border-synapse dark:text-white">
+            <span class="text-gray-400">-</span>
+            <input type="number" id="price-max" placeholder="Max" class="w-1/2 p-2 bg-gray-50 dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg text-xs outline-none focus:border-synapse dark:text-white">
+        </div>
+        <button onclick="applyDoublePriceFilter()" class="w-full bg-black dark:bg-white text-white dark:text-black py-2 rounded-lg text-[10px] font-black hover:bg-synapse hover:text-black transition uppercase">Filtrer le prix</button>
+    </div>
+</div>
 
             <div class="col-span-12 lg:col-span-9 xl:col-span-10">
                 <div id="hero-banner" class="relative w-full overflow-hidden rounded-3xl mb-8 group h-[200px] md:h-[400px] shadow-2xl">
@@ -1529,16 +1529,37 @@ window.showCheckout = function() {
         window.scrollTo(0, 0);
     }
 
-    window.updatePriceLabel = function(val) {
-        document.getElementById('price-value').innerText = parseInt(val).toLocaleString() + ' DA';
-    }
+   window.applyDoublePriceFilter = async function() {
+    const min = parseInt(document.getElementById('price-min').value) || 0;
+    const max = parseInt(document.getElementById('price-max').value) || 999999999999;
 
-    window.applyPriceFilter = async function(val) {
-        const max = parseInt(val);
-        const { data } = await supabase.from('products').select('*').lte('price', max).order('created_at', { ascending: false });
+    // Masquer les sections inutiles pour le filtrage
+    const sectionsToHide = ['hero-banner', 'boosted-section', 'hot-section-container'];
+    sectionsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden');
+    });
+
+    document.getElementById('products-grid').innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+
+    try {
+        const { data, error } = await supabase
+            .from('products')
+            .select('*')
+            .gte('price', min) // Plus grand ou égal au prix min
+            .lte('price', max) // Plus petit ou égal au prix max
+            .order('price', { ascending: true });
+
+        if (error) throw error;
+
+        document.getElementById('main-grid-title').innerHTML = `<i class="fa-solid fa-tags text-synapse"></i> Entre ${min.toLocaleString()} DA et ${max === 999999999 ? '∞' : max.toLocaleString() + ' DA'}`;
+        
         renderGrid('products-grid', data);
-        document.getElementById('hot-section-container').classList.add('hidden');
+        window.scrollTo(0, 0);
+    } catch (err) {
+        console.error("Erreur filtre prix:", err);
     }
+}
 
     // --- NOUVELLE FONCTION POUR CHARGER LES PRODUITS CIBLÉS ---
     window.loadPersonalizedProducts = async function() {
