@@ -1291,6 +1291,32 @@ window.showCheckout = function() {
         }
     }
 
+    function setupRealtime() {
+    // Écoute les changements sur la table products (ex: mise à jour des ventes en direct)
+    supabase
+    .channel('public:products')
+    .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'products' 
+    }, payload => {
+        // Dès qu'un produit est modifié (ex: nouvelle vente)
+        const newSales = payload.new.sales;
+        const productId = payload.new.id;
+        
+        // On met à jour l'affichage si le badge de vente est visible
+        const element = document.getElementById(`sales-count-${productId}`);
+        if(element) {
+            element.innerText = newSales;
+            element.classList.add('text-green-500', 'scale-125'); // Petit effet visuel
+            setTimeout(() => { 
+                element.classList.remove('text-green-500', 'scale-125'); 
+            }, 1000);
+        }
+    })
+    .subscribe();
+}
+
        // --- 8. AFFICHAGE DONNEES & REALTIME ---
 async function fetchAllData() {
     const nowTime = new Date().getTime();
