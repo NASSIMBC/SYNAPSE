@@ -1301,32 +1301,54 @@ window.showCheckout = function() {
 
        // --- 8. AFFICHAGE DONNEES & REALTIME ---
 async function fetchAllData() {
-    const nowTime = new Date().getTime(); // Heure actuelle en millisecondes (chiffres)
-    const nowISO = new Date().toISOString(); // Pour l'éventuel nettoyage
+    const nowTime = new Date().getTime();
+    const nowISO = new Date().toISOString();
 
-    // --- 1. NETTOYAGE AUTOMATIQUE DES BOOSTS PÉRIMÉS ---
+    // --- 1. NETTOYAGE SILENCIEUX DES BOOSTS PÉRIMÉS ---
     try {
-        await supabase
-            .from('products')
+        supabase.from('products')
             .update({ is_boosted: false, boost_receipt_url: null })
             .eq('is_boosted', true)
-            .lt('boost_expiry', nowISO);
+            .lt('boost_expiry', nowISO)
+            .then(() => {});
     } catch (e) { console.warn("Erreur nettoyage auto:", e); }
 
-    // --- 2. CHARGEMENT DES DONNÉES ---
-    // On récupère TOUS les produits marqués comme boostés
-    const { data: boostedRaw } = await supabase
-        .from('products')
-        .select('*')
-        .eq('is_boosted', true);
+    // --- 2. CIBLAGE PUBLICITAIRE INTELLIGENT ---
+    // On récupère l'historique de recherche (mots-clés)
+    const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
+    let boosted = [];
 
-    // FILTRE DE SÉCURITÉ JS (Indispensable pour éviter les erreurs de format date)
-    const boosted = (boostedRaw || []).filter(p => {
-        if (!p.boost_expiry) return false;
-        // On compare en millisecondes pour être certain
-        return new Date(p.boost_expiry).getTime() > nowTime;
-    }).slice(0, 4); // On garde les 4 premiers après filtrage
+    try {
+        let query = supabase.from('products').select('*').eq('is_boosted', true);
 
+        // Si l'utilisateur a un historique, on cherche les pubs qui correspondent
+        if (searchHistory.length > 0) {
+            const orFilter = searchHistory.map(term => `title.ilike.%${term}%`).join(',');
+            query = query.or(orFilter);
+        }
+
+        const { data: boostedRaw } = await query;
+
+        if (boostedRaw && boostedRaw.length > 0) {
+            // Filtre date + Rotation (mélange aléatoire)
+            boosted = boostedRaw.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime)
+                                .sort(() => 0.5 - Math.random());
+        }
+
+        // Si aucun produit boosté ne correspond aux mots-clés, on prend des boosts généraux au hasard
+        if (boosted.length === 0) {
+            const { data: fallback } = await supabase.from('products').select('*').eq('is_boosted', true).limit(20);
+            if (fallback) {
+                boosted = fallback.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime)
+                                  .sort(() => 0.5 - Math.random());
+            }
+        }
+    } catch (err) { console.error("Erreur ciblage:", err); }
+
+    // On limite l'affichage à 4 produits pour la grille
+    const finalBoosted = boosted.slice(0, 4);
+
+    // --- 3. CHARGEMENT DES AUTRES DONNÉES ---
     const { data: hot } = await supabase
         .from('products')
         .select('*')
@@ -1338,22 +1360,20 @@ async function fetchAllData() {
         .select('*')
         .order('created_at', { ascending: false });
 
-    // --- 3. AFFICHAGE DANS LES GRILLES ---
+    // --- 4. AFFICHAGE DANS LES GRILLES ---
     renderGrid('products-grid', all);
     
     if(hot && hot.length > 0) renderGrid('hot-grid', hot);
 
     const boostedSection = document.getElementById('boosted-section');
-    if(boosted && boosted.length > 0) {
+    if(finalBoosted.length > 0) {
         boostedSection.classList.remove('hidden');
-        renderGrid('boosted-grid', boosted, true);
-        console.log("Boosts affichés : ", boosted.length);
+        renderGrid('boosted-grid', finalBoosted, true);
     } else {
         boostedSection.classList.add('hidden');
-        console.log("Aucun boost valide à afficher.");
     }
 
-    // --- 4. RECOMMANDATIONS & PUB CIBLÉE ---
+    // --- 5. RECOMMANDATIONS & LOGIQUE SYNC ---
     const lastSearch = localStorage.getItem('synapse_last_search');
     if(lastSearch) {
         const { data: recos } = await supabase.from('products').select('*').ilike('title', `%${lastSearch}%`).limit(4);
@@ -1367,12 +1387,19 @@ async function fetchAllData() {
         await loadPersonalizedProducts();
     }
 
-    // --- 5. LOGIQUE SYNC (Realtime & Wishlist) ---
     setupRealtime();
-
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
+}
+
+// --- ACTUALISATION AUTOMATIQUE (ROTATION) ---
+// On relance fetchAllData toutes les 60 secondes pour changer les pubs
+if (!window.boostInterval) {
+    window.boostInterval = setInterval(() => {
+        console.log("🔄 Rotation des publicités sponsorisées...");
+        fetchAllData();
+    }, 60000);
 }
 function setupRealtime() {
     supabase
@@ -3492,7 +3519,14 @@ window.requestBoost = async function() {
     }
 }
 
+// Actualisation des produits boostés toutes les 60 secondes (60000ms)
+setInterval(() => {
+    console.log("🔄 Rotation des publicités sponsorisées...");
+    fetchAllData(); 
+}, 60000);
 
+// Lancement de l'application
+fetchAllData();
     </script>
 </body>
 </html>
