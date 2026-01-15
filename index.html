@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -3301,6 +3303,46 @@ setInterval(() => {
     console.log("🔄 Rotation des publicités sponsorisées...");
     fetchAllData(); 
 }, 60000);
+
+function initHeroSlider() {
+    const slider = document.getElementById('hero-slider');
+    const dots = document.querySelectorAll('.slider-dot');
+    const container = document.getElementById('hero-banner');
+    const slides = document.querySelectorAll('#hero-slider > div');
+    
+    if (!slider || slides.length === 0) return;
+
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-synapse', i === currentSlide);
+            dot.classList.toggle('w-8', i === currentSlide); // Étire le point actif
+            dot.classList.toggle('bg-white/30', i !== currentSlide);
+            dot.classList.toggle('w-3', i !== currentSlide);
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlider();
+    }
+
+    // Intervalle de 5 secondes
+    let interval = setInterval(nextSlide, 5000);
+
+    // Arrêt au survol
+    container.addEventListener('mouseenter', () => clearInterval(interval));
+    container.addEventListener('mouseleave', () => interval = setInterval(nextSlide, 5000));
+
+    // Initialisation du premier point
+    updateSlider();
+}
+
+// Lancement de la fonction
+document.addEventListener('DOMContentLoaded', initHeroSlider);
 
 // Lancement de l'application
 fetchAllData();
