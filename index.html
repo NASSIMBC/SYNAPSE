@@ -591,26 +591,97 @@
                         <input type="text" id="checkout-phone" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
                     </div>
                 </div>
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
-                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
-                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                        <div>
-                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
-                            <p class="text-xs text-gray-500">Payez en espèces à la réception.</p>
-                        </div>
-                    </div>
-                </div>
+               <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 mb-6">
+    <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Informations de livraison</h3>
+    <div class="space-y-4">
+        <div>
+            <label class="text-[10px] uppercase font-bold text-gray-400 ml-2">Nom Complet</label>
+            <input type="text" id="checkout-name" placeholder="Votre nom et prénom" class="w-full bg-gray-50 dark:bg-dark-800 border border-gray-100 dark:border-dark-700 p-4 rounded-xl text-black dark:text-white outline-none focus:border-synapse transition">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-[10px] uppercase font-bold text-gray-400 ml-2">Téléphone</label>
+                <input type="tel" id="checkout-phone" placeholder="05/06/07XXXXXXXX" class="w-full bg-gray-50 dark:bg-dark-800 border border-gray-100 dark:border-dark-700 p-4 rounded-xl text-black dark:text-white outline-none focus:border-synapse transition">
             </div>
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
-                    <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
-                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-6"><span>Total</span> <span id="cart-total-price">0 DA</span></div>
-                    <button onclick="submitOrder()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse transition uppercase tracking-wide">Confirmer la commande</button>
-                </div>
+            
+            <div>
+                <label class="text-[10px] uppercase font-bold text-gray-400 ml-2">Wilaya</label>
+                <select id="checkout-wilaya" class="w-full bg-gray-50 dark:bg-dark-800 border border-gray-100 dark:border-dark-700 p-4 rounded-xl text-black dark:text-white outline-none focus:border-synapse transition">
+                    <option value="">Sélectionner</option>
+                    <option value="01-Adrar">01 - Adrar</option>
+                    <option value="02-Chlef">02 - Chlef</option>
+                    <option value="03-Laghouat">03 - Laghouat</option>
+                    <option value="04-Oum El Bouaghi">04 - Oum El Bouaghi</option>
+                    <option value="05-Batna">05 - Batna</option>
+                    <option value="06-Béjaïa">06 - Béjaïa</option>
+                    <option value="07-Biskra">07 - Biskra</option>
+                    <option value="08-Béchar">08 - Béchar</option>
+                    <option value="09-Blida">09 - Blida</option>
+                    <option value="10-Bouira">10 - Bouira</option>
+                    <option value="11-Tamanrasset">11 - Tamanrasset</option>
+                    <option value="12-Tébessa">12 - Tébessa</option>
+                    <option value="13-Tlemcen">13 - Tlemcen</option>
+                    <option value="14-Tiaret">14 - Tiaret</option>
+                    <option value="15-Tizi Ouzou">15 - Tizi Ouzou</option>
+                    <option value="16-Alger">16 - Alger</option>
+                    <option value="17-Djelfa">17 - Djelfa</option>
+                    <option value="18-Jijel">18 - Jijel</option>
+                    <option value="19-Sétif">19 - Sétif</option>
+                    <option value="20-Saïda">20 - Saïda</option>
+                    <option value="21-Skikda">21 - Skikda</option>
+                    <option value="22-Sidi Bel Abbès">22 - Sidi Bel Abbès</option>
+                    <option value="23-Annaba">23 - Annaba</option>
+                    <option value="24-Guelma">24 - Guelma</option>
+                    <option value="25-Constantine">25 - Constantine</option>
+                    <option value="26-Médéa">26 - Médéa</option>
+                    <option value="27-Mostaganem">27 - Mostaganem</option>
+                    <option value="28-M'Sila">28 - M'Sila</option>
+                    <option value="29-Mascara">29 - Mascara</option>
+                    <option value="30-Ouargla">30 - Ouargla</option>
+                    <option value="31-Oran">31 - Oran</option>
+                    <option value="32-El Bayadh">32 - El Bayadh</option>
+                    <option value="33-Illizi">33 - Illizi</option>
+                    <option value="34-Bordj Bou Arréridj">34 - Bordj Bou Arréridj</option>
+                    <option value="35-Boumerdès">35 - Boumerdès</option>
+                    <option value="36-El Tarf">36 - El Tarf</option>
+                    <option value="37-Tindouf">37 - Tindouf</option>
+                    <option value="38-Tissemsilt">38 - Tissemsilt</option>
+                    <option value="39-El Oued">39 - El Oued</option>
+                    <option value="40-Khenchela">40 - Khenchela</option>
+                    <option value="41-Souk Ahras">41 - Souk Ahras</option>
+                    <option value="42-Tipaza">42 - Tipaza</option>
+                    <option value="43-Mila">43 - Mila</option>
+                    <option value="44-Aïn Defla">44 - Aïn Defla</option>
+                    <option value="45-Naâma">45 - Naâma</option>
+                    <option value="46-Aïn Témouchent">46 - Aïn Témouchent</option>
+                    <option value="47-Ghardaïa">47 - Ghardaïa</option>
+                    <option value="48-Relizane">48 - Relizane</option>
+                    <option value="49-El M'Ghair">49 - El M'Ghair</option>
+                    <option value="50-El Meniaâ">50 - El Meniaâ</option>
+                    <option value="51-Ouled Djellal">51 - Ouled Djellal</option>
+                    <option value="52-Bordj Baji Mokhtar">52 - Bordj Baji Mokhtar</option>
+                    <option value="53-Béni Abbès">53 - Béni Abbès</option>
+                    <option value="54-Timimoun">54 - Timimoun</option>
+                    <option value="55-Touggourt">55 - Touggourt</option>
+                    <option value="56-Djanet">56 - Djanet</option>
+                    <option value="57-In Salah">57 - In Salah</option>
+                    <option value="58-In Guezzam">58 - In Guezzam</option>
+                </select>
             </div>
         </div>
+
+        <div>
+            <label class="text-[10px] uppercase font-bold text-gray-400 ml-2">Commune</label>
+            <input type="text" id="checkout-commune" placeholder="Votre commune" class="w-full bg-gray-50 dark:bg-dark-800 border border-gray-100 dark:border-dark-700 p-4 rounded-xl text-black dark:text-white outline-none focus:border-synapse transition">
+        </div>
+
+        <div>
+            <label class="text-[10px] uppercase font-bold text-gray-400 ml-2">Adresse précise</label>
+            <textarea id="checkout-address" rows="2" placeholder="N° de rue, bâtiment, quartier..." class="w-full bg-gray-50 dark:bg-dark-800 border border-gray-100 dark:border-dark-700 p-4 rounded-xl text-black dark:text-white outline-none focus:border-synapse transition"></textarea>
+        </div>
     </div>
+</div>
 
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
@@ -2387,58 +2458,69 @@ window.shareStore = function(name) {
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
    window.submitOrder = async function() {
     if(window.myCart.length === 0) return alert("Panier vide !");
+    
+    // --- RÉCUPÉRATION DES NOUVEAUX CHAMPS ---
     const name = document.getElementById('checkout-name').value;
     const phone = document.getElementById('checkout-phone').value;
     const wilaya = document.getElementById('checkout-wilaya').value;
+    const commune = document.getElementById('checkout-commune').value; // Ajouté
+    const address = document.getElementById('checkout-address').value; // Ajouté
     
-    if(!name || !phone || !wilaya) return alert("Remplissez l'adresse.");
+    if(!name || !phone || !wilaya || !commune || !address) {
+        return alert("Veuillez remplir toutes les informations de livraison.");
+    }
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) return alert("Connectez-vous !");
 
-        // --- CORRECTION : Définition propre du montant total ---
+        // --- CALCUL DU MONTANT TOTAL DU PANIER ---
         let total = 0;
         window.myCart.forEach(item => {
             const cleanPrice = String(item.price).replace(/[^\d]/g, '');
             total += parseInt(cleanPrice) || 0;
         });
 
-        // 1. Création de la commande
+        // 1. Création de la commande principale
         const { data: order, error: orderError } = await supabase.from('orders').insert([{
             user_id: user.id, 
             total_amount: total, 
-            shipping_address: `${name}, ${wilaya}, ${phone}`, 
+            // Adresse complète combinée
+            shipping_address: `${name} | ${phone} | ${wilaya} - ${commune} | ${address}`, 
             status: 'en_attente'
         }]).select().single();
 
         if(orderError) throw orderError;
 
-        // 2. Ajout des articles et Mise à jour du CA
+        // 2. Ajout des articles et Mise à jour du CA par vendeur
         for (const item of window.myCart) {
+            const itemPrice = parseInt(String(item.price).replace(/[^\d]/g, ''));
+
             await supabase.from('order_items').insert([{
                 order_id: order.id, 
                 product_id: item.id, 
-                price: parseInt(String(item.price).replace(/[^\d]/g, '')), 
+                price: itemPrice, 
                 quantity: 1
             }]);
 
-            // Récupérer le store_id du produit
+            // Récupérer le store_id du produit pour créditer le bon vendeur
             const { data: prod } = await supabase.from('products').select('store_id').eq('id', item.id).single();
             
             if(prod && prod.store_id) {
-                // Utilisation de la variable 'total' définie plus haut
+                // MISE À JOUR DU REVENU : On ajoute le prix de l'article (itemPrice), pas le total du panier
                 await supabase.rpc('increment_revenue', { 
                     store_id_param: String(prod.store_id), 
-                    amount: parseInt(total) 
+                    amount: itemPrice 
                 });
             }
         }
 
-        alert("✅ Commande réussie !");
+        alert("✅ Commande réussie ! Elle sera traitée rapidement.");
+        
+        // Nettoyage
         window.myCart = [];
-        updateCartUI();
-        window.goHome();
+        if (typeof updateCartUI === 'function') updateCartUI();
+        if (typeof window.goHome === 'function') window.goHome();
 
     } catch(e) { 
         console.error("Erreur commande:", e);
@@ -3631,6 +3713,39 @@ function initCategoryScroll() {
 document.addEventListener('DOMContentLoaded', initCategoryScroll);
 // Et le relancer au cas où
 setTimeout(initCategoryScroll, 1000);
+
+window.goToCheckout = function() {
+    console.log("Passage à la caisse...");
+
+    // 1. Vérifier si le panier n'est pas vide
+    const cart = JSON.parse(localStorage.getItem('synapse_cart') || '[]');
+    if (cart.length === 0) {
+        alert("Votre panier est vide !");
+        return;
+    }
+
+    // 2. Cacher toutes les autres pages/sections principales
+    // Adapte les IDs 'home-page', 'cart-page' selon ton code
+    const sectionsToHide = ['home-page', 'cart-section', 'product-details'];
+    sectionsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 3. Afficher la section de commande
+    const checkoutSection = document.getElementById('checkout-section');
+    if (checkoutSection) {
+        checkoutSection.classList.remove('hidden');
+        // On remonte en haut de page pour remplir les infos
+        window.scrollTo(0, 0); 
+        
+        // Optionnel : Mettre à jour le résumé du total sur la page de commande
+        if (typeof updateCheckoutSummary === 'function') updateCheckoutSummary();
+    } else {
+        console.error("Erreur : La section 'checkout-section' n'existe pas dans le HTML.");
+        alert("Le formulaire de commande est en cours de maintenance.");
+    }
+};
 
 // Lancement de l'application
 fetchAllData();
