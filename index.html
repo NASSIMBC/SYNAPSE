@@ -180,7 +180,7 @@
             </div>
 
             <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-               <div id="hero-banner" class="relative w-full overflow-hidden rounded-3xl mb-8 group h-[200px] md:h-[400px] shadow-2xl">
+                <div id="hero-banner" class="relative w-full overflow-hidden rounded-3xl mb-8 group h-[200px] md:h-[400px] shadow-2xl">
     <div id="hero-slider" class="flex h-full transition-transform duration-700 ease-in-out">
         
         <div class="min-w-full h-full relative bg-gray-900">
@@ -206,7 +206,9 @@
             </div>
         </div>
 
-    
+    </div>
+</div>
+
                 <div id="boosted-section" class="hidden mb-8">
     <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2">
         <i class="fa-solid fa-bolt text-synapse"></i> Produits Boostés
@@ -1339,19 +1341,23 @@ async function fetchAllData() {
     let boostedToShow = [];
 
     try {
+        // A. On récupère TOUS les produits boostés valides
         const { data: allBoosted } = await supabase
             .from('products')
             .select('*')
             .eq('is_boosted', true);
 
         if (allBoosted && allBoosted.length > 0) {
+            // Filtrer par date
             const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
             if (searchHistory.length > 0) {
+                // B. Priorité 1 : Mots-clés dans le titre
                 boostedToShow = activeBoosts.filter(p => 
                     searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
                 );
 
+                // C. Priorité 2 : Si pas assez (moins de 6), on complète avec la même catégorie
                 if (boostedToShow.length < 6) {
                     const myCategories = activeBoosts
                         .filter(p => searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase())))
@@ -1364,6 +1370,7 @@ async function fetchAllData() {
                 }
             }
 
+            // D. Priorité 3 : Si toujours < 6 (ou nouveau compte), hasard total
             if (boostedToShow.length < 6) {
                 const randomFill = activeBoosts
                     .filter(p => !boostedToShow.find(b => b.id === p.id))
@@ -1373,6 +1380,7 @@ async function fetchAllData() {
         }
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
+    // E. Rotation finale et LIMITE À 6 ANNONCES
     const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
     // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
@@ -1392,15 +1400,9 @@ async function fetchAllData() {
         boostedSection.classList.add('hidden');
     }
 
-    // --- 5. LOGIQUE SYNC & INITIALISATION ---
-    
-    // Initialisation du Hero Banner Dynamique (Slider)
-    if (typeof initHeroSlider === 'function') {
-        initHeroSlider();
-    }
-
+    // --- 5. LOGIQUE SYNC ---
+    // (Section "sélectionné pour vous" supprimée ici)
     setupRealtime();
-    
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
@@ -3299,46 +3301,6 @@ setInterval(() => {
     console.log("🔄 Rotation des publicités sponsorisées...");
     fetchAllData(); 
 }, 60000);
-
-function initHeroSlider() {
-    const slider = document.getElementById('hero-slider');
-    const dots = document.querySelectorAll('.slider-dot');
-    const container = document.getElementById('hero-banner');
-    const slides = document.querySelectorAll('#hero-slider > div');
-    
-    if (!slider || slides.length === 0) return;
-
-    let currentSlide = 0;
-    const totalSlides = slides.length;
-
-    function updateSlider() {
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('bg-synapse', i === currentSlide);
-            dot.classList.toggle('w-8', i === currentSlide); // Étire le point actif
-            dot.classList.toggle('bg-white/30', i !== currentSlide);
-            dot.classList.toggle('w-3', i !== currentSlide);
-        });
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % totalSlides;
-        updateSlider();
-    }
-
-    // Intervalle de 5 secondes
-    let interval = setInterval(nextSlide, 5000);
-
-    // Arrêt au survol
-    container.addEventListener('mouseenter', () => clearInterval(interval));
-    container.addEventListener('mouseleave', () => interval = setInterval(nextSlide, 5000));
-
-    // Initialisation du premier point
-    updateSlider();
-}
-
-// Lancement de la fonction
-document.addEventListener('DOMContentLoaded', initHeroSlider);
 
 // Lancement de l'application
 fetchAllData();
