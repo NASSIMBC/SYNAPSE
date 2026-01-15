@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -182,26 +183,18 @@
             </div>
 
             <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-              iv id="hero-banner" class="relative overflow-hidden rounded-3xl mb-8">
-    
-    <div id="hero-slider" class="flex transition-transform duration-700 ease-in-out">
-        <div class="min-w-full"> <img src="https://qldsrpgfutqdjyxdelud.supabase.co/storage/v1/object/public/banners/banners.jpg"> </div>
-        <div class="min-w-full"> <img src="https://qldsrpgfutqdjyxdelud.supabase.co/storage/v1/object/public/banners/banners.jpg"> </div>
-    </div>
-
-    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50"></div>
-        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50"></div>
-    </div>
-</div>
-
-        
-
-    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50 transition-all duration-300"></div>
-        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50 transition-all duration-300"></div>
-    </div>
-</div>
+                <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
+                    </div>
+                    <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
+                        <div class="max-w-lg">
+                            <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
+                            <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
+                            <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div id="boosted-section" class="hidden mb-8">
     <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2">
@@ -3091,50 +3084,13 @@ window.selectSuggestion = function(t, p, d, i, id, storeId, cat) {
     openDetail(t, p, d, i, id, storeId, cat);
 }
 
-// On attend que le DOM soit chargé pour éviter les erreurs "null"
-document.addEventListener('DOMContentLoaded', () => {
-    let currentSlide = 0;
-    const slider = document.getElementById('hero-slider');
-    const dots = document.querySelectorAll('.slider-dot');
-    const heroBanner = document.getElementById('hero-banner');
-    
-    // On définit le nombre de slides dynamiquement
-    const slides = document.querySelectorAll('#hero-slider > div');
-    const totalSlides = slides.length;
-
-    // Vérification de sécurité : si les éléments n'existent pas, on arrête
-    if (!slider || !heroBanner || totalSlides === 0) {
-        console.warn("Slider : Éléments manquants dans le HTML, arrêt du script.");
-        return;
+// Fermer les suggestions si on clique ailleurs sur la page
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#search-input')) {
+        document.getElementById('search-suggestions').classList.add('hidden');
     }
-
-    function updateSlider() {
-        // Déplacement du slider
-        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-        
-        // Mise à jour des points (dots)
-        dots.forEach((dot, index) => {
-            if (dot) {
-                dot.style.opacity = index === currentSlide ? "1" : "0.5";
-                dot.style.width = index === currentSlide ? "20px" : "8px";
-            }
-        });
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % totalSlides;
-        updateSlider();
-    }
-
-    // Lancement de l'intervalle
-    let sliderInterval = setInterval(nextSlide, 5000);
-
-    // Pause au survol
-    heroBanner.addEventListener('mouseenter', () => clearInterval(sliderInterval));
-    heroBanner.addEventListener('mouseleave', () => {
-        sliderInterval = setInterval(nextSlide, 5000);
-    });
 });
+
 // --- FONCTION DE SUPPRESSION DE PRODUIT ---
 window.deleteProduct = async function(productId, imageUrl) {
     const confirmDelete = confirm("⚠️ Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.");
@@ -3332,34 +3288,6 @@ setInterval(() => {
     console.log("🔄 Rotation des publicités sponsorisées...");
     fetchAllData(); 
 }, 60000);
-
-let currentSlide = 0;
-const slider = document.getElementById('hero-slider');
-const dots = document.querySelectorAll('.slider-dot');
-const totalSlides = 2; // Nombre total d'images
-
-function nextSlide() {
-    currentSlide = (currentSlide + 1) % totalSlides;
-    updateSlider();
-}
-
-function updateSlider() {
-    // Déplace le conteneur
-    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-    
-    // Met à jour les petits points
-    dots.forEach((dot, index) => {
-        dot.style.opacity = index === currentSlide ? "1" : "0.5";
-        dot.style.width = index === currentSlide ? "20px" : "8px"; // Petit effet d'étirement
-    });
-}
-
-// Lancement automatique
-let sliderInterval = setInterval(nextSlide, 5000);
-
-// Pause quand la souris est dessus
-document.getElementById('hero-banner').addEventListener('mouseenter', () => clearInterval(sliderInterval));
-document.getElementById('hero-banner').addEventListener('mouseleave', () => sliderInterval = setInterval(nextSlide, 5000));
 
 // Lancement de l'application
 fetchAllData();
