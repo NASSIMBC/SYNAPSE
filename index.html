@@ -112,51 +112,136 @@
                     <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-gray-400 dark:text-gray-500">Catégories</h3>
                     <div class="space-y-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                         
-                        <details class="group">
-                            <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5"></i> Mode Femme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                            <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Robes')">Robes</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Chemisiers')">Chemisiers</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jeans Femme')">Jeans</li>
-                            </ul>
-                        </details>
+                       <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-shirt w-5"></i> 1. Mode Homme</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('H-Pull')">Pull</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('H-Veste')">Veste</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('H-Pantalon')">Pantalon</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('H-Chaussure')">Chaussures</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('H-Sous-vetement')">Sous-vêtements</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('H-Accessoires')">Accessoires</li>
+        </ul>
+    </details>
 
-                        <details class="group">
-                            <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-shirt w-5"></i> Mode Homme</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                            <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('T-Shirts')">T-Shirts</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Vestes')">Vestes</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Pantalons')">Pantalons</li>
-                            </ul>
-                        </details>
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-person-dress w-5"></i> 2. Mode Femme</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('F-Pull')">Pull</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('F-Veste')">Veste</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('F-Pantalon')">Pantalon</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('F-Chaussure')">Chaussures</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('F-Sous-vetement')">Sous-vêtements</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('F-Accessoires')">Accessoires</li>
+        </ul>
+    </details>
 
-                        <details class="group">
-                            <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5"></i> Téléphonie</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                            <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Smartphones')">Smartphones</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Coques')">Coques & Étuis</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires')">Accessoires</li>
-                            </ul>
-                        </details>
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-mobile-screen w-5"></i> 3. Téléphones & Tech</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Smartphones')">Smartphones</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires High-Tech')">Accessoires (coques...)</li>
+        </ul>
+    </details>
 
-                        <details class="group">
-                            <summary class="flex justify-between items-center"><span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5"></i> Ordi & Bureau</span> <i class="fa-solid fa-chevron-down text-[10px]"></i></summary>
-                            <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Laptops')">Ordinateurs Portables</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Composants')">Composants</li>
-                                <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Périphériques')">Claviers/Souris</li>
-                            </ul>
-                        </details>
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-car w-5"></i> 4. Véhicules</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Voitures')">Voitures</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Motos/Scooters')">Motos / Scooters</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Velos/Trottinettes')">Vélos & Trottinettes</li>
+        </ul>
+    </details>
 
-                        <li onclick="filterByCategory('Electronique')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-plug w-5"></i> Electronique</span></li>
-                        <li onclick="filterByCategory('Bijoux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gem w-5"></i> Bijoux & Montres</span></li>
-                        <li onclick="filterByCategory('Maison')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-couch w-5"></i> Maison & Jardin</span></li>
-                        <li onclick="filterByCategory('Sacs')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-bag-shopping w-5"></i> Sacs & Bagages</span></li>
-                        <li onclick="filterByCategory('Jouets')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-gamepad w-5"></i> Jouets & Loisirs</span></li>
-                        <li onclick="filterByCategory('Sport')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-person-running w-5"></i> Sports</span></li>
-                        <li onclick="filterByCategory('Beauté')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-wand-magic-sparkles w-5"></i> Beauté & Santé</span></li>
-                        <li onclick="filterByCategory('Auto')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1"><span><i class="fa-solid fa-car w-5"></i> Auto & Moto</span></li>
-                    </div>
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-gamepad w-5"></i> 5. Loisirs & Jeux</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jeux Video')">Jeux vidéo</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Consoles')">Consoles</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-baby w-5"></i> 6. Bébé & Enfant</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Vetements Bebe')">Vêtements bébé</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Poussettes')">Poussettes</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Jouets')">Jouets</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Accessoires Bebe')">Accessoires bébé</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-laptop w-5"></i> 7. PC & Accessoires</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('PC Bureau')">PC Bureau</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('PC Portable')">PC Portable</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('PC Gamer')">PC Gamer</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Monitor')">Moniteurs</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Souris')">Souris</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Clavier')">Clavier</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-couch w-5"></i> 8. Maison & Meubles</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Meubles')">Meubles</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Decoration')">Décoration</li>
+        </ul>
+    </details>
+
+    <details class="group">
+        <summary class="flex justify-between items-center cursor-pointer hover:text-synapse p-1">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-plug w-5"></i> 9. Électroménager</span>
+            <i class="fa-solid fa-chevron-down text-[10px] group-open:rotate-180 transition"></i>
+        </summary>
+        <ul class="pl-7 mt-2 space-y-2 text-xs text-gray-500 border-l border-gray-200 ml-2">
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('TV')">TV</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Machines a laver')">Lave-linge</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Refrigerateurs')">Réfrigérateurs</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Climatisation')">Climatisation</li>
+            <li class="hover:text-synapse cursor-pointer" onclick="filterByCategory('Cuisiniere')">Cuisinière</li>
+        </ul>
+    </details>
+
+    <li onclick="filterByCategory('Animaux')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1 list-none">
+        <span><i class="fa-solid fa-paw w-5"></i> 10. Animaux</span>
+    </li>
+    <li onclick="filterByCategory('Service')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1 list-none">
+        <span><i class="fa-solid fa-handshake-angle w-5"></i> 11. Service</span>
+    </li>
+    <li onclick="filterByCategory('Emplois')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1 list-none">
+        <span><i class="fa-solid fa-briefcase w-5"></i> 12. Emplois</span>
+    </li>
+    <li onclick="filterByCategory('Divers')" class="flex items-center justify-between cursor-pointer hover:text-synapse p-1 list-none">
+        <span><i class="fa-solid fa-box-open w-5"></i> 13. Autres & Divers</span>
+    </li>
+</div>
 
                     <div class="mt-6 pt-6 border-t border-gray-100 dark:border-dark-800">
                         <ul class="space-y-2">
@@ -208,6 +293,33 @@
 
     </div>
 </div>
+
+<div class="mb-8">
+    <div class="flex items-center justify-between mb-4 px-2">
+        <h2 class="text-xl font-black text-white uppercase tracking-tighter">Explorer les <span class="text-synapse">Catégories</span></h2>
+    </div>
+    
+    <div class="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth">
+        <button onclick="filterByCategory('all')" class="category-pill active bg-synapse text-black px-6 py-2 rounded-full font-bold whitespace-nowrap transition">Tout</button>
+        
+        <button onclick="filterByCategory('H-')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">👕 Homme</button>
+        <button onclick="filterByCategory('F-')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">👗 Femme</button>
+        <button onclick="filterByCategory('Smartphones')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">📱 Téléphonie</button>
+        <button onclick="filterByCategory('PC')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">💻 Informatique</button>
+        <button onclick="filterByCategory('Voitures')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🚗 Véhicules</button>
+        <button onclick="filterByCategory('Jeux')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🎮 Gaming</button>
+        <button onclick="filterByCategory('Electro')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">❄️ Électroménager</button>
+        <button onclick="filterByCategory('Animaux')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🐾 Animaux</button>
+        <button onclick="filterByCategory('Service')" class="category-pill bg-white/5 border border-white/10 text-white px-6 py-2 rounded-full font-bold whitespace-nowrap hover:border-synapse transition">🛠️ Services</button>
+    </div>
+</div>
+
+<style>
+/* Cache la barre de défilement mais permet le scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.category-pill.active { background-color: #CAFF33; color: black; border-color: #CAFF33; }
+</style>
 
                 <div id="boosted-section" class="hidden mb-8">
     <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2">
@@ -553,86 +665,92 @@
                            <select id="prod-category" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-gray-400">
     <option value="" disabled selected>Choisir une catégorie...</option>
 
-    <optgroup label="📱 Téléphones & Accessoires">
-        <option value="Smartphones neufs">Smartphones neufs</option>
-        <option value="Smartphones occasion">Smartphones d'occasion</option>
-        <option value="Coques & protections">Coques & protections</option>
-        <option value="Chargeurs & câbles">Chargeurs & câbles</option>
-        <option value="Écouteurs & casques">Écouteurs & casques</option>
-    </optgroup>
+    <optgroup label="1. 👕 MODE HOMME">
+            <option value="H-Pull">Pull (H)</option>
+            <option value="H-Veste">Veste (H)</option>
+            <option value="H-Pantalon">Pantalon (H)</option>
+            <option value="H-Chaussure">Chaussures (H)</option>
+            <option value="H-Sous-vetement">Sous-vêtements (H)</option>
+            <option value="H-Accessoires">Accessoires (H)</option>
+        </optgroup>
 
-    <optgroup label="💻 Informatique">
-        <option value="Ordinateurs portables">Ordinateurs portables</option>
-        <option value="PC de bureau">PC de bureau</option>
-        <option value="Tablettes">Tablettes</option>
-        <option value="Composants PC">Composants PC (RAM, GPU...)</option>
-        <option value="Périphériques">Périphériques (Clavier, Souris)</option>
-    </optgroup>
+        <optgroup label="2. 👗 MODE FEMME">
+            <option value="F-Pull">Pull (F)</option>
+            <option value="F-Veste">Veste (F)</option>
+            <option value="F-Pantalon">Pantalon (F)</option>
+            <option value="F-Chaussure">Chaussures (F)</option>
+            <option value="F-Sous-vetement">Sous-vêtements (F)</option>
+            <option value="F-Accessoires">Accessoires (F)</option>
+        </optgroup>
 
-    <optgroup label="🎮 Gaming">
-        <option value="Consoles">Consoles</option>
-        <option value="Jeux vidéo">Jeux vidéo</option>
-        <option value="Accessoires gaming">Accessoires gaming</option>
-        <option value="PC gamer">PC Gamer</option>
-    </optgroup>
+        <optgroup label="3. 📱 TÉLÉPHONES & HIGH-TECH">
+            <option value="Smartphones">Smartphones</option>
+            <option value="Accessoires High-Tech">Accessoires (chargeurs, coques…)</option>
+        </optgroup>
 
-    <optgroup label="📷 Audio – Vidéo">
-        <option value="Télévisions">Télévisions</option>
-        <option value="Appareils photo">Appareils photo & Caméras</option>
-        <option value="Audio">Enceintes & Son</option>
-    </optgroup>
+        <optgroup label="4. 🚗 VÉHICULES">
+            <option value="Voitures">Voitures</option>
+            <option value="Motos/Scooters">Motos / Scooters</option>
+            <option value="Velos/Trottinettes">Vélos et trottinettes</option>
+        </optgroup>
 
-    <optgroup label="👔 Mode Homme">
-        <option value="Vêtements Homme">Vêtements Homme</option>
-        <option value="Chaussures Homme">Chaussures Homme</option>
-        <option value="Montres">Montres</option>
-    </optgroup>
+        <optgroup label="5. 🎮 LOISIRS & JEUX">
+            <option value="Jeux Video">Jeux vidéo</option>
+            <option value="Consoles">Consoles</option>
+        </optgroup>
 
-    <optgroup label="👗 Mode Femme">
-        <option value="Vêtements Femme">Vêtements Femme</option>
-        <option value="Chaussures Femme">Chaussures Femme</option>
-        <option value="Sacs">Sacs & Accessoires</option>
-        <option value="Bijoux">Bijoux</option>
-    </optgroup>
+        <optgroup label="6. 👶 BÉBÉ & ENFANT">
+            <option value="Vetements Bebe">Vêtements bébé</option>
+            <option value="Poussettes">Poussettes</option>
+            <option value="Jouets">Jouets</option>
+            <option value="Accessoires Bebe">Accessoires bébé</option>
+        </optgroup>
 
-    <optgroup label="👶 Enfant & Bébé">
-        <option value="Vêtements bébé">Vêtements bébé</option>
-        <option value="Vêtements enfants">Vêtements enfants</option>
-        <option value="Jouets enfants">Jouets</option>
-    </optgroup>
+        <optgroup label="7. 💻 PC ET ACCESSOIRES">
+            <option value="PC Bureau">PC Bureau</option>
+            <option value="PC Portable">PC Portable</option>
+            <option value="PC Gamer">PC Gamer</option>
+            <option value="Monitor">Monitor (Écran)</option>
+            <option value="Souris">Souris</option>
+            <option value="Clavier">Clavier</option>
+            <option value="Autres PC">Autres accessoires PC</option>
+        </optgroup>
 
-    <optgroup label="🏠 Maison & Jardin">
-        <option value="Meubles">Meubles</option>
-        <option value="Électroménager">Électroménager</option>
-        <option value="Décoration">Décoration</option>
-        <option value="Jardin">Jardin & Bricolage</option>
-    </optgroup>
+        <optgroup label="8. 🏠 MAISON & MEUBLES">
+            <option value="Meubles">Meubles</option>
+            <option value="Decoration">Décoration</option>
+            <option value="Autres Maison">Autres (Maison)</option>
+        </optgroup>
 
-    <optgroup label="🚗 Véhicules">
-        <option value="Voitures">Voitures</option>
-        <option value="Motos">Motos</option>
-        <option value="Pièces Auto">Pièces détachées & Accessoires</option>
-        <option value="Vélos">Vélos & Trottinettes</option>
-    </optgroup>
+        <optgroup label="9. ❄️ ÉLECTROMÉNAGER">
+            <option value="TV">TV</option>
+            <option value="Machines a laver">Machines à laver</option>
+            <option value="Refrigerateurs">Réfrigérateurs</option>
+            <option value="Climatisation">Climatisation</option>
+            <option value="Hotte">Hotte</option>
+            <option value="Cuisiniere">Cuisinière</option>
+            <option value="Vaisselle">Vaisselle</option>
+            <option value="Autres Electro">Autres (Électro)</option>
+        </optgroup>
 
-    <optgroup label="💄 Beauté & Santé">
-        <option value="Maquillage">Maquillage</option>
-        <option value="Parfums">Parfums</option>
-        <option value="Soins">Soins Visage & Corps</option>
-    </optgroup>
+        <optgroup label="10. 🐾 ANIMAUX">
+            <option value="Animaux">Animaux</option>
+        </optgroup>
 
-    <optgroup label="⚽ Sports & Loisirs">
-        <option value="Sport">Matériel de Sport</option>
-        <option value="Camping">Camping & Randonnée</option>
-        <option value="Musique">Instruments de Musique</option>
-    </optgroup>
+        <optgroup label="11. 🛠️ SERVICE">
+            <option value="Service">Services</option>
+        </optgroup>
 
-    <optgroup label="📚 Culture & Services">
-        <option value="Livres">Livres & Romans</option>
-        <option value="Scolaire">Fournitures Scolaires</option>
-        <option value="Services">Services & Freelance</option>
-        <option value="Animaux">Animaux & Accessoires</option>
-    </optgroup>
+        <optgroup label="12. 💼 EMPLOIS">
+            <option value="Emplois">Emplois</option>
+        </optgroup>
+
+        <optgroup label="13. 📦 AUTRES & DIVERS">
+            <option value="Articles non classes">Articles non classés</option>
+            <option value="A donner">À donner</option>
+            <option value="Objets rares">Objets rares</option>
+            <option value="Divers">Divers</option>
+        </optgroup>
 </select>
                             
                             <textarea id="prod-desc" placeholder="Description..." rows="4" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
@@ -3392,6 +3510,43 @@ window.openEditProduct = async function(productId) {
     } catch (err) {
         console.error("Erreur Synapse :", err);
         alert("Impossible d'ouvrir la modification.");
+    }
+};
+
+window.filterByCategory = async function(category) {
+    // 1. Mise à jour visuelle des boutons
+    document.querySelectorAll('.category-pill').forEach(btn => {
+        btn.classList.remove('active', 'bg-synapse', 'text-black');
+        btn.classList.add('bg-white/5', 'text-white');
+    });
+    event.target.classList.add('active', 'bg-synapse', 'text-black');
+
+    try {
+        let query = supabase.from('products').select('*');
+
+        // 2. Logique de filtrage
+        if (category !== 'all') {
+            // Utilise .ilike pour trouver les sous-catégories (ex: H-Veste, H-Pull)
+            query = query.ilike('category', `%${category}%`);
+        }
+
+        const { data, error } = await query.order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // 3. Affichage des résultats
+        renderGrid('products-grid', data);
+        
+        // Optionnel: On cache la section Boostés quand on filtre pour plus de clarté
+        const boostedSection = document.getElementById('boosted-section');
+        if (category === 'all') {
+            boostedSection.classList.remove('hidden');
+        } else {
+            boostedSection.classList.add('hidden');
+        }
+
+    } catch (err) {
+        console.error("Erreur filtrage:", err);
     }
 };
 
