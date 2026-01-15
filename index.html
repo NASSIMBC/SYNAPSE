@@ -183,18 +183,38 @@
             </div>
 
             <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
-                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-                    </div>
-                    <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
-                        <div class="max-w-lg">
-                            <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
-                            <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
-                            <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
-                        </div>
-                    </div>
+               <div id="hero-banner" class="relative w-full overflow-hidden rounded-3xl mb-8 group h-[200px] md:h-[400px] shadow-2xl">
+    <div id="hero-slider" class="flex h-full transition-transform duration-700 ease-in-out">
+        
+        <div class="min-w-full h-full relative bg-gray-900">
+            <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1920" class="w-full h-full object-cover opacity-60">
+            <div class="absolute inset-0 flex items-center p-8 md:p-16">
+                <div class="max-w-xl">
+                    <h2 class="text-3xl md:text-6xl font-black text-white leading-none">SYN<span class="text-synapse">APSE</span></h2>
+                    <p class="text-synapse font-bold uppercase tracking-[0.2em] mt-2 text-sm md:text-lg">Pack Électroménager & Auto</p>
+                    <button class="mt-6 bg-synapse text-black px-6 py-3 rounded-full font-bold hover:scale-105 transition transform">DÉCOUVRIR L'OFFRE</button>
                 </div>
+            </div>
+        </div>
+
+        <div class="min-w-full h-full relative bg-gray-900">
+            <img src="https://qldsrpgfutqdjyxdelud.supabase.co/storage/v1/object/public/banners/banners.jpg" class="w-full h-full object-cover opacity-60">
+            <div class="absolute inset-0 flex items-center p-8 md:p-16">
+                <div class="max-w-xl">
+                    <h2 class="text-3xl md:text-6xl font-black text-white leading-none">VÉHICULES <span class="text-synapse">PREMIUM</span></h2>
+                    <p class="text-white/80 font-medium mt-2 text-sm md:text-lg">Le luxe accessible sur votre marketplace.</p>
+                    <button class="mt-6 border-2 border-synapse text-synapse px-6 py-3 rounded-full font-bold hover:bg-synapse hover:text-black transition">VOIR LE CATALOGUE</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
+        <div class="slider-dot w-3 h-3 rounded-full bg-white/30 transition-all duration-300"></div>
+        <div class="slider-dot w-3 h-3 rounded-full bg-white/30 transition-all duration-300"></div>
+    </div>
+</div>
 
                 <div id="boosted-section" class="hidden mb-8">
     <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2">
@@ -1328,23 +1348,19 @@ async function fetchAllData() {
     let boostedToShow = [];
 
     try {
-        // A. On récupère TOUS les produits boostés valides
         const { data: allBoosted } = await supabase
             .from('products')
             .select('*')
             .eq('is_boosted', true);
 
         if (allBoosted && allBoosted.length > 0) {
-            // Filtrer par date
             const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
             if (searchHistory.length > 0) {
-                // B. Priorité 1 : Mots-clés dans le titre
                 boostedToShow = activeBoosts.filter(p => 
                     searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
                 );
 
-                // C. Priorité 2 : Si pas assez (moins de 6), on complète avec la même catégorie
                 if (boostedToShow.length < 6) {
                     const myCategories = activeBoosts
                         .filter(p => searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase())))
@@ -1357,7 +1373,6 @@ async function fetchAllData() {
                 }
             }
 
-            // D. Priorité 3 : Si toujours < 6 (ou nouveau compte), hasard total
             if (boostedToShow.length < 6) {
                 const randomFill = activeBoosts
                     .filter(p => !boostedToShow.find(b => b.id === p.id))
@@ -1367,7 +1382,6 @@ async function fetchAllData() {
         }
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    // E. Rotation finale et LIMITE À 6 ANNONCES
     const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
     // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
@@ -1387,9 +1401,15 @@ async function fetchAllData() {
         boostedSection.classList.add('hidden');
     }
 
-    // --- 5. LOGIQUE SYNC ---
-    // (Section "sélectionné pour vous" supprimée ici)
+    // --- 5. LOGIQUE SYNC & INITIALISATION ---
+    
+    // Initialisation du Hero Banner Dynamique (Slider)
+    if (typeof initHeroSlider === 'function') {
+        initHeroSlider();
+    }
+
     setupRealtime();
+    
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
@@ -3288,6 +3308,46 @@ setInterval(() => {
     console.log("🔄 Rotation des publicités sponsorisées...");
     fetchAllData(); 
 }, 60000);
+
+function initHeroSlider() {
+    const slider = document.getElementById('hero-slider');
+    const dots = document.querySelectorAll('.slider-dot');
+    const container = document.getElementById('hero-banner');
+    const slides = document.querySelectorAll('#hero-slider > div');
+    
+    if (!slider || slides.length === 0) return;
+
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-synapse', i === currentSlide);
+            dot.classList.toggle('w-8', i === currentSlide); // Étire le point actif
+            dot.classList.toggle('bg-white/30', i !== currentSlide);
+            dot.classList.toggle('w-3', i !== currentSlide);
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlider();
+    }
+
+    // Intervalle de 5 secondes
+    let interval = setInterval(nextSlide, 5000);
+
+    // Arrêt au survol
+    container.addEventListener('mouseenter', () => clearInterval(interval));
+    container.addEventListener('mouseleave', () => interval = setInterval(nextSlide, 5000));
+
+    // Initialisation du premier point
+    updateSlider();
+}
+
+// Lancement de la fonction
+document.addEventListener('DOMContentLoaded', initHeroSlider);
 
 // Lancement de l'application
 fetchAllData();
