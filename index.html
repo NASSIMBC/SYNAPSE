@@ -3361,6 +3361,40 @@ function initHeroSlider() {
 // Lancement de la fonction
 document.addEventListener('DOMContentLoaded', initHeroSlider);
 
+// On utilise exactement le nom "openEditProduct" que ton bouton cherche
+window.openEditProduct = async function(productId) {
+    try {
+        console.log("Ouverture du produit :", productId);
+        
+        const { data: product, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('id', productId)
+            .single();
+
+        if (error) throw error;
+
+        // On remplit les champs du modal
+        document.getElementById('edit-prod-id').value = product.id;
+        document.getElementById('edit-prod-title').value = product.title;
+        document.getElementById('edit-prod-price').value = product.price;
+        document.getElementById('edit-prod-desc').value = product.description;
+        document.getElementById('edit-prod-category').value = product.category;
+
+        // On affiche le modal
+        const modal = document.getElementById('modal-edit-product');
+        if (modal) {
+            modal.classList.remove('hidden');
+        } else {
+            console.error("Erreur : Le modal 'modal-edit-product' n'existe pas dans le HTML");
+        }
+        
+    } catch (err) {
+        console.error("Erreur Synapse :", err);
+        alert("Impossible d'ouvrir la modification.");
+    }
+};
+
 // Lancement de l'application
 fetchAllData();
     </script>
