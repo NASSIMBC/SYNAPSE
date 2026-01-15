@@ -1910,18 +1910,29 @@ if (storeId && amountToAdd > 0) {
             }
         }
 
-     window.filterByStore = async function(storeId) {
+    // --- VERSION UNIQUE ET CORRIGÉE DE LA VUE BOUTIQUE ---
+window.filterByStore = async function(storeId) {
+    // 1. Cacher toutes les vues et afficher l'accueil
     window.hideAllViews();
-    document.getElementById('home-view').classList.remove('hidden');
+    const homeView = document.getElementById('home-view');
+    if (homeView) homeView.classList.remove('hidden');
     
-    // On cache les éléments de l'accueil général
-    document.getElementById('boosted-section').classList.add('hidden');
-    document.getElementById('recommended-section').classList.add('hidden');
-    document.getElementById('hot-section-container').classList.add('hidden');
-    document.getElementById('hero-banner').classList.add('hidden');
+    // 2. Liste de sécurité pour cacher les éléments d'accueil (vérifie l'existence)
+    const elementsToHide = [
+        'boosted-section', 
+        'recommended-section', 
+        'hot-section-container', 
+        'hero-banner',
+        'personalized-section'
+    ];
+
+    elementsToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.add('hidden'); // Sécurité : n'ajoute que si l'élément existe
+    });
 
     try {
-        // 1. Récupérer les infos de la boutique
+        // 3. Récupérer les données de la boutique
         const { data: store, error } = await supabase
             .from('stores')
             .select('*')
@@ -1930,70 +1941,69 @@ if (storeId && amountToAdd > 0) {
 
         if (error) throw error;
 
-        // 2. Créer l'en-tête de la boutique publique
-        const cacheBuster = "?t=" + Date.now();
-        const logo = store.logo_url ? store.logo_url + cacheBuster : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
-        
+        // 4. Créer le design de l'en-tête boutique
+        const t = Date.now();
+        const logo = store.logo_url ? `${store.logo_url}?t=${t}` : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+        const banner = store.banner_url ? `${store.banner_url}?t=${t}` : '';
+
         let headerHtml = `
-        <div class="relative rounded-3xl overflow-hidden mb-8 border border-gray-100 dark:border-dark-800 shadow-lg bg-white dark:bg-dark-900">
+        <div class="relative rounded-3xl overflow-hidden mb-8 border border-gray-100 dark:border-dark-800 shadow-lg bg-white dark:bg-dark-900 animate-fade-in-up">
             <div class="h-32 md:h-48 bg-gray-200 dark:bg-dark-800 relative">
-                ${store.banner_url ? `<img src="${store.banner_url + cacheBuster}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-gradient-to-r from-synapse/20 to-synapse/5"></div>'}
+                ${banner ? `<img src="${banner}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-gradient-to-r from-synapse/20 to-synapse/5"></div>'}
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
-            
             <div class="relative px-6 pb-6 -mt-12 flex flex-col md:flex-row items-center md:items-end gap-4">
                 <img src="${logo}" class="w-24 h-24 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-xl">
                 <div class="flex-1 text-center md:text-left mb-2">
                     <h1 class="text-2xl md:text-4xl font-black text-black dark:text-white leading-tight">${store.name}</h1>
                     <div class="flex items-center justify-center md:justify-start gap-2 mt-1">
-                        <span class="bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Vendeur Vérifié</span>
-                        <span class="text-gray-500 text-xs font-medium"><i class="fa-solid fa-location-dot"></i> Algérie</span>
+                        <span class="bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Boutique Vérifiée</span>
+                        <span class="text-gray-500 text-xs font-medium"><i class="fa-solid fa-location-dot text-synapse"></i> Algérie</span>
                     </div>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="window.location.reload()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-synapse hover:text-black transition">
+                    <button onclick="window.location.reload()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-synapse transition">
                         <i class="fa-solid fa-house"></i>
                     </button>
-                    <button onclick="shareStore('${store.name}')" class="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-xl font-bold text-xs hover:opacity-80 transition">
-                        PARTAGER LA BOUTIQUE
+                    <button onclick="shareStore('${store.name.replace(/'/g, "\\'")}')" class="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-xl font-bold text-xs hover:opacity-80 transition shadow-lg">
+                        PARTAGER
                     </button>
                 </div>
             </div>
         </div>
         <h2 class="text-xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-boxes-stacked text-synapse"></i> Catalogue Produits
+            <i class="fa-solid fa-boxes-stacked text-synapse"></i> Catalogue du vendeur
         </h2>`;
 
-        document.getElementById('main-grid-title').innerHTML = headerHtml;
+        // Injection dans l'élément titre
+        const mainTitle = document.getElementById('main-grid-title');
+        if(mainTitle) mainTitle.innerHTML = headerHtml;
 
-        // 3. Charger les produits de cette boutique uniquement
+        // 5. Charger les produits
         const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span> Chargement du catalogue...</div>';
-        
-        const { data: products } = await supabase
-            .from('products')
-            .select('*')
-            .eq('store_id', storeId)
-            .order('created_at', { ascending: false });
+        if(grid) {
+            grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
+            const { data: products } = await supabase
+                .from('products')
+                .select('*')
+                .eq('store_id', storeId)
+                .order('created_at', { ascending: false });
 
-        renderGrid('products-grid', products);
+            renderGrid('products-grid', products);
+        }
         window.scrollTo(0, 0);
 
     } catch (err) {
-        console.error(err);
-        showToast("Impossible de charger la boutique.");
+        console.error("Erreur Boutique:", err);
+        showToast("Erreur lors du chargement du profil.");
     }
 };
 
-// --- FONCTION POUR PARTAGER LA BOUTIQUE ---
+// Garde aussi cette fonction unique pour le partage
 window.shareStore = function(name) {
     const url = window.location.href;
     if (navigator.share) {
-        navigator.share({
-            title: `Boutique ${name} sur SYNAPSE`,
-            text: `Découvrez les produits de ${name} sur Synapse !`,
-            url: url
-        }).catch(err => console.log("Erreur:", err));
+        navigator.share({ title: `Boutique ${name}`, url: url });
     } else {
         navigator.clipboard.writeText(url);
         showToast("✅ Lien de la boutique copié !");
@@ -2550,94 +2560,6 @@ window.shareStore = function(name) {
         }
     }
 
-// --- VUE PUBLIQUE DE LA BOUTIQUE (PROFIL VENDEUR) ---
-window.filterByStore = async function(storeId) {
-    window.hideAllViews();
-    document.getElementById('home-view').classList.remove('hidden');
-    
-    // Cacher les bannières de l'accueil pour afficher celle du vendeur
-    const elementsToHide = ['boosted-section', 'recommended-section', 'hot-section-container', 'hero-banner'];
-    elementsToHide.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) el.classList.add('hidden');
-    });
-
-    try {
-        // 1. Récupérer les données de la boutique
-        const { data: store, error } = await supabase
-            .from('stores')
-            .select('*')
-            .eq('id', storeId)
-            .single();
-
-        if (error) throw error;
-
-        // 2. Créer le design de l'en-tête (Profil Public)
-        const t = Date.now();
-        const logo = store.logo_url ? `${store.logo_url}?t=${t}` : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
-        const banner = store.banner_url ? `${store.banner_url}?t=${t}` : '';
-
-        let headerHtml = `
-        <div class="relative rounded-3xl overflow-hidden mb-8 border border-gray-100 dark:border-dark-800 shadow-lg bg-white dark:bg-dark-900 animate-fade-in-up">
-            <div class="h-32 md:h-48 bg-gray-200 dark:bg-dark-800 relative">
-                ${banner ? `<img src="${banner}" class="w-full h-full object-cover">` : '<div class="w-full h-full bg-gradient-to-r from-synapse/20 to-synapse/5"></div>'}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            </div>
-            <div class="relative px-6 pb-6 -mt-12 flex flex-col md:flex-row items-center md:items-end gap-4">
-                <img src="${logo}" class="w-24 h-24 rounded-full border-4 border-white dark:border-dark-900 bg-white object-cover shadow-xl">
-                <div class="flex-1 text-center md:text-left mb-2">
-                    <h1 class="text-2xl md:text-4xl font-black text-black dark:text-white leading-tight">${store.name}</h1>
-                    <div class="flex items-center justify-center md:justify-start gap-2 mt-1">
-                        <span class="bg-synapse text-black text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Boutique Vérifiée</span>
-                        <span class="text-gray-500 text-xs font-medium"><i class="fa-solid fa-location-dot text-synapse"></i> Algérie</span>
-                    </div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="window.location.reload()" class="bg-gray-100 dark:bg-dark-800 text-black dark:text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-synapse transition">
-                        <i class="fa-solid fa-house"></i>
-                    </button>
-                    <button onclick="shareStore('${store.name.replace(/'/g, "\\'")}')" class="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-xl font-bold text-xs hover:opacity-80 transition shadow-lg">
-                        PARTAGER
-                    </button>
-                </div>
-            </div>
-        </div>
-        <h2 class="text-xl font-black text-black dark:text-white mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-boxes-stacked text-synapse"></i> Catalogue du vendeur
-        </h2>`;
-
-        // Injection dans le titre de la grille
-        document.getElementById('main-grid-title').innerHTML = headerHtml;
-
-        // 3. Charger uniquement les produits de cette boutique
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-        
-        const { data: products } = await supabase
-            .from('products')
-            .select('*')
-            .eq('store_id', storeId)
-            .order('created_at', { ascending: false });
-
-        renderGrid('products-grid', products);
-        window.scrollTo(0, 0);
-
-    } catch (err) {
-        console.error("Erreur Boutique:", err);
-        showToast("Erreur lors du chargement du profil.");
-    }
-};
-
-window.shareStore = function(name) {
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({ title: `Boutique ${name}`, url: url });
-    } else {
-        navigator.clipboard.writeText(url);
-        showToast("✅ Lien de la boutique copié !");
-    }
-};
-
 
 window.toggleWishlist = async function(productId, btnElement) {
         const { data: { user } } = await supabase.auth.getUser();
@@ -2793,50 +2715,7 @@ if (dbError) {
     }
 }
 
-    // Fonction améliorée pour afficher la boutique du vendeur (Visiteur)
-    window.filterByStore = async function(storeId) {
-        window.hideAllViews();
-        document.getElementById('home-view').classList.remove('hidden');
-        
-        // Reset UI
-        document.getElementById('boosted-section').classList.add('hidden');
-        document.getElementById('recommended-section').classList.add('hidden');
-        document.getElementById('hot-section-container').classList.add('hidden');
-        document.getElementById('hero-banner').classList.add('hidden');
-
-        // Charger infos boutique
-        const { data: store } = await supabase.from('stores').select('*').eq('id', storeId).single();
-        
-        // Construction de l'en-tête boutique
-        let headerHtml = `<div class="bg-gray-900 rounded-2xl overflow-hidden mb-8 relative">`;
-        
-        // Bannière
-        if(store.banner_url) {
-            headerHtml += `<div class="h-48 bg-cover bg-center opacity-60" style="background-image: url('${store.banner_url}')"></div>`;
-        } else {
-            headerHtml += `<div class="h-32 bg-gradient-to-r from-gray-800 to-black"></div>`;
-        }
-
-        // Logo et Nom
-        headerHtml += `
-            <div class="absolute bottom-0 left-0 p-6 flex items-end gap-4 w-full bg-gradient-to-t from-black/90 to-transparent">
-                <img src="${store.logo_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}" class="w-20 h-20 rounded-full border-4 border-black bg-white object-cover">
-                <div class="mb-1">
-                    <h1 class="text-3xl font-black text-white">${store.name}</h1>
-                    <div class="text-synapse text-xs font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Vendeur Vérifié</div>
-                </div>
-            </div>
-        </div>`;
-
-        document.getElementById('main-grid-title').innerHTML = headerHtml;
-
-        // Charger produits
-        const grid = document.getElementById('products-grid');
-        grid.innerHTML = '<div class="col-span-full text-center py-10"><span class="loader"></span></div>';
-        const { data } = await supabase.from('products').select('*').eq('store_id', storeId);
-        renderGrid('products-grid', data);
-        window.scrollTo(0, 0);
-    }
+    
 
 window.renderGrid = function(containerId, products, isBoostedLayout = false, isSellerDashboard = false) {
     const container = document.getElementById(containerId);
