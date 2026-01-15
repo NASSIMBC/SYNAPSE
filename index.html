@@ -3747,6 +3747,36 @@ window.goToCheckout = function() {
     }
 };
 
+// Initialisation du panier si inexistant
+if (!window.myCart) window.myCart = [];
+
+window.addToCart = function(productId, title, price, imageUrl) {
+    console.log("Ajout au panier :", title);
+
+    // 1. Créer l'objet produit
+    const product = {
+        id: productId,
+        title: title,
+        price: price,
+        image_url: imageUrl,
+        quantity: 1
+    };
+
+    // 2. Ajouter au panier global
+    window.myCart.push(product);
+
+    // 3. Sauvegarder dans le stockage local (pour ne pas perdre le panier au refresh)
+    localStorage.setItem('synapse_cart', JSON.stringify(window.myCart));
+
+    // 4. Mettre à jour l'UI (le petit point rouge ou la liste)
+    if (typeof updateCartUI === 'function') {
+        updateCartUI();
+    }
+
+    // 5. Animation de confirmation (Optionnel)
+    alert("📦 " + title + " ajouté au panier !");
+};
+
 // Lancement de l'application
 fetchAllData();
     </script>
