@@ -182,34 +182,20 @@
             </div>
 
             <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-               <div class="min-w-full h-full relative">
-    <img src="https://qldsrpgfutqdjyxdelud.supabase.co/storage/v1/object/public/banners/banners.jpg" 
-         class="w-full h-full object-cover" 
-         alt="Pack Électro">
+              iv id="hero-banner" class="relative overflow-hidden rounded-3xl mb-8">
     
-    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent flex items-center p-8 md:p-16">
-        <div class="animate-fade-in-up">
-            <h1 class="text-4xl md:text-6xl font-black text-white mb-2 tracking-tighter">
-                SYN<span class="text-synapse">APSE</span>
-            </h1>
-            <p class="text-lg text-gray-300 font-bold uppercase tracking-widest">
-                Pack Électroménager & Voiture
-            </p>
-        </div>
+    <div id="hero-slider" class="flex transition-transform duration-700 ease-in-out">
+        <div class="min-w-full"> <img src="https://qldsrpgfutqdjyxdelud.supabase.co/storage/v1/object/public/banners/banners.jpg"> </div>
+        <div class="min-w-full"> <img src="https://qldsrpgfutqdjyxdelud.supabase.co/storage/v1/object/public/banners/banners.jpg"> </div>
+    </div>
+
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50"></div>
+        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50"></div>
     </div>
 </div>
 
-        <div class="min-w-full h-full relative">
-            <img src="URL_IMAGE_VOITURE" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex items-center p-8">
-                <div class="text-white max-w-md">
-                    <h2 class="text-3xl font-black text-synapse mb-2">AUTO PREMIUM</h2>
-                    <p class="text-sm opacity-90">Découvrez nos véhicules d'exception sur Synapse.</p>
-                </div>
-            </div>
-        </div>
-
-    </div>
+        
 
     <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
         <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50 transition-all duration-300"></div>
@@ -3105,13 +3091,50 @@ window.selectSuggestion = function(t, p, d, i, id, storeId, cat) {
     openDetail(t, p, d, i, id, storeId, cat);
 }
 
-// Fermer les suggestions si on clique ailleurs sur la page
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('#search-input')) {
-        document.getElementById('search-suggestions').classList.add('hidden');
-    }
-});
+// On attend que le DOM soit chargé pour éviter les erreurs "null"
+document.addEventListener('DOMContentLoaded', () => {
+    let currentSlide = 0;
+    const slider = document.getElementById('hero-slider');
+    const dots = document.querySelectorAll('.slider-dot');
+    const heroBanner = document.getElementById('hero-banner');
+    
+    // On définit le nombre de slides dynamiquement
+    const slides = document.querySelectorAll('#hero-slider > div');
+    const totalSlides = slides.length;
 
+    // Vérification de sécurité : si les éléments n'existent pas, on arrête
+    if (!slider || !heroBanner || totalSlides === 0) {
+        console.warn("Slider : Éléments manquants dans le HTML, arrêt du script.");
+        return;
+    }
+
+    function updateSlider() {
+        // Déplacement du slider
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        
+        // Mise à jour des points (dots)
+        dots.forEach((dot, index) => {
+            if (dot) {
+                dot.style.opacity = index === currentSlide ? "1" : "0.5";
+                dot.style.width = index === currentSlide ? "20px" : "8px";
+            }
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlider();
+    }
+
+    // Lancement de l'intervalle
+    let sliderInterval = setInterval(nextSlide, 5000);
+
+    // Pause au survol
+    heroBanner.addEventListener('mouseenter', () => clearInterval(sliderInterval));
+    heroBanner.addEventListener('mouseleave', () => {
+        sliderInterval = setInterval(nextSlide, 5000);
+    });
+});
 // --- FONCTION DE SUPPRESSION DE PRODUIT ---
 window.deleteProduct = async function(productId, imageUrl) {
     const confirmDelete = confirm("⚠️ Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible.");
