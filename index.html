@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -203,14 +201,6 @@
 </div>
 
         
-           <div id="personalized-section" class="hidden mb-8">
-    <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4">
-        <i class="fa-solid fa-wand-magic-sparkles text-synapse"></i> Sélectionné pour vous
-    </h2>
-    <div id="personalized-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"></div>
-</div>
-
-
                 <h2 id="main-grid-title" class="text-lg md:text-xl font-bold text-black dark:text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-clock text-green-500"></i> Derniers Ajouts</h2>
                 <div id="products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4 min-h-[200px]">
                     <div class="col-span-full text-center py-10 text-gray-500">
@@ -1317,57 +1307,65 @@ window.showCheckout = function() {
     .subscribe();
 }
 
-       // --- 8. AFFICHAGE DONNEES & REALTIME ---
+      // --- 8. AFFICHAGE DONNEES & REALTIME ---
+
 async function fetchAllData() {
     const nowTime = new Date().getTime();
     const nowISO = new Date().toISOString();
 
     // --- 1. NETTOYAGE SILENCIEUX ---
-    supabase.from('products').update({ is_boosted: false }).eq('is_boosted', true).lt('boost_expiry', nowISO).then(()=>{});
+    supabase.from('products')
+        .update({ is_boosted: false })
+        .eq('is_boosted', true)
+        .lt('boost_expiry', nowISO)
+        .then(() => {});
 
-    // --- 2. ALGORITHME DE CIBLAGE ---
+    // --- 2. ALGORITHME DE CIBLAGE (BOOSTS) ---
     const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
     let boostedToShow = [];
 
     try {
-        // A. On récupère TOUS les produits boostés valides en une seule fois (pour la performance)
+        // A. On récupère TOUS les produits boostés valides
         const { data: allBoosted } = await supabase
             .from('products')
             .select('*')
             .eq('is_boosted', true);
 
         if (allBoosted && allBoosted.length > 0) {
-            // Filtrer par date d'abord
+            // Filtrer par date
             const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
             if (searchHistory.length > 0) {
-                // B. Filtrage par Mots-Clés (Priorité 1)
+                // B. Priorité 1 : Mots-clés dans le titre
                 boostedToShow = activeBoosts.filter(p => 
                     searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
                 );
 
-                // C. Si pas assez de résultats, on complète avec la même catégorie (Priorité 2)
-                if (boostedToShow.length < 4) {
-                    const interestedCategories = [...new Set(boostedToShow.map(p => p.category))];
+                // C. Priorité 2 : Si pas assez (moins de 6), on complète avec la même catégorie
+                if (boostedToShow.length < 6) {
+                    const myCategories = activeBoosts
+                        .filter(p => searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase())))
+                        .map(p => p.category);
+
                     const extraBoosts = activeBoosts.filter(p => 
-                        interestedCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
+                        myCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
                     );
                     boostedToShow = [...boostedToShow, ...extraBoosts];
                 }
             }
 
-            // D. Si toujours rien (nouveau compte) ou pour boucher les trous (Priorité 3)
-            if (boostedToShow.length < 4) {
-                const randomBoosts = activeBoosts
+            // D. Priorité 3 : Si toujours < 6 (ou nouveau compte), hasard total
+            if (boostedToShow.length < 6) {
+                const randomFill = activeBoosts
                     .filter(p => !boostedToShow.find(b => b.id === p.id))
                     .sort(() => 0.5 - Math.random());
-                boostedToShow = [...boostedToShow, ...randomBoosts];
+                boostedToShow = [...boostedToShow, ...randomFill];
             }
         }
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    // E. Rotation finale (Mélange aléatoire pour le tour de rôle)
-    const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 4);
+    // E. Rotation finale et LIMITE À 6 ANNONCES
+    const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
     // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
     const { data: all } = await supabase
@@ -1387,9 +1385,11 @@ async function fetchAllData() {
     }
 
     // --- 5. LOGIQUE SYNC ---
-    if (typeof loadPersonalizedProducts === 'function') await loadPersonalizedProducts();
+    // (Section "sélectionné pour vous" supprimée ici)
     setupRealtime();
-    if (typeof window.syncWishlistState === 'function') await window.syncWishlistState();
+    if (typeof window.syncWishlistState === 'function') {
+        await window.syncWishlistState();
+    }
 }
 
 // --- ROTATION AUTOMATIQUE TOUTES LES MINUTES ---
@@ -1400,7 +1400,6 @@ if (!window.boostRotationActive) {
     }, 60000);
     window.boostRotationActive = true;
 }
-
  window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
     
