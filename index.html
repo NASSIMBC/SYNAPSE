@@ -294,14 +294,11 @@
     </div>
 </div>
 
-<div class="mb-8 w-full">
-    <div class="flex items-center justify-between mb-4 px-2">
-        <h2 class="text-xl font-black text-white uppercase tracking-tighter">Explorer les <span class="text-synapse">Catégories</span></h2>
-    </div>
+<div class="category-wrapper mb-8">
+    <h2 class="text-xl font-black text-white uppercase mb-4 px-2">Explorer les <span class="text-synapse">Catégories</span></h2>
     
-    <div class="flex overflow-x-auto gap-3 pb-4 no-scrollbar scroll-smooth w-full touch-pan-x">
+    <div id="category-scroll" class="category-container">
         <button onclick="filterByCategory('all')" class="category-pill active">Tout</button>
-        
         <button onclick="filterByCategory('H-')" class="category-pill">👕 Homme</button>
         <button onclick="filterByCategory('F-')" class="category-pill">👗 Femme</button>
         <button onclick="filterByCategory('Smartphones')" class="category-pill">📱 Téléphonie</button>
@@ -317,40 +314,52 @@
 </div>
 
 <style>
-/* Style des boutons (Pills) pour une visibilité maximale */
+/* LE CONTENEUR PRINCIPAL */
+.category-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* LE CONTENEUR DE SCROLL - FORCE LE DÉBORDEMENT */
+.category-container {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important; /* EMPÊCHE LE RETOUR À LA LIGNE */
+    overflow-x: auto !important; /* ACTIVE LE SCROLL */
+    overflow-y: hidden;
+    gap: 12px;
+    padding-bottom: 15px;
+    width: 100%;
+    cursor: grab;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* CACHE LA BARRE DE SCROLL SUR PC/MOBILE */
+.category-container::-webkit-scrollbar {
+    display: none;
+}
+.category-container {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* STYLE DES BOUTONS */
 .category-pill {
-    background-color: #1a1a1a; /* Fond gris très foncé presque noir */
-    color: #ffffff; /* Texte blanc pur */
+    flex: 0 0 auto !important; /* FORCE LES BOUTONS À GARDER LEUR TAILLE */
+    background-color: #1a1a1a;
+    color: white;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 8px 24px;
-    border-radius: 9999px;
-    font-weight: 700;
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-weight: 800;
     white-space: nowrap;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    display: inline-block;
+    transition: 0.3s;
 }
 
-/* État au survol */
-.category-pill:hover {
-    border-color: #CAFF33; /* Vert Synapse */
-    background-color: #262626;
-}
-
-/* État Actif (Sélectionné) */
 .category-pill.active {
-    background-color: #CAFF33 !important; /* Vert Synapse */
-    color: #000000 !important; /* Texte noir pour contraste */
+    background-color: #CAFF33 !important;
+    color: black !important;
     border-color: #CAFF33 !important;
-}
-
-/* Gestion du défilement */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { 
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
-    display: flex;
-    -webkit-overflow-scrolling: touch; /* Défilement fluide sur iPhone */
 }
 </style>
 
@@ -3583,40 +3592,45 @@ window.filterByCategory = async function(category) {
     }
 };
 
-const scrollContainer = document.getElementById('category-scroll');
+// --- SCRIPT DE DÉPLACEMENT À LA SOURIS POUR PC ---
+function initCategoryScroll() {
+    const slider = document.getElementById('category-scroll');
+    if (!slider) return;
 
-if (scrollContainer) {
-    // 1. SCROLL AVEC LA ROULETTE
-    scrollContainer.addEventListener('wheel', (evt) => {
-        evt.preventDefault();
-        scrollContainer.scrollLeft += evt.deltaY;
-    });
-
-    // 2. CLIQUER-GLISSER (DRAG TO SCROLL)
     let isDown = false;
     let startX;
     let scrollLeft;
 
-    scrollContainer.addEventListener('mousedown', (e) => {
+    slider.addEventListener('mousedown', (e) => {
         isDown = true;
-        scrollContainer.classList.add('active');
-        startX = e.pageX - scrollContainer.offsetLeft;
-        scrollLeft = scrollContainer.scrollLeft;
+        slider.style.cursor = 'grabbing';
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
     });
-    scrollContainer.addEventListener('mouseleave', () => {
+
+    slider.addEventListener('mouseleave', () => {
         isDown = false;
+        slider.style.cursor = 'grab';
     });
-    scrollContainer.addEventListener('mouseup', () => {
+
+    slider.addEventListener('mouseup', () => {
         isDown = false;
+        slider.style.cursor = 'grab';
     });
-    scrollContainer.addEventListener('mousemove', (e) => {
+
+    slider.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         e.preventDefault();
-        const x = e.pageX - scrollContainer.offsetLeft;
-        const walk = (x - startX) * 2; // Vitesse de défilement
-        scrollContainer.scrollLeft = scrollLeft - walk;
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // Vitesse de scroll
+        slider.scrollLeft = scrollLeft - walk;
     });
 }
+
+// Lancer le script au chargement
+document.addEventListener('DOMContentLoaded', initCategoryScroll);
+// Et le relancer au cas où
+setTimeout(initCategoryScroll, 1000);
 
 // Lancement de l'application
 fetchAllData();
