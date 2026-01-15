@@ -1301,24 +1301,31 @@ window.showCheckout = function() {
 
        // --- 8. AFFICHAGE DONNEES & REALTIME ---
 async function fetchAllData() {
-    const now = new Date().toISOString();
+    const nowTime = new Date().getTime(); // Heure actuelle en millisecondes (chiffres)
+    const nowISO = new Date().toISOString(); // Pour l'éventuel nettoyage
 
     // --- 1. NETTOYAGE AUTOMATIQUE DES BOOSTS PÉRIMÉS ---
-    // Cette partie cherche les produits boostés dont la date est passée et les désactive
-    await supabase
-        .from('products')
-        .update({ is_boosted: false, boost_expiry: null, boost_receipt_url: null })
-        .eq('is_boosted', true)
-        .lt('boost_expiry', now); // lt = "Less Than" (plus petit que maintenant)
+    try {
+        await supabase
+            .from('products')
+            .update({ is_boosted: false, boost_receipt_url: null })
+            .eq('is_boosted', true)
+            .lt('boost_expiry', nowISO);
+    } catch (e) { console.warn("Erreur nettoyage auto:", e); }
 
     // --- 2. CHARGEMENT DES DONNÉES ---
-    // On ne récupère que les produits dont le boost est encore valide
-    const { data: boosted } = await supabase
+    // On récupère TOUS les produits marqués comme boostés
+    const { data: boostedRaw } = await supabase
         .from('products')
         .select('*')
-        .eq('is_boosted', true)
-        .gt('boost_expiry', now) // gt = "Greater Than" (doit être dans le futur)
-        .limit(4);
+        .eq('is_boosted', true);
+
+    // FILTRE DE SÉCURITÉ JS (Indispensable pour éviter les erreurs de format date)
+    const boosted = (boostedRaw || []).filter(p => {
+        if (!p.boost_expiry) return false;
+        // On compare en millisecondes pour être certain
+        return new Date(p.boost_expiry).getTime() > nowTime;
+    }).slice(0, 4); // On garde les 4 premiers après filtrage
 
     const { data: hot } = await supabase
         .from('products')
@@ -1336,11 +1343,14 @@ async function fetchAllData() {
     
     if(hot && hot.length > 0) renderGrid('hot-grid', hot);
 
+    const boostedSection = document.getElementById('boosted-section');
     if(boosted && boosted.length > 0) {
-        document.getElementById('boosted-section').classList.remove('hidden');
+        boostedSection.classList.remove('hidden');
         renderGrid('boosted-grid', boosted, true);
+        console.log("Boosts affichés : ", boosted.length);
     } else {
-        document.getElementById('boosted-section').classList.add('hidden');
+        boostedSection.classList.add('hidden');
+        console.log("Aucun boost valide à afficher.");
     }
 
     // --- 4. RECOMMANDATIONS & PUB CIBLÉE ---
@@ -1364,7 +1374,6 @@ async function fetchAllData() {
         await window.syncWishlistState();
     }
 }
-
 function setupRealtime() {
     supabase
     .channel('public:products')
@@ -3101,8 +3110,7 @@ window.renderPreviews = function() {
     }
 }
 
-        // Init
-        fetchAllData();
+     
 
 // --- MOTEUR DE CHAT TEMPS RÉEL ---
 
