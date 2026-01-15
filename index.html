@@ -1325,7 +1325,7 @@ window.showCheckout = function() {
     .subscribe();
 }
 
-      // --- 8. AFFICHAGE DONNEES & REALTIME ---
+    // --- 8. AFFICHAGE DONNEES & REALTIME ---
 
 async function fetchAllData() {
     const nowTime = new Date().getTime();
@@ -1383,6 +1383,8 @@ async function fetchAllData() {
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
     // E. Rotation finale et LIMITE À 6 ANNONCES
+    // On stocke le résultat dans une variable globale pour permettre une rotation fluide sans rappel API
+    window.allActiveBoosts = boostedToShow; 
     const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
     // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
@@ -1403,22 +1405,27 @@ async function fetchAllData() {
     }
 
     // --- 5. LOGIQUE SYNC ---
-    // (Section "sélectionné pour vous" supprimée ici)
+    // Initialisation du Hero Banner
+    if (typeof initHeroSlider === 'function') initHeroSlider();
+    
     setupRealtime();
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
 }
 
-// --- ROTATION AUTOMATIQUE TOUTES LES MINUTES ---
+// --- ROTATION AUTOMATIQUE TOUTES LES 30 SECONDES ---
+// On utilise 30000ms comme demandé pour la rotation des cartes
 if (!window.boostRotationActive) {
     setInterval(() => {
-        console.log("🔄 Rotation de l'algorithme publicitaire...");
-        fetchAllData();
-    }, 60000);
+        if (window.allActiveBoosts && window.allActiveBoosts.length > 0) {
+            console.log("🔄 Rotation des 6 annonces boostées...");
+            const rotated = [...window.allActiveBoosts].sort(() => 0.5 - Math.random()).slice(0, 6);
+            renderGrid('boosted-grid', rotated, true);
+        }
+    }, 30000); 
     window.boostRotationActive = true;
 }
- window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
     
     // 👇 MODIFICATION ICI : On utilise notre liste globale au lieu de l'input
