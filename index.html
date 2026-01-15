@@ -3690,32 +3690,50 @@ function initCategoryScroll() {
     });
 }
 
-// Lancer le script au chargement
-document.addEventListener('DOMContentLoaded', initCategoryScroll);
-// Et le relancer au cas où
-setTimeout(initCategoryScroll, 1000);
+// --- FONCTION CORRIGÉE POUR PASSER À LA CAISSE ---
+window.showCheckout = function() {
+    console.log("Ouverture du checkout...");
+    
+    // 1. Vérifier si le panier n'est pas vide
+    if (window.myCart.length === 0) {
+        alert("Votre panier est vide !");
+        return;
+    }
 
-window.goToCheckout = function() {
-    // 1. Cacher toutes les autres vues principales
-    const views = ['home-page', 'dashboard-view', 'cart-modal', 'product-details'];
+    // 2. Cacher TOUTES les vues possibles (selon tes IDs HTML)
+    const views = [
+        'home-view', 
+        'dashboard-view', 
+        'product-view', 
+        'wishlist-view', 
+        'stores-view', 
+        'seller-dashboard-view',
+        'auth-view'
+    ];
+    
     views.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
 
-    // 2. Afficher la vue de livraison
+    // 3. Afficher la vue de livraison (ID exact dans ton HTML: checkout-view)
     const checkoutView = document.getElementById('checkout-view');
     if (checkoutView) {
         checkoutView.classList.remove('hidden');
-        // On remonte en haut de page
-        window.scrollTo(0, 0);
         
-        // Mettre à jour le prix total dans le résumé du checkout
-        if (typeof updateCheckoutSummary === 'function') {
-            updateCheckoutSummary();
+        // 4. Fermer le tiroir du panier automatiquement
+        const drawer = document.getElementById('cart-drawer');
+        if (drawer) {
+            const content = document.getElementById('cart-content');
+            if (content) content.classList.add('translate-x-full');
+            setTimeout(() => drawer.classList.add('hidden'), 300);
         }
+
+        // 5. Mettre à jour l'affichage et remonter
+        updateCartUI();
+        window.scrollTo(0, 0);
     } else {
-        console.error("L'ID 'checkout-view' est introuvable dans le HTML.");
+        console.error("Erreur : L'élément #checkout-view est introuvable.");
     }
 };
 
