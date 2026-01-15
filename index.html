@@ -540,78 +540,141 @@
     </div>
 
     <div id="dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Mon Profil & Commandes</span>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div class="col-span-1">
-                <div class="bg-white dark:bg-dark-900 rounded-xl p-6 border border-gray-100 dark:border-dark-800 text-center sticky top-24">
-                    <div class="w-20 h-20 rounded-full bg-synapse mx-auto flex items-center justify-center text-3xl font-black mb-4 text-black"><i class="fa-regular fa-user"></i></div>
-                    <div class="space-y-4">
-                        <input type="text" id="profile-name" placeholder="Nom Complet" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white font-bold">
-                        <input type="text" id="profile-phone" placeholder="Téléphone" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
-                        <input type="text" id="profile-wilaya" placeholder="Wilaya" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
-                        <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2 hover:opacity-80 w-full">Sauvegarder</button>
-                    </div>
-                    <div class="mt-6 pt-6 border-t border-gray-100 dark:border-dark-800">
-                         <h3 class="font-bold text-sm mb-3 dark:text-white flex items-center justify-center gap-2"><i class="fa-solid fa-bell"></i> Notifications</h3>
-                         <div id="my-messages-list" class="space-y-2 max-h-40 overflow-y-auto text-xs text-left">
-                            <div class="text-gray-400 text-center">Rien à signaler.</div>
-                        </div>
+    <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+        <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-black dark:text-white font-bold">Mon Profil & Commandes</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="col-span-1">
+            <div class="bg-white dark:bg-dark-900 rounded-xl p-6 border border-gray-100 dark:border-dark-800 text-center sticky top-24">
+                <div class="w-20 h-20 rounded-full bg-synapse mx-auto flex items-center justify-center text-3xl font-black mb-4 text-black"><i class="fa-regular fa-user"></i></div>
+                <div class="space-y-4">
+                    <input type="text" id="profile-name" placeholder="Nom Complet" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white font-bold">
+                    <input type="text" id="profile-phone" placeholder="Téléphone" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
+                    <input type="text" id="profile-wilaya" placeholder="Wilaya" class="w-full text-center bg-transparent border-b border-gray-200 dark:border-gray-700 py-2 outline-none dark:text-white text-sm">
+                    <button onclick="saveProfile()" class="bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded text-xs font-bold mt-2 hover:opacity-80 w-full">Sauvegarder</button>
+                </div>
+                <div class="mt-6 pt-6 border-t border-gray-100 dark:border-dark-800">
+                     <h3 class="font-bold text-sm mb-3 dark:text-white flex items-center justify-center gap-2"><i class="fa-solid fa-bell"></i> Notifications</h3>
+                     <div id="my-messages-list" class="space-y-2 max-h-40 overflow-y-auto text-xs text-left">
+                        <div class="text-gray-400 text-center">Rien à signaler.</div>
                     </div>
                 </div>
             </div>
-            <div class="col-span-1 md:col-span-3">
-                <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden min-h-[400px]">
-                    <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white flex justify-between items-center">
-                        <span>Historique & Suivi</span>
-                        <button onclick="loadBuyerOrders()" class="text-xs text-synapse hover:underline"><i class="fa-solid fa-rotate"></i> Actualiser</button>
-                    </div>
-                    <div id="buyer-orders-container" class="p-4 space-y-4">
-                        <div class="p-10 text-center text-gray-500">Chargement de vos commandes...</div>
-                    </div>
+        </div>
+        <div class="col-span-1 md:col-span-3">
+            <div class="bg-white dark:bg-dark-900 rounded-xl border border-gray-100 dark:border-dark-800 overflow-hidden min-h-[400px]">
+                <div class="p-4 border-b border-gray-100 dark:border-dark-800 font-bold text-black dark:text-white flex justify-between items-center">
+                    <span>Historique & Suivi</span>
+                    <button onclick="loadBuyerOrders()" class="text-xs text-synapse hover:underline"><i class="fa-solid fa-rotate"></i> Actualiser</button>
+                </div>
+                <div id="buyer-orders-container" class="p-4 space-y-4">
+                    <div class="p-10 text-center text-gray-500">Chargement de vos commandes...</div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
-            <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="checkout-name" placeholder="Nom complet" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white col-span-2">
-                        <input type="text" id="checkout-wilaya" placeholder="Wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                        <input type="text" id="checkout-phone" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                    </div>
+<div id="checkout-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+    <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+        <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-black dark:text-white font-bold">Paiement sécurisé</span>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
+                <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="checkout-name" placeholder="Nom et Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white col-span-2">
+                    
+                    <select id="checkout-wilaya" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white outline-none">
+                        <option value="">Sélectionner Wilaya</option>
+                        <option value="01-Adrar">01 - Adrar</option>
+                        <option value="02-Chlef">02 - Chlef</option>
+                        <option value="03-Laghouat">03 - Laghouat</option>
+                        <option value="04-Oum El Bouaghi">04 - Oum El Bouaghi</option>
+                        <option value="05-Batna">05 - Batna</option>
+                        <option value="06-Béjaïa">06 - Béjaïa</option>
+                        <option value="07-Biskra">07 - Biskra</option>
+                        <option value="08-Béchar">08 - Béchar</option>
+                        <option value="09-Blida">09 - Blida</option>
+                        <option value="10-Bouira">10 - Bouira</option>
+                        <option value="11-Tamanrasset">11 - Tamanrasset</option>
+                        <option value="12-Tébessa">12 - Tébessa</option>
+                        <option value="13-Tlemcen">13 - Tlemcen</option>
+                        <option value="14-Tiaret">14 - Tiaret</option>
+                        <option value="15-Tizi Ouzou">15 - Tizi Ouzou</option>
+                        <option value="16-Alger">16 - Alger</option>
+                        <option value="17-Djelfa">17 - Djelfa</option>
+                        <option value="18-Jijel">18 - Jijel</option>
+                        <option value="19-Sétif">19 - Sétif</option>
+                        <option value="20-Saïda">20 - Saïda</option>
+                        <option value="21-Skikda">21 - Skikda</option>
+                        <option value="22-Sidi Bel Abbès">22 - Sidi Bel Abbès</option>
+                        <option value="23-Annaba">23 - Annaba</option>
+                        <option value="24-Guelma">24 - Guelma</option>
+                        <option value="25-Constantine">25 - Constantine</option>
+                        <option value="26-Médéa">26 - Médéa</option>
+                        <option value="27-Mostaganem">27 - Mostaganem</option>
+                        <option value="28-M'Sila">28 - M'Sila</option>
+                        <option value="29-Mascara">29 - Mascara</option>
+                        <option value="30-Ouargla">30 - Ouargla</option>
+                        <option value="31-Oran">31 - Oran</option>
+                        <option value="32-El Bayadh">32 - El Bayadh</option>
+                        <option value="33-Illizi">33 - Illizi</option>
+                        <option value="34-Bordj Bou Arréridj">34 - Bordj Bou Arréridj</option>
+                        <option value="35-Boumerdès">35 - Boumerdès</option>
+                        <option value="36-El Tarf">36 - El Tarf</option>
+                        <option value="37-Tindouf">37 - Tindouf</option>
+                        <option value="38-Tissemsilt">38 - Tissemsilt</option>
+                        <option value="39-El Oued">39 - El Oued</option>
+                        <option value="40-Khenchela">40 - Khenchela</option>
+                        <option value="41-Souk Ahras">41 - Souk Ahras</option>
+                        <option value="42-Tipaza">42 - Tipaza</option>
+                        <option value="43-Mila">43 - Mila</option>
+                        <option value="44-Aïn Defla">44 - Aïn Defla</option>
+                        <option value="45-Naâma">45 - Naâma</option>
+                        <option value="46-Aïn Témouchent">46 - Aïn Témouchent</option>
+                        <option value="47-Ghardaïa">47 - Ghardaïa</option>
+                        <option value="48-Relizane">48 - Relizane</option>
+                        <option value="49-El M'Ghair">49 - El M'Ghair</option>
+                        <option value="50-El Meniaâ">50 - El Meniaâ</option>
+                        <option value="51-Ouled Djellal">51 - Ouled Djellal</option>
+                        <option value="52-Bordj Baji Mokhtar">52 - Bordj Baji Mokhtar</option>
+                        <option value="53-Béni Abbès">53 - Béni Abbès</option>
+                        <option value="54-Timimoun">54 - Timimoun</option>
+                        <option value="55-Touggourt">55 - Touggourt</option>
+                        <option value="56-Djanet">56 - Djanet</option>
+                        <option value="57-In Salah">57 - In Salah</option>
+                        <option value="58-In Guezzam">58 - In Guezzam</option>
+                    </select>
+
+                    <input type="tel" id="checkout-phone" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                    <input type="text" id="checkout-commune" placeholder="Commune" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
+                    <input type="text" id="checkout-village" placeholder="Village / Quartier (Optionnel)" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white col-span-2">
                 </div>
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
-                    <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
-                    <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
-                        <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                        <div>
-                            <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
-                            <p class="text-xs text-gray-500">Payez en espèces à la réception.</p>
-                        </div>
+            </div>
+            <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
+                <h3 class="font-bold text-lg text-black dark:text-white mb-4">2. Méthode de paiement</h3>
+                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-lg border-2 border-synapse flex items-center gap-4 cursor-pointer">
+                    <div class="w-12 h-12 bg-synapse rounded-full flex items-center justify-center text-black text-xl"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                    <div>
+                        <h4 class="font-bold text-black dark:text-white">Paiement à la livraison</h4>
+                        <p class="text-xs text-gray-500">Payez en espèces à la réception.</p>
                     </div>
                 </div>
             </div>
-            <div class="lg:col-span-1">
-                <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
-                    <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
-                    <div class="flex justify-between text-xl font-black text-black dark:text-white mb-6"><span>Total</span> <span id="cart-total-price">0 DA</span></div>
-                    <button onclick="submitOrder()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse transition uppercase tracking-wide">Confirmer la commande</button>
-                </div>
+        </div>
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
+                <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
+                <div class="flex justify-between text-xl font-black text-black dark:text-white mb-6"><span>Total</span> <span id="cart-total-price">0 DA</span></div>
+                <button onclick="submitOrder()" class="w-full bg-synapse text-black font-bold py-4 rounded-lg hover:bg-black hover:text-synapse transition uppercase tracking-wide">Confirmer la commande</button>
             </div>
         </div>
     </div>
-
+</div>
     <div id="seller-dashboard-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2 text-xs text-gray-500">
