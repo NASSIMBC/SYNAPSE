@@ -1325,7 +1325,7 @@ window.showCheckout = function() {
     .subscribe();
 }
 
-    // --- 8. AFFICHAGE DONNEES & REALTIME ---
+   // --- 8. AFFICHAGE DONNEES & REALTIME ---
 
 async function fetchAllData() {
     const nowTime = new Date().getTime();
@@ -1383,7 +1383,6 @@ async function fetchAllData() {
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
     // E. Rotation finale et LIMITE À 6 ANNONCES
-    // On stocke le résultat dans une variable globale pour permettre une rotation fluide sans rappel API
     window.allActiveBoosts = boostedToShow; 
     const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
@@ -1405,7 +1404,6 @@ async function fetchAllData() {
     }
 
     // --- 5. LOGIQUE SYNC ---
-    // Initialisation du Hero Banner
     if (typeof initHeroSlider === 'function') initHeroSlider();
     
     setupRealtime();
@@ -1415,7 +1413,6 @@ async function fetchAllData() {
 }
 
 // --- ROTATION AUTOMATIQUE TOUTES LES 30 SECONDES ---
-// On utilise 30000ms comme demandé pour la rotation des cartes
 if (!window.boostRotationActive) {
     setInterval(() => {
         if (window.allActiveBoosts && window.allActiveBoosts.length > 0) {
@@ -1426,90 +1423,78 @@ if (!window.boostRotationActive) {
     }, 30000); 
     window.boostRotationActive = true;
 }
+
+// --- FONCTION DE PUBLICATION (CORRIGÉE ICI) ---
+window.publishProduct = async function() {
     const btn = document.getElementById('btn-publish');
-    
-    // 👇 MODIFICATION ICI : On utilise notre liste globale au lieu de l'input
-    const imageFiles = window.productFiles; 
-    
+    const imageFiles = window.productFiles || []; 
     const digitalFile = document.getElementById('prod-file').files[0];
     
-    // Vérifications
     if (imageFiles.length === 0) return alert("Mettez au moins une photo !");
         
-        btn.innerText = "Envoi..."; btn.disabled = true;
+    btn.innerText = "Envoi..."; btn.disabled = true;
 
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error("Connectez-vous !");
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Connectez-vous !");
 
-            // 1. Upload des images (Boucle)
-            let uploadedUrls = [];
-            for (let i = 0; i < imageFiles.length; i++) {
-                const file = imageFiles[i];
-                
-                // --- RENOMMAGE FORCÉ (SÉCURITÉ MAXIMALE) ---
-                // On garde juste l'extension (ex: .jpg)
-                const fileExt = file.name.split('.').pop();
-                // On crée un nom aléatoire (ex: img_837482.jpg)
-                const safeName = `img_${Date.now()}_${Math.floor(Math.random() * 10000)}.${fileExt}`;
-                
-                console.log(`Ancien nom: ${file.name} -> Nouveau nom: ${safeName}`);
-
-                const { error: upError } = await supabase.storage.from('products').upload(safeName, file);
-                
-                if(upError) {
-                    console.error("Erreur Supabase:", upError);
-                    throw new Error("Erreur upload. Vérifiez le nom du fichier.");
-                }
-                
-                const { data } = supabase.storage.from('products').getPublicUrl(safeName);
-                uploadedUrls.push(data.publicUrl);
-            }
-
-            // 2. Upload fichier numérique
-            let digitalPath = null;
-            if(digitalFile) {
-                const ext = digitalFile.name.split('.').pop();
-                const safeName = `file_${Date.now()}_${Math.floor(Math.random() * 10000)}.${ext}`;
-                
-                await supabase.storage.from('digital_vault').upload(safeName, digitalFile);
-                digitalPath = safeName;
-            }
-
-            // 3. Boutique
-            let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-            if (!store) { 
-                const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + user.user_metadata.full_name }]).select().single(); 
-                store = data; 
-            }
-
-            // 4. Insertion
-            const title = document.getElementById('prod-title').value;
-            const price = document.getElementById('prod-price').value;
-            const stock = document.getElementById('prod-stock').value;
-            const desc = document.getElementById('prod-desc').value;
-            const category = document.getElementById('prod-category').value;
-
-            await supabase.from('products').insert([{
-                store_id: store.id, title, description: desc, price, stock, category,
-                image_url: uploadedUrls[0], 
-                images: uploadedUrls,       
-                digital_file: digitalPath,
-                is_hot: false, is_boosted: false, sales: 0
-            }]);
-
-            alert("✅ Produit publié avec succès !");
-            window.goHome();
-            await fetchAllData();
-
-        } catch (err) {
-            console.error(err);
-            alert("Erreur : " + err.message);
-        } finally {
-            btn.innerText = "Publier"; btn.disabled = false;
+        // 1. Upload des images
+        let uploadedUrls = [];
+        for (let i = 0; i < imageFiles.length; i++) {
+            const file = imageFiles[i];
+            const fileExt = file.name.split('.').pop();
+            const safeName = `img_${Date.now()}_${Math.floor(Math.random() * 10000)}.${fileExt}`;
+            
+            const { error: upError } = await supabase.storage.from('products').upload(safeName, file);
+            
+            if(upError) throw new Error("Erreur upload image.");
+            
+            const { data } = supabase.storage.from('products').getPublicUrl(safeName);
+            uploadedUrls.push(data.publicUrl);
         }
 
-     /* --- REMPLACE TES FONCTIONS EXISTANTES PAR CELLES-CI DANS TON SCRIPT --- */
+        // 2. Upload fichier numérique
+        let digitalPath = null;
+        if(digitalFile) {
+            const ext = digitalFile.name.split('.').pop();
+            const safeName = `file_${Date.now()}_${Math.floor(Math.random() * 10000)}.${ext}`;
+            await supabase.storage.from('digital_vault').upload(safeName, digitalFile);
+            digitalPath = safeName;
+        }
+
+        // 3. Boutique
+        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+        if (!store) { 
+            const { data } = await supabase.from('stores').insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }]).select().single(); 
+            store = data; 
+        }
+
+        // 4. Insertion
+        const title = document.getElementById('prod-title').value;
+        const price = document.getElementById('prod-price').value;
+        const stock = document.getElementById('prod-stock').value;
+        const desc = document.getElementById('prod-desc').value;
+        const category = document.getElementById('prod-category').value;
+
+        await supabase.from('products').insert([{
+            store_id: store.id, title, description: desc, price, stock, category,
+            image_url: uploadedUrls[0], 
+            images: uploadedUrls,       
+            digital_file: digitalPath,
+            is_hot: false, is_boosted: false, sales: 0
+        }]);
+
+        alert("✅ Produit publié avec succès !");
+        window.goHome();
+        await fetchAllData();
+
+    } catch (err) {
+        console.error(err);
+        alert("Erreur : " + err.message);
+    } finally {
+        btn.innerText = "Publier"; btn.disabled = false;
+    }
+};
 
 window.loadSellerProducts = async function() {
     const list = document.getElementById('seller-products-list');
