@@ -1298,7 +1298,7 @@ window.showCheckout = function() {
  *  Version : FULL PRO (Scoring, Rotation, Sécurité, Équité, Anti-spam, Cold-Start)
  ****************************************************************************************/
 
-async function fetchAllDataSmart() {
+async function fetchAllData() {
 
   /***************************************
    * 0. CONTEXTE TEMPOREL & SESSION
@@ -1486,7 +1486,7 @@ async function fetchAllDataSmart() {
  ***************************************/
 if (!window.synapseSmartRotation) {
   setInterval(() => {
-    fetchAllDataSmart();
+    fetchAllData();
   }, 60000);
   window.synapseSmartRotation = true;
 }
