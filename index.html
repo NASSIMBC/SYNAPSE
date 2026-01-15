@@ -3695,6 +3695,30 @@ document.addEventListener('DOMContentLoaded', initCategoryScroll);
 // Et le relancer au cas où
 setTimeout(initCategoryScroll, 1000);
 
+window.goToCheckout = function() {
+    // 1. Cacher toutes les autres vues principales
+    const views = ['home-page', 'dashboard-view', 'cart-modal', 'product-details'];
+    views.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    // 2. Afficher la vue de livraison
+    const checkoutView = document.getElementById('checkout-view');
+    if (checkoutView) {
+        checkoutView.classList.remove('hidden');
+        // On remonte en haut de page
+        window.scrollTo(0, 0);
+        
+        // Mettre à jour le prix total dans le résumé du checkout
+        if (typeof updateCheckoutSummary === 'function') {
+            updateCheckoutSummary();
+        }
+    } else {
+        console.error("L'ID 'checkout-view' est introuvable dans le HTML.");
+    }
+};
+
 // Lancement de l'application
 fetchAllData();
     </script>
