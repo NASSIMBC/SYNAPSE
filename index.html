@@ -3042,17 +3042,17 @@ window.renderGrid = function(containerId, products, isBoostedLayout = false, isS
             <div class="p-4 flex-1 flex flex-col">
                 <h3 onclick="openDetail(${detailArgs})" class="text-xs font-bold text-gray-800 dark:text-white line-clamp-1 mb-1 cursor-pointer hover:text-synapse">${p.title}</h3>
                 
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-black text-black dark:text-synapse">${p.price} DA</span>
-                    
-                    ${!isSellerDashboard ? `
-                        <button onclick="addToCart('${safeTitle}', '${p.price}', '${p.image_url}', '${p.id}')" 
-                                class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center shadow-lg">
-                            <i class="fa-solid fa-plus text-xs"></i>
-                        </button>` : ''}
-                </div>
+               <div class="flex items-center justify-between">
+    <span class="text-sm font-black text-black dark:text-synapse">${p.price} DA</span>
+    
+    ${!isSellerDashboard ? `
+        <button onclick="addToCart('${p.id}', '${p.title.replace(/'/g, "\\'")}', '${p.price}', '${p.image_url}')" 
+                class="w-8 h-8 rounded-full bg-black text-white hover:bg-synapse hover:text-black transition flex items-center justify-center shadow-lg">
+            <i class="fa-solid fa-plus text-xs"></i>
+        </button>` : ''}
+</div>
 
-                ${managementButtons}
+${managementButtons}
             </div>
         </div>`;
     });
