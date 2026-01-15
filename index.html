@@ -182,18 +182,36 @@
             </div>
 
             <div class="col-span-12 lg:col-span-9 xl:col-span-10">
-                <div id="hero-banner" class="relative rounded-3xl overflow-hidden shadow-lg group mb-8 h-[250px] md:h-[350px] lg:h-[400px]">
-                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop');">
-                        <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent"></div>
-                    </div>
-                    <div class="relative z-10 h-full flex items-center justify-between px-6 md:px-16">
-                        <div class="max-w-lg">
-                            <span class="inline-block py-1 px-3 bg-synapse text-black text-xs font-bold rounded-full mb-2 md:mb-4 uppercase tracking-wider">Publicité</span>
-                            <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-4">Votre Publicité <br> <span class="text-synapse">Ici Maintenant !</span></h1>
-                            <button class="bg-white text-black px-6 md:px-8 py-2 md:py-3 rounded-lg font-bold hover:bg-synapse transition shadow-xl mt-2 md:mt-4 text-sm md:text-base">Voir l'offre</button>
-                        </div>
-                    </div>
+               <div id="hero-banner" class="relative w-full overflow-hidden rounded-3xl mb-8 group h-[250px] md:h-[400px]">
+    <div id="hero-slider" class="flex h-full transition-transform duration-700 ease-in-out">
+        
+        <div class="min-w-full h-full relative">
+            <img src="URL_IMAGE_ELECTRO" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex items-center p-8">
+                <div class="text-white max-w-md">
+                    <h2 class="text-3xl font-black text-synapse mb-2">PACK ÉLECTRO</h2>
+                    <p class="text-sm opacity-90">Équipez votre maison avec les meilleures marques.</p>
                 </div>
+            </div>
+        </div>
+
+        <div class="min-w-full h-full relative">
+            <img src="URL_IMAGE_VOITURE" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex items-center p-8">
+                <div class="text-white max-w-md">
+                    <h2 class="text-3xl font-black text-synapse mb-2">AUTO PREMIUM</h2>
+                    <p class="text-sm opacity-90">Découvrez nos véhicules d'exception sur Synapse.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50 transition-all duration-300"></div>
+        <div class="slider-dot w-2 h-2 rounded-full bg-white opacity-50 transition-all duration-300"></div>
+    </div>
+</div>
 
                 <div id="boosted-section" class="hidden mb-8">
     <h2 class="text-lg md:text-xl font-bold text-black dark:text-white mb-4 flex items-center gap-2">
@@ -3287,6 +3305,34 @@ setInterval(() => {
     console.log("🔄 Rotation des publicités sponsorisées...");
     fetchAllData(); 
 }, 60000);
+
+let currentSlide = 0;
+const slider = document.getElementById('hero-slider');
+const dots = document.querySelectorAll('.slider-dot');
+const totalSlides = 2; // Nombre total d'images
+
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    updateSlider();
+}
+
+function updateSlider() {
+    // Déplace le conteneur
+    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+    
+    // Met à jour les petits points
+    dots.forEach((dot, index) => {
+        dot.style.opacity = index === currentSlide ? "1" : "0.5";
+        dot.style.width = index === currentSlide ? "20px" : "8px"; // Petit effet d'étirement
+    });
+}
+
+// Lancement automatique
+let sliderInterval = setInterval(nextSlide, 5000);
+
+// Pause quand la souris est dessus
+document.getElementById('hero-banner').addEventListener('mouseenter', () => clearInterval(sliderInterval));
+document.getElementById('hero-banner').addEventListener('mouseleave', () => sliderInterval = setInterval(nextSlide, 5000));
 
 // Lancement de l'application
 fetchAllData();
