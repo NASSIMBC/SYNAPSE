@@ -1875,7 +1875,7 @@ window.loadSellerProducts = async function() {
                 const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
                 statusLabel = ` [BOOST: ${diffDays}j]`;
             } else if (!p.is_boosted && p.boost_receipt_url) {
-                statusLabel = ` [EN VÉRIFICATION]`;
+                statusLabel = ` [.]`;
             }
 
             // On ajoute le label uniquement à la COPIE utilisée ici
