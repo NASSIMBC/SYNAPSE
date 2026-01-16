@@ -585,24 +585,6 @@
         <div class="lg:col-span-2 space-y-6">
             <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
                 <h3 class="font-bold text-lg text-black dark:text-white mb-4">1. Adresse de livraison</h3>
-                
-                <div class="grid grid-cols-2 gap-4 mb-4 col-span-2">
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="shipping-type" value="domicile" checked class="hidden peer" onchange="toggleShippingFields()">
-                        <div class="p-3 bg-gray-50 dark:bg-dark-800 border-2 border-transparent rounded-lg peer-checked:border-synapse peer-checked:bg-synapse/5 transition text-center">
-                            <i class="fa-solid fa-house text-sm mb-1 block group-hover:text-synapse"></i>
-                            <span class="text-[10px] font-bold uppercase dark:text-white">À Domicile</span>
-                        </div>
-                    </label>
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="shipping-type" value="bureau" class="hidden peer" onchange="toggleShippingFields()">
-                        <div class="p-3 bg-gray-50 dark:bg-dark-800 border-2 border-transparent rounded-lg peer-checked:border-synapse peer-checked:bg-synapse/5 transition text-center">
-                            <i class="fa-solid fa-building text-sm mb-1 block group-hover:text-synapse"></i>
-                            <span class="text-[10px] font-bold uppercase dark:text-white">Au Bureau (Stop-Desk)</span>
-                        </div>
-                    </label>
-                </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <input type="text" id="checkout-name" placeholder="Nom et Prénom" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white col-span-2">
                     
@@ -670,11 +652,7 @@
 
                     <input type="tel" id="checkout-phone" placeholder="Numéro de téléphone" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
                     <input type="text" id="checkout-commune" placeholder="Commune" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white">
-                    
-                    <div class="col-span-2">
-                        <input type="text" id="checkout-village" placeholder="N° de rue, bâtiment, quartier..." class="w-full p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white outline-none focus:ring-1 focus:ring-synapse transition">
-                        <p id="shipping-note" class="text-[10px] text-gray-500 mt-1 ml-1 italic">Veuillez indiquer l'adresse exacte pour la livraison à domicile.</p>
-                    </div>
+                    <input type="text" id="checkout-village" placeholder="Village / Quartier (Optionnel)" class="p-3 bg-gray-50 dark:bg-dark-800 border-none rounded-lg text-sm dark:text-white col-span-2">
                 </div>
             </div>
             <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800">
@@ -688,8 +666,6 @@
                 </div>
             </div>
         </div>
-    </div>
-</div>
         <div class="lg:col-span-1">
             <div class="bg-white dark:bg-dark-900 p-6 rounded-xl border border-gray-100 dark:border-dark-800 sticky top-24">
                 <h3 class="font-bold text-black dark:text-white mb-4">Résumé</h3>
@@ -2459,8 +2435,7 @@ window.shareStore = function(name) {
                         <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
                         <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
                     </div>
-                  
-
+                   // Dans loadSellerOrders (il faut trouver la ligne du bouton) :
 <button onclick="openOrderChat('${item.order_id}', '${item.product.title.replace(/'/g, "\\'")}')" class="bg-gray-700 text-white px-4 py-2 rounded text-xs font-bold hover:bg-white hover:text-black transition">
     <i class="fa-regular fa-comments"></i> Discuter
 </button>
