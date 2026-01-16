@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -1861,7 +1862,7 @@ window.loadSellerProducts = async function() {
 
         if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
 
-        // --- AJOUT : LOGIQUE DE NOTIFICATION DE STATUT ---
+        // --- LOGIQUE DE NOTIFICATION DE STATUT CORRIGÉE ---
         const now = new Date();
         products.forEach(p => {
             let statusLabel = "";
@@ -1869,14 +1870,14 @@ window.loadSellerProducts = async function() {
 
             if (p.is_boosted && expiry && expiry > now) {
                 const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
-                statusLabel = ` [ACTIF: ${diffDays}j剩余]`;
+                // Changement : Texte en français et uniquement pour le dashboard
+                statusLabel = ` [BOOST: ${diffDays}j restants]`;
             } else if (!p.is_boosted && p.boost_receipt_url) {
-                statusLabel = ` [EN VÉRIFICATION...]`;
-            } else if (!p.is_boosted && p.boost_expiry && expiry < now) {
-                statusLabel = ` [BOOST TERMINÉ]`;
+                statusLabel = ` [EN VÉRIFICATION]`;
             }
-            
-            // On peut optionnellement modifier le titre temporairement pour l'affichage
+
+            // On ajoute le label au titre UNIQUEMENT pour l'affichage ici
+            // Cela ne modifie pas le titre dans la base de données
             if(statusLabel) p.title += statusLabel;
         });
 
