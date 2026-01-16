@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr" class="light">
 <head>
@@ -1017,6 +1018,41 @@
         </div>
     </div>
 
+<div id="privacy-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+    <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+        <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> 
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-black dark:text-white font-bold">Confidentialité</span>
+    </div>
+    
+    <div class="bg-white dark:bg-dark-900 rounded-[2rem] p-8 border border-gray-100 dark:border-dark-800 shadow-xl">
+        <h2 class="text-3xl font-black text-black dark:text-white mb-6 uppercase tracking-tighter italic">Politique de <span class="text-synapse">Confidentialité</span></h2>
+        
+        <div class="space-y-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">1. Collecte des données</h3>
+                <p>Nous collectons uniquement les informations nécessaires au traitement de vos commandes : Nom, Prénom, Numéro de téléphone et Adresse de livraison.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">2. Utilisation des informations</h3>
+                <p>Vos coordonnées sont transmises exclusivement au vendeur concerné et au service de livraison pour permettre l'acheminement de votre colis.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">3. Sécurité</h3>
+                <p>Synapse utilise des protocoles de sécurité avancés et la technologie Supabase pour garantir que vos données sont protégées contre tout accès non autorisé.</p>
+            </section>
+
+            <section class="p-4 bg-synapse/10 border-l-4 border-synapse rounded-r-lg">
+                <p class="text-black dark:text-white font-bold text-xs italic">Synapse Market s'engage à ne jamais vendre vos données personnelles à des tiers.</p>
+            </section>
+        </div>
+
+        <button onclick="goHome()" class="mt-8 bg-black text-white dark:bg-white dark:text-black px-6 py-3 rounded-xl font-bold hover:bg-synapse hover:text-black transition uppercase text-xs">Retour au shopping</button>
+    </div>
+</div>
+
 <footer class="bg-synapse mt-20 pt-16 pb-8 border-t-4 border-black">
         <div class="container mx-auto px-4">
             
@@ -1052,7 +1088,7 @@
                     <ul class="space-y-3 text-sm text-black/80 font-bold">
                         <li><a href="#" class="hover:text-white transition">Centre d'aide</a></li>
                         <li><a href="#" class="hover:text-white transition">CGV & Mentions légales</a></li>
-                        <li><a href="#" class="hover:text-white transition">Confidentialité</a></li>
+                        <li><button onclick="showPrivacy()" class="hover:text-white transition">Confidentialité</button></li>
                         <li><a href="#" class="hover:text-white transition">Contactez-nous</a></li>
                     </ul>
                 </div>
@@ -1929,7 +1965,7 @@ if (storeId && amountToAdd > 0) {
        // Remplacez votre ligne window.hideAllViews par ceci :
     window.hideAllViews = () => {
     // AJOUT DE 'wishlist-view' DANS CETTE LISTE 👇
-    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view', 'stores-view'].forEach(id => {
+    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view', 'stores-view', 'privacy-view'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
@@ -3736,6 +3772,15 @@ window.showCheckout = function() {
         console.error("Erreur : L'élément #checkout-view est introuvable.");
     }
 };
+
+window.showPrivacy = function() {
+    window.hideAllViews(); // On cache tout
+    const privacyView = document.getElementById('privacy-view');
+    if (privacyView) {
+        privacyView.classList.remove('hidden'); // On affiche la confidentialité
+        window.scrollTo(0, 0); // On remonte en haut de page
+    }
+}
 
 // Lancement de l'application
 fetchAllData();
