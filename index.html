@@ -1862,31 +1862,33 @@ window.loadSellerProducts = async function() {
 
         if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
 
-        // --- LOGIQUE DE NOTIFICATION DE STATUT CORRIGÉE ---
         const now = new Date();
-        products.forEach(p => {
+        
+        // On crée une COPIE des produits pour le dashboard vendeur uniquement
+        const productsForSeller = products.map(p => {
+            // On crée une copie de l'objet pour ne pas polluer l'original
+            let sellerProduct = { ...p };
             let statusLabel = "";
             const expiry = p.boost_expiry ? new Date(p.boost_expiry) : null;
 
             if (p.is_boosted && expiry && expiry > now) {
                 const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
-                // Changement : Texte en français et uniquement pour le dashboard
-                statusLabel = ` [BOOST: ${diffDays}j restants]`;
+                statusLabel = ` [BOOST: ${diffDays}j]`;
             } else if (!p.is_boosted && p.boost_receipt_url) {
                 statusLabel = ` [EN VÉRIFICATION]`;
             }
 
-            // On ajoute le label au titre UNIQUEMENT pour l'affichage ici
-            // Cela ne modifie pas le titre dans la base de données
-            if(statusLabel) p.title += statusLabel;
+            // On ajoute le label uniquement à la COPIE utilisée ici
+            if(statusLabel) sellerProduct.title += statusLabel;
+            
+            return sellerProduct;
         });
 
-        // Appel de ta grille avec le mode Dashboard activé (true)
-        renderGrid('seller-products-list', products, false, true); 
+        // On utilise la copie 'productsForSeller' pour le dashboard
+        renderGrid('seller-products-list', productsForSeller, false, true); 
 
     } catch(e) { console.error(e); }
 }
-
     async function loadSellerOrders() {
     const list = document.getElementById('seller-orders-list');
     list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
