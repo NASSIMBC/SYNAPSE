@@ -1771,8 +1771,8 @@ async function fetchAllData() {
         .eq('is_boosted', true)
         .lt('boost_expiry', nowISO)
         .then(() => {});
-}
-    // --- 2. ALGORITHME DE CIBLAGE STRICT (BOOSTS) ---
+
+    // --- 2. ALGORITHME DE CIBLAGE (BOOSTS) ---
     const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
     let boostedToShow = [];
 
@@ -1788,16 +1788,35 @@ async function fetchAllData() {
             const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
             if (searchHistory.length > 0) {
-                // FILTRAGE UNIQUE : Uniquement les produits qui contiennent un mot de l'historique
+                // B. Priorité 1 : Mots-clés dans le titre
                 boostedToShow = activeBoosts.filter(p => 
                     searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
                 );
+
+                // C. Priorité 2 : Si pas assez (moins de 6), on complète avec la même catégorie
+                if (boostedToShow.length < 6) {
+                    const myCategories = activeBoosts
+                        .filter(p => searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase())))
+                        .map(p => p.category);
+
+                    const extraBoosts = activeBoosts.filter(p => 
+                        myCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
+                    );
+                    boostedToShow = [...boostedToShow, ...extraBoosts];
+                }
             }
-            // LES PRIORITÉS DE REMPLISSAGE (B, C, D) ONT ÉTÉ SUPPRIMÉES ICI
+
+            // D. Priorité 3 : Si toujours < 6 (ou nouveau compte), hasard total
+            if (boostedToShow.length < 6) {
+                const randomFill = activeBoosts
+                    .filter(p => !boostedToShow.find(b => b.id === p.id))
+                    .sort(() => 0.5 - Math.random());
+                boostedToShow = [...boostedToShow, ...randomFill];
+            }
         }
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    // E. Rotation finale sur les résultats filtrés uniquement
+    // E. Rotation finale et LIMITE À 6 ANNONCES
     window.allActiveBoosts = boostedToShow; 
     const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
@@ -1815,7 +1834,6 @@ async function fetchAllData() {
         boostedSection.classList.remove('hidden');
         renderGrid('boosted-grid', finalBoosted, true);
     } else {
-        // Si aucun boost ne match la recherche, la section reste cachée
         boostedSection.classList.add('hidden');
     }
 
@@ -1826,6 +1844,7 @@ async function fetchAllData() {
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
+}
 
 // --- ROTATION AUTOMATIQUE TOUTES LES 30 SECONDES ---
 if (!window.boostRotationActive) {
