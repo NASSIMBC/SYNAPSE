@@ -1814,39 +1814,56 @@ if (!window.boostRotationActive) {
 window.loadSellerProducts = async function() {
     const list = document.getElementById('seller-products-list');
     list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
+
     try {
         const { data: { user } } = await supabase.auth.getUser();
-        if(!user) return;
         const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-        if(!store) return list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>';
+
+        const { data: products, error } = await supabase
+            .from('products')
+            .select('*')
+            .eq('store_id', store.id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        list.innerHTML = ''; // On vide le loader
         
-        const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id).order('created_at', { ascending: false });
+        if (!products || products.length === 0) {
+            list.innerHTML = '<div class="col-span-full text-center p-10 border border-dashed border-gray-800 rounded-3xl text-gray-500 font-bold uppercase text-xs">Aucun produit en vente.</div>';
+            return;
+        }
 
-        if(!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
-
-        // --- AJOUT : LOGIQUE DE NOTIFICATION DE STATUT ---
-        const now = new Date();
-        products.forEach(p => {
-            let statusLabel = "";
-            const expiry = p.boost_expiry ? new Date(p.boost_expiry) : null;
-
-            if (p.is_boosted && expiry && expiry > now) {
-                const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
-                statusLabel = ` [ACTIF: ${diffDays}j剩余]`;
-            } else if (!p.is_boosted && p.boost_receipt_url) {
-                statusLabel = ` [EN VÉRIFICATION...]`;
-            } else if (!p.is_boosted && p.boost_expiry && expiry < now) {
-                statusLabel = ` [BOOST TERMINÉ]`;
-            }
-            
-            // On peut optionnellement modifier le titre temporairement pour l'affichage
-            if(statusLabel) p.title += statusLabel;
+        // --- LA BOUCLE CORRIGÉE ---
+        products.forEach(prod => { // On utilise 'prod' ici
+            list.innerHTML += `
+            <div class="bg-dark-900 border border-gray-800 rounded-[2rem] overflow-hidden hover:border-synapse/50 transition-all group">
+                <div class="relative h-48 bg-white p-4">
+                    <img src="${prod.image_url}" class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500">
+                    <div class="absolute top-4 right-4 bg-black/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black text-synapse">
+                        ${prod.price.toLocaleString()} DA
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h4 class="text-white font-bold text-sm mb-1 truncate">${prod.title}</h4>
+                    <p class="text-[10px] text-gray-500 uppercase font-black mb-4">Stock: ${prod.stock || 0} unités</p>
+                    
+                    <div class="flex gap-2">
+                        <button onclick="openEditProduct('${prod.id}')" class="flex-1 bg-white/5 hover:bg-white/10 text-white border border-white/10 py-3 rounded-xl transition text-[10px] font-black uppercase tracking-widest">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i> Modifier
+                        </button>
+                        
+                        <button onclick="deleteProduct('${prod.id}')" class="w-12 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 py-3 rounded-xl transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
         });
-
-        // Appel de ta grille avec le mode Dashboard activé (true)
-        renderGrid('seller-products-list', products, false, true); 
-
-    } catch(e) { console.error(e); }
+    } catch (err) {
+        console.error("Erreur chargement produits:", err);
+        list.innerHTML = '<p class="text-red-500 text-center">Erreur lors du chargement.</p>';
+    }
 }
 
     async function loadSellerOrders() {
