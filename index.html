@@ -1771,116 +1771,71 @@ async function fetchAllData() {
         .eq('is_boosted', true)
         .lt('boost_expiry', nowISO)
         .then(() => {});
-}
-    // --- 2. ALGORITHME DE CIBLAGE STRICT (BOOSTS) ---
-   // --- 2. SYNAPSE AI – SMART BOOST TARGETING v2 ---
 
-const nowTime = Date.now();
+    // --- 2. ALGORITHME DE CIBLAGE (BOOSTS) ---
+    const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
+    let boostedToShow = [];
 
-// Historique enrichi (mot + timestamp)
-const searchHistory = JSON.parse(
-  localStorage.getItem('synapse_search_history') || '[]'
-);
+    try {
+        // A. On récupère TOUS les produits boostés valides
+        const { data: allBoosted } = await supabase
+            .from('products')
+            .select('*')
+            .eq('is_boosted', true);
 
-// Données utilisateur simples
-const userCity = localStorage.getItem('synapse_city');
-const userBudget = JSON.parse(localStorage.getItem('synapse_budget') || '{}');
-// { min: 1000, max: 15000 }
+        if (allBoosted && allBoosted.length > 0) {
+            // Filtrer par date
+            const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
-let boostedToShow = [];
+            if (searchHistory.length > 0) {
+                // B. Priorité 1 : Mots-clés dans le titre
+                boostedToShow = activeBoosts.filter(p => 
+                    searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
+                );
 
-try {
-  const { data: allBoosted, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_boosted', true);
+                // C. Priorité 2 : Si pas assez (moins de 6), on complète avec la même catégorie
+                if (boostedToShow.length < 6) {
+                    const myCategories = activeBoosts
+                        .filter(p => searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase())))
+                        .map(p => p.category);
 
-  if (error) throw error;
+                    const extraBoosts = activeBoosts.filter(p => 
+                        myCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
+                    );
+                    boostedToShow = [...boostedToShow, ...extraBoosts];
+                }
+            }
 
-  if (allBoosted?.length) {
+            // D. Priorité 3 : Si toujours < 6 (ou nouveau compte), hasard total
+            if (boostedToShow.length < 6) {
+                const randomFill = activeBoosts
+                    .filter(p => !boostedToShow.find(b => b.id === p.id))
+                    .sort(() => 0.5 - Math.random());
+                boostedToShow = [...boostedToShow, ...randomFill];
+            }
+        }
+    } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    const activeBoosts = allBoosted.filter(p =>
-      p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime
-    );
+    // E. Rotation finale et LIMITE À 6 ANNONCES
+    window.allActiveBoosts = boostedToShow; 
+    const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
-    const scoredBoosts = activeBoosts.map(product => {
-      let score = 0;
+    // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
+    const { data: all } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      const title = (product.title || '').toLowerCase();
-      const category = (product.category || '').toLowerCase();
-      const description = (product.description || '').toLowerCase();
-
-      // --- 1. MATCH AVEC HISTORIQUE (pondéré par récence)
-      searchHistory.forEach(item => {
-        const term = (item.term || item).toLowerCase();
-        const timestamp = item.time || nowTime;
-
-        const recencyFactor = Math.max(
-          1,
-          5 - Math.floor((nowTime - timestamp) / 86400000)
-        );
-
-        if (title.includes(term)) score += 40 * recencyFactor;
-        if (category.includes(term)) score += 25 * recencyFactor;
-        if (description.includes(term)) score += 15 * recencyFactor;
-      });
-
-      // --- 2. BONUS CATÉGORIE POPULAIRE POUR L’UTILISATEUR
-      const categoryCount = searchHistory.filter(s =>
-        (s.term || s).toLowerCase().includes(category)
-      ).length;
-
-      score += categoryCount * 10;
-
-      // --- 3. PRIX COMPATIBLE AVEC LE BUDGET
-      if (userBudget.min && userBudget.max && product.price) {
-        if (
-          product.price >= userBudget.min &&
-          product.price <= userBudget.max
-        ) score += 20;
-        else score -= 10;
-      }
-
-      // --- 4. LOCALISATION
-      if (userCity && product.city) {
-        if (product.city === userCity) score += 15;
-      }
-
-      // --- 5. FRAÎCHEUR DU BOOST
-      const ageDays =
-        (nowTime - new Date(product.created_at).getTime()) / 86400000;
-
-      if (ageDays < 1) score += 20;
-      else if (ageDays < 3) score += 10;
-      else if (ageDays > 14) score -= 15;
-
-      // --- 6. POPULARITÉ
-      score += (product.views || 0) * 0.2;
-      score += (product.likes || 0) * 0.5;
-      score += (product.sales || 0) * 1;
-
-      // --- 7. BOOST PAYANT (niveau)
-      score += (product.boost_level || 1) * 10;
-
-      return {
-        ...product,
-        affinityScore: Math.round(score)
-      };
-    });
-
-    boostedToShow = scoredBoosts
-      .filter(p => p.affinityScore > 30) // seuil intelligent
-      .sort((a, b) => b.affinityScore - a.affinityScore);
-  }
-
-} catch (err) {
-  console.error("❌ Erreur Synapse AI:", err);
-}
-
-// --- Résultat final ---
-window.allActiveBoosts = boostedToShow;
-const finalBoosted = boostedToShow.slice(0, 6);
-
+    // --- 4. AFFICHAGE DES GRILLES ---
+    renderGrid('products-grid', all);
+    
+    const boostedSection = document.getElementById('boosted-section');
+    if(finalBoosted.length > 0) {
+        boostedSection.classList.remove('hidden');
+        renderGrid('boosted-grid', finalBoosted, true);
+    } else {
+        boostedSection.classList.add('hidden');
+    }
 
     // --- 5. LOGIQUE SYNC ---
     if (typeof initHeroSlider === 'function') initHeroSlider();
@@ -1889,6 +1844,7 @@ const finalBoosted = boostedToShow.slice(0, 6);
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
+}
 
 // --- ROTATION AUTOMATIQUE TOUTES LES 30 SECONDES ---
 if (!window.boostRotationActive) {
