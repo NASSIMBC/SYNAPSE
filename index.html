@@ -2871,13 +2871,21 @@ window.editProduct = async function(productId) {
 };
 
 window.saveProductChanges = async function() {
-    const id = document.getElementById('edit-prod-id').value;
-    const title = document.getElementById('edit-prod-title').value;
-    const price = document.getElementById('edit-prod-price').value;
-    const stock = document.getElementById('edit-prod-stock').value;
-    const desc = document.getElementById('edit-prod-desc').value;
-    const fileInput = document.getElementById('edit-prod-file');
-    const file = fileInput ? fileInput.files[0] : null;
+    // Vérification de sécurité pour chaque élément avant de lire .value
+    const elId = document.getElementById('edit-prod-id');
+    const elTitle = document.getElementById('edit-prod-title');
+    const elPrice = document.getElementById('edit-prod-price');
+    const elStock = document.getElementById('edit-prod-stock');
+    const elDesc = document.getElementById('edit-prod-desc');
+    const elFile = document.getElementById('edit-prod-file');
+
+    // On récupère les valeurs seulement si l'élément existe, sinon null
+    const id = elId ? elId.value : null;
+    const title = elTitle ? elTitle.value : null;
+    const price = elPrice ? elPrice.value : null;
+    const stock = elStock ? elStock.value : 0;
+    const desc = elDesc ? elDesc.value : "";
+    const file = elFile && elFile.files ? elFile.files[0] : null;
 
     if (!id || !title || !price) {
         return alert("Veuillez remplir au moins le nom et le prix.");
@@ -2921,8 +2929,15 @@ window.saveProductChanges = async function() {
 
         alert("✅ Modifications enregistrées !");
         
-        // On cache le modal et on rafraîchit la vue
-        document.getElementById('edit-modal').classList.add('hidden');
+        // --- CORRECTION CLASSLIST NULL ---
+        // On essaie de fermer le modal uniquement s'il existe
+        const modal = document.getElementById('edit-modal');
+        if (modal) {
+            modal.classList.add('hidden');
+        } else {
+            console.warn("Modal 'edit-modal' introuvable.");
+        }
+
         if (typeof loadSellerProducts === 'function') loadSellerProducts();
         if (typeof fetchAllData === 'function') fetchAllData();
 
