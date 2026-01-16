@@ -1125,7 +1125,7 @@
                         <li><a href="#" class="hover:text-white transition">Centre d'aide</a></li>
                         <li><button onclick="showCGV()" class="hover:text-white transition">CGV & Mentions légales</button></li>
                         <li><button onclick="showPrivacy()" class="hover:text-white transition">Confidentialité</button></li>
-                        <li><a href="#" class="hover:text-white transition">Contactez-nous</a></li>
+                        <li><button onclick="showContact()" class="hover:text-white transition">Contactez-nous</button></li>
                     </ul>
                 </div>
 
@@ -3835,7 +3835,7 @@ window.showPrivacy = function() {
     }
 }
 
-        window.showCGV = function() {
+window.showCGV = function() {
     window.hideAllViews();
     const cgvView = document.getElementById('cgv-view');
     if (cgvView) {
@@ -3850,6 +3850,95 @@ window.hideAllViews = () => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
+}
+
+// --- FONCTION DE CONTACT (EMAIL UNIQUEMENT) ---
+window.showContact = function() {
+    window.hideAllViews();
+    const view = document.getElementById('help-view');
+    const title = document.getElementById('help-title');
+    const content = document.getElementById('help-content');
+    const breadcrumb = document.getElementById('help-title-breadcrumb');
+
+    if (view) {
+        view.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        
+        breadcrumb.innerText = "Contact";
+        title.innerHTML = `Contactez <span class="text-synapse">le Support</span>`;
+        
+        content.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                <div class="space-y-6 text-left">
+                    <div class="p-8 bg-blue-500/5 border border-blue-500/20 rounded-[2rem]">
+                        <i class="fa-solid fa-envelope-open-text text-4xl text-blue-500 mb-4"></i>
+                        <h3 class="font-black text-white uppercase text-sm tracking-widest">Support par Email</h3>
+                        <p class="text-xs text-gray-400 mt-2 mb-4">Notre équipe répond à vos demandes sous 24h ouvrées.</p>
+                        <a href="mailto:support@synapse.dz" class="inline-block text-synapse font-bold text-sm hover:underline">
+                            support@synapse.dz
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white/5 border border-white/10 rounded-[2.5rem] p-8 text-left">
+                    <h3 class="font-bold text-white mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-nib text-synapse"></i> Écrivez-nous
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase ml-2">Sujet</label>
+                            <input type="text" id="contact-subject" placeholder="Ex: Problème de livraison" class="w-full bg-black/40 border border-white/10 p-3 rounded-xl text-white text-sm outline-none focus:border-synapse transition">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-500 uppercase ml-2">Message</label>
+                            <textarea id="contact-msg" rows="4" placeholder="Votre message détaillé..." class="w-full bg-black/40 border border-white/10 p-3 rounded-xl text-white text-sm outline-none focus:border-synapse transition resize-none"></textarea>
+                        </div>
+                        <button onclick="handleContactSubmit()" class="w-full bg-synapse text-black font-black py-4 rounded-xl hover:scale-105 transition shadow-lg uppercase text-xs">
+                            Envoyer le message
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+};
+
+// --- GESTION DE L'ENVOI DU FORMULAIRE ---
+window.handleContactSubmit = function() {
+    const subject = document.getElementById('contact-subject').value;
+    const msg = document.getElementById('contact-msg').value;
+
+    if(!subject || !msg) {
+        alert("Veuillez remplir le sujet et votre message.");
+        return;
+    }
+
+    const mailtoLink = `mailto:support@synapse.dz?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
+    window.location.href = mailtoLink;
+
+    showToast("✅ Ouverture de votre application mail...");
+    document.getElementById('contact-subject').value = "";
+    document.getElementById('contact-msg').value = "";
+};
+
+window.handleContactSubmit = function() {
+    const subject = document.getElementById('contact-subject').value;
+    const msg = document.getElementById('contact-msg').value;
+
+    if(!subject || !msg) {
+        alert("Veuillez remplir le sujet et votre message.");
+        return;
+    }
+
+    // On prépare l'ouverture du mail avec les infos pré-remplies
+    const mailtoLink = `mailto:support@synapse.dz?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
+    
+    // Ouvre le client mail de l'utilisateur
+    window.location.href = mailtoLink;
+
+    showToast("✅ Préparation de votre email...");
+    document.getElementById('contact-subject').value = "";
+    document.getElementById('contact-msg').value = "";
 }
 
 // Lancement de l'application
