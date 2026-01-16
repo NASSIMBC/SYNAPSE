@@ -894,30 +894,57 @@
 
 
 
-    <div id="edit-modal" class="hidden fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-dark-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-white mb-4">Modifier</h3>
-            <input type="hidden" id="edit-prod-id">
-            <div class="space-y-4">
-                <input type="text" id="edit-prod-title" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="edit-prod-price" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                    <input type="number" id="edit-prod-stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                </div>
-                <textarea id="edit-prod-desc" rows="3" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
-                
-                <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
-                    <label class="text-xs text-synapse font-bold uppercase mb-2 block"><i class="fa-solid fa-lock"></i> Mettre à jour fichier</label>
-                    <input type="file" id="edit-prod-file" class="text-xs text-gray-400 w-full">
-                </div>
+   <div id="edit-modal" class="hidden fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-dark-900 border border-gray-800 rounded-[2rem] p-8 w-full max-w-md shadow-2xl animate-fade-in-up">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-10 h-10 bg-synapse/20 rounded-full flex items-center justify-center text-synapse">
+                <i class="fa-solid fa-pen-to-square"></i>
+            </div>
+            <h3 class="text-xl font-black text-white uppercase italic">Modifier <span class="text-synapse">l'article</span></h3>
+        </div>
 
-                <div class="flex gap-2">
-                    <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded-lg">Annuler</button>
-                    <button onclick="saveProductChanges()" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg">Sauvegarder</button>
+        <input type="hidden" id="edit-prod-id">
+        
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] text-gray-500 font-black uppercase ml-2 mb-1 block">Nom du produit</label>
+                <input type="text" id="edit-prod-title" class="w-full p-4 bg-black border border-gray-800 rounded-xl text-white text-sm outline-none focus:border-synapse transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] text-gray-500 font-black uppercase ml-2 mb-1 block">Prix (DA)</label>
+                    <input type="number" id="edit-prod-price" class="w-full p-4 bg-black border border-gray-800 rounded-xl text-white text-sm outline-none focus:border-synapse transition">
                 </div>
+                <div>
+                    <label class="text-[10px] text-gray-500 font-black uppercase ml-2 mb-1 block">Quantité</label>
+                    <input type="number" id="edit-prod-stock" class="w-full p-4 bg-black border border-gray-800 rounded-xl text-white text-sm outline-none focus:border-synapse transition">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] text-gray-500 font-black uppercase ml-2 mb-1 block">Description</label>
+                <textarea id="edit-prod-desc" rows="3" class="w-full p-4 bg-black border border-gray-800 rounded-xl text-white text-sm outline-none focus:border-synapse transition resize-none"></textarea>
+            </div>
+            
+            <div class="border border-gray-800 bg-black/40 p-4 rounded-xl">
+                <label class="text-[10px] text-synapse font-black uppercase mb-2 block flex items-center gap-2">
+                    <i class="fa-solid fa-image"></i> Changer l'image (Optionnel)
+                </label>
+                <input type="file" id="edit-prod-file" accept="image/*" class="text-xs text-gray-500 w-full file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-synapse file:text-black hover:file:bg-white transition cursor-pointer">
+            </div>
+
+            <div class="flex gap-3 mt-4">
+                <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="flex-1 bg-gray-800 text-white font-black py-4 rounded-xl hover:bg-gray-700 transition uppercase text-[10px] tracking-widest">
+                    Annuler
+                </button>
+                <button onclick="saveProductChanges()" class="flex-1 bg-synapse text-black font-black py-4 rounded-xl hover:scale-105 transition shadow-lg shadow-synapse/20 uppercase text-[10px] tracking-widest">
+                    Sauvegarder
+                </button>
             </div>
         </div>
     </div>
+</div>
 
     <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
@@ -2812,13 +2839,12 @@ window.editProduct = async function(productId) {
     }
 };
 
-// Fonction pour ENREGISTRER les modifications
 window.saveProductChanges = async function() {
     const id = document.getElementById('edit-prod-id').value;
     const title = document.getElementById('edit-prod-title').value;
     const price = document.getElementById('edit-prod-price').value;
     const desc = document.getElementById('edit-prod-desc').value;
-    const category = document.getElementById('edit-prod-category').value;
+    const file = document.getElementById('edit-prod-file').files[0];
 
     try {
         const { error } = await supabase
@@ -3150,8 +3176,10 @@ window.renderGrid = function(containerId, products, isBoostedLayout = false, isS
                            </button>`
                     }
                     <div class="flex gap-2">
-                        <button onclick="openEditProduct('${p.id}', '${safeTitle}', '${p.price}', '${p.stock || 0}', '${safeDesc}')" class="flex-1 bg-gray-100 dark:bg-dark-800 text-gray-600 dark:text-gray-300 py-2 rounded-lg text-[10px] font-bold hover:bg-synapse hover:text-black transition uppercase">Modifier</button>
-                        <button onclick="deleteProduct('${p.id}', '${p.image_url}')" class="bg-red-50 text-red-500 p-2 rounded-lg text-xs hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-trash"></i></button>
+                      // Exemple de bouton dans ton HTML généré par loadSellerProducts
+<button onclick="openEditProduct('${prod.id}')" class="text-blue-500 hover:text-blue-700">
+    <i class="fa-solid fa-pen-to-square"></i> Modifier
+</button>
                     </div>
                 </div>`;
         }
@@ -3732,11 +3760,9 @@ function initHeroSlider() {
 // Lancement de la fonction
 document.addEventListener('DOMContentLoaded', initHeroSlider);
 
-// On utilise exactement le nom "openEditProduct" que ton bouton cherche
+// 1. Ouvre le modal et remplit les champs avec les données actuelles
 window.openEditProduct = async function(productId) {
     try {
-        console.log("Ouverture du produit :", productId);
-        
         const { data: product, error } = await supabase
             .from('products')
             .select('*')
@@ -3745,27 +3771,51 @@ window.openEditProduct = async function(productId) {
 
         if (error) throw error;
 
-        // On remplit les champs du modal
+        // Remplissage des champs
         document.getElementById('edit-prod-id').value = product.id;
         document.getElementById('edit-prod-title').value = product.title;
         document.getElementById('edit-prod-price').value = product.price;
         document.getElementById('edit-prod-desc').value = product.description;
-        document.getElementById('edit-prod-category').value = product.category;
 
-        // On affiche le modal
-        const modal = document.getElementById('modal-edit-product');
-        if (modal) {
-            modal.classList.remove('hidden');
-        } else {
-            console.error("Erreur : Le modal 'modal-edit-product' n'existe pas dans le HTML");
-        }
-        
+        // Affichage du modal
+        document.getElementById('edit-product-modal').classList.remove('hidden');
     } catch (err) {
-        console.error("Erreur Synapse :", err);
-        alert("Impossible d'ouvrir la modification.");
+        console.error("Erreur lors de la récupération:", err);
+        alert("Impossible de charger les données du produit.");
     }
-};
+}
 
+// 2. Ferme le modal
+window.closeEditModal = () => {
+    document.getElementById('edit-product-modal').classList.add('hidden');
+}
+
+// 3. Enregistre les modifications dans Supabase
+window.handleUpdateProduct = async function() {
+    const id = document.getElementById('edit-prod-id').value;
+    const title = document.getElementById('edit-prod-title').value;
+    const price = document.getElementById('edit-prod-price').value;
+    const desc = document.getElementById('edit-prod-desc').value;
+
+    try {
+        const { error } = await supabase
+            .from('products')
+            .update({ 
+                title: title, 
+                price: parseInt(price), 
+                description: desc 
+            })
+            .eq('id', id);
+
+        if (error) throw error;
+
+        alert("✅ Produit mis à jour !");
+        closeEditModal();
+        loadSellerProducts(); // Recharge la liste pour voir les changements
+    } catch (err) {
+        alert("Erreur lors de la mise à jour : " + err.message);
+    }
+}
 window.filterByCategory = async function(category) {
     // 1. Mise à jour visuelle des boutons
     document.querySelectorAll('.category-pill').forEach(btn => {
@@ -4024,7 +4074,7 @@ window.toggleShippingFields = function() {
         }
     }
 }
-        
+
 // Lancement de l'application
 fetchAllData();
     </script>
