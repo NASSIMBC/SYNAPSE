@@ -3835,6 +3835,23 @@ window.showPrivacy = function() {
     }
 }
 
+        window.showCGV = function() {
+    window.hideAllViews();
+    const cgvView = document.getElementById('cgv-view');
+    if (cgvView) {
+        cgvView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+}
+
+// MISE À JOUR DE TA FONCTION EXISTANTE (Ajoute 'cgv-view')
+window.hideAllViews = () => {
+    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view', 'stores-view', 'privacy-view', 'cgv-view'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+}
+
 // Lancement de l'application
 fetchAllData();
     </script>
