@@ -1834,7 +1834,6 @@ window.loadSellerProducts = async function() {
             return;
         }
 
-        // On récupère les articles liés à VOTRE boutique
         const { data: items, error } = await supabase
             .from('order_items')
             .select('*, order:orders(*), product:products!inner(*)') 
@@ -1851,11 +1850,21 @@ window.loadSellerProducts = async function() {
         list.innerHTML = '';
         items.forEach(item => {
             const status = item.status || 'en_attente';
-            const shippingInfo = item.order ? item.order.shipping_address : "Adresse non disponible";
+            const shippingInfo = item.order ? item.order.shipping_address : "";
             
+            // --- DÉCOUPAGE DES INFOS (Basé sur le format de submitOrder) ---
+            const isBureau = shippingInfo.includes("[BUREAU]");
+            const cleanInfo = shippingInfo.replace("[BUREAU] ", "").replace("[DOMICILE] ", "");
+            const parts = cleanInfo.split(' | ');
+            
+            const clientName = parts[0] || "Non spécifié";
+            const clientPhone = parts[1] || "Non spécifié";
+            const clientWilaya = parts[2] || "N/A";
+            const clientCommune = parts[3] || "N/A";
+            const clientRoute = parts[4] || "N/A";
+
             // --- GÉNÉRATION DYNAMIQUE DES BOUTONS ---
             let buttonsHtml = '';
-            
             if (status === 'en_attente') {
                 buttonsHtml = `
                 <button onclick="updateOrderItemStatus('${item.id}', 'en_livraison')" class="w-full bg-synapse text-black font-bold py-3 rounded-lg hover:bg-white transition flex items-center justify-center gap-2">
@@ -1878,31 +1887,54 @@ window.loadSellerProducts = async function() {
             }
 
             list.innerHTML += `
-            <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-4 hover:border-synapse/30 transition animate-fade-in-up">
+            <div class="bg-dark-900 border border-gray-800 rounded-xl p-5 mb-6 hover:border-synapse/30 transition animate-fade-in-up">
                 <div class="flex justify-between items-start border-b border-gray-800 pb-4 mb-4">
                     <div>
-                        <span class="text-[10px] text-gray-500 uppercase font-black tracking-tighter">REF #${String(item.id).slice(0,8)}</span>
-                        <div class="text-xs text-gray-300 mt-1">${new Date(item.created_at).toLocaleDateString()}</div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-[10px] text-gray-500 uppercase font-black tracking-tighter">REF #${String(item.id).slice(0,8)}</span>
+                            <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase ${isBureau ? 'bg-orange-500/20 text-orange-500' : 'bg-blue-500/20 text-blue-500'}">
+                                ${isBureau ? '<i class="fa-solid fa-building mr-1"></i>Bureau' : '<i class="fa-solid fa-house mr-1"></i>Domicile'}
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-400">${new Date(item.created_at).toLocaleDateString()}</div>
                     </div>
                     <div class="text-right">
                         <div class="text-xl font-black text-white">${item.price.toLocaleString()} DA</div>
-                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${status === 'en_attente' ? 'bg-orange-500/20 text-orange-500' : 'bg-blue-500/20 text-blue-500'}">${status}</span>
-                    </div>
-                </div>
-                
-                <div class="flex gap-4 items-center mb-4">
-                    <img src="${item.product.image_url}" class="w-12 h-12 bg-white rounded-lg object-contain p-1">
-                    <div>
-                        <h4 class="font-bold text-white text-sm line-clamp-1">${item.product.title}</h4>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase">Quantité: ${item.quantity}</div>
+                        <span class="text-[10px] font-bold uppercase text-synapse">${status}</span>
                     </div>
                 </div>
 
-                <div class="bg-black/40 p-3 rounded-lg text-xs text-gray-300 mb-4 border border-gray-800">
-                    <div class="font-bold text-synapse mb-1 uppercase tracking-widest text-[9px] flex items-center gap-1">
-                        <i class="fa-solid fa-location-dot"></i> Client & Livraison
+                <div class="flex gap-4 items-center mb-6">
+                    <img src="${item.product.image_url}" class="w-14 h-14 bg-white rounded-lg object-contain p-1 border border-gray-700">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-white text-sm line-clamp-1">${item.product.title}</h4>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Quantité: ${item.quantity}</div>
                     </div>
-                    <p class="italic">"${shippingInfo}"</p>
+                </div>
+
+                <div class="bg-black/40 border border-gray-700 rounded-xl p-4 mb-6 space-y-3">
+                    <div class="flex items-center gap-2 text-synapse text-[9px] font-black uppercase tracking-widest border-b border-white/5 pb-2">
+                        <i class="fa-solid fa-address-card"></i> Coordonnées Client
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[9px] text-gray-500 uppercase font-bold">Nom Complet</p>
+                            <p class="text-xs text-white font-bold">${clientName}</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-500 uppercase font-bold">Téléphone</p>
+                            <a href="tel:${clientPhone}" class="text-xs text-synapse font-bold underline">${clientPhone}</a>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-500 uppercase font-bold">Wilaya / Commune</p>
+                            <p class="text-xs text-white">${clientWilaya} | ${clientCommune}</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] text-gray-500 uppercase font-bold">${isBureau ? 'Bureau' : 'Adresse / Route'}</p>
+                            <p class="text-xs text-gray-300 italic line-clamp-1">${clientRoute}</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="status-container-${item.id}">
@@ -1912,7 +1944,7 @@ window.loadSellerProducts = async function() {
         });
     } catch(e) { 
         console.error(e);
-        list.innerHTML = '<div class="text-red-500 text-center py-10">Erreur réseau.</div>';
+        list.innerHTML = '<div class="text-red-500 text-center py-10">Erreur lors de la récupération des commandes.</div>';
     }
 }
 
@@ -2555,30 +2587,40 @@ window.shareStore = function(name) {
 
         // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
-   window.submitOrder = async function() {
+ window.submitOrder = async function() {
     if(window.myCart.length === 0) return alert("Panier vide !");
+
+    // --- RÉCUPÉRATION DES NOUVELLES INFOS ---
+    const shippingType = document.querySelector('input[name="shipping-type"]:checked').value;
+    const modeText = shippingType === 'bureau' ? "BUREAU" : "DOMICILE";
+    
     const name = document.getElementById('checkout-name').value;
     const phone = document.getElementById('checkout-phone').value;
     const wilaya = document.getElementById('checkout-wilaya').value;
+    const commune = document.getElementById('checkout-commune').value;
+    const route = document.getElementById('checkout-village').value;
     
-    if(!name || !phone || !wilaya) return alert("Remplissez l'adresse.");
+    // Vérification complète
+    if(!name || !phone || !wilaya || !commune || !route) return alert("Veuillez remplir tous les champs de livraison.");
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
         if(!user) return alert("Connectez-vous !");
 
-        // --- CORRECTION : Définition propre du montant total ---
         let total = 0;
         window.myCart.forEach(item => {
             const cleanPrice = String(item.price).replace(/[^\d]/g, '');
             total += parseInt(cleanPrice) || 0;
         });
 
+        // --- CONSTRUCTION DE L'ADRESSE STRUCTURÉE (Utilisée par loadSellerOrders) ---
+        const fullShippingAddress = `[${modeText}] ${name} | ${phone} | ${wilaya} | ${commune} | ${route}`;
+
         // 1. Création de la commande
         const { data: order, error: orderError } = await supabase.from('orders').insert([{
             user_id: user.id, 
             total_amount: total, 
-            shipping_address: `${name}, ${wilaya}, ${phone}`, 
+            shipping_address: fullShippingAddress, 
             status: 'en_attente'
         }]).select().single();
 
@@ -2590,14 +2632,13 @@ window.shareStore = function(name) {
                 order_id: order.id, 
                 product_id: item.id, 
                 price: parseInt(String(item.price).replace(/[^\d]/g, '')), 
-                quantity: 1
+                quantity: 1,
+                status: 'en_attente'
             }]);
 
-            // Récupérer le store_id du produit
             const { data: prod } = await supabase.from('products').select('store_id').eq('id', item.id).single();
             
             if(prod && prod.store_id) {
-                // Utilisation de la variable 'total' définie plus haut
                 await supabase.rpc('increment_revenue', { 
                     store_id_param: String(prod.store_id), 
                     amount: parseInt(total) 
