@@ -894,30 +894,7 @@
 
 
 
-    <div id="edit-modal" class="hidden fixed inset-0 z-[80] bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-dark-900 border border-gray-800 rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold text-white mb-4">Modifier</h3>
-            <input type="hidden" id="edit-prod-id">
-            <div class="space-y-4">
-                <input type="text" id="edit-prod-title" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="edit-prod-price" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                    <input type="number" id="edit-prod-stock" class="p-3 bg-black border border-gray-700 rounded-lg text-white">
-                </div>
-                <textarea id="edit-prod-desc" rows="3" class="w-full p-3 bg-black border border-gray-700 rounded-lg text-white"></textarea>
-                
-                <div class="border border-gray-700 bg-black/40 p-3 rounded-lg">
-                    <label class="text-xs text-synapse font-bold uppercase mb-2 block"><i class="fa-solid fa-lock"></i> Mettre à jour fichier</label>
-                    <input type="file" id="edit-prod-file" class="text-xs text-gray-400 w-full">
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="document.getElementById('edit-modal').classList.add('hidden')" class="flex-1 bg-gray-700 text-white font-bold py-3 rounded-lg">Annuler</button>
-                    <button onclick="saveProductChanges()" class="flex-1 bg-synapse text-black font-bold py-3 rounded-lg">Sauvegarder</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
     <div id="cart-drawer" class="fixed inset-0 z-[60] hidden">
         <div onclick="toggleCart()" class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"></div>
@@ -1193,11 +1170,92 @@
                 <div class="space-y-2">
                     <label class="text-[10px] uppercase tracking-widest font-black text-synapse ml-2">Catégorie</label>
                     <select id="edit-prod-category" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-white focus:border-synapse outline-none transition appearance-none">
-                        <option value="Électronique">Électronique</option>
-                        <option value="Mode">Mode</option>
-                        <option value="Véhicules">Véhicules</option>
-                        <option value="Maison">Maison</option>
-                        <option value="Autre">Autre</option>
+                       <optgroup label="1. 👕 MODE HOMME">
+            <option value="H-Pull">Pull (H)</option>
+            <option value="H-Veste">Veste (H)</option>
+            <option value="H-Pantalon">Pantalon (H)</option>
+            <option value="H-Chaussure">Chaussures (H)</option>
+            <option value="H-Sous-vetement">Sous-vêtements (H)</option>
+            <option value="H-Accessoires">Accessoires (H)</option>
+        </optgroup>
+
+        <optgroup label="2. 👗 MODE FEMME">
+            <option value="F-Pull">Pull (F)</option>
+            <option value="F-Veste">Veste (F)</option>
+            <option value="F-Pantalon">Pantalon (F)</option>
+            <option value="F-Chaussure">Chaussures (F)</option>
+            <option value="F-Sous-vetement">Sous-vêtements (F)</option>
+            <option value="F-Accessoires">Accessoires (F)</option>
+        </optgroup>
+
+        <optgroup label="3. 📱 TÉLÉPHONES & HIGH-TECH">
+            <option value="Smartphones">Smartphones</option>
+            <option value="Accessoires High-Tech">Accessoires (chargeurs, coques…)</option>
+        </optgroup>
+
+        <optgroup label="4. 🚗 VÉHICULES">
+            <option value="Voitures">Voitures</option>
+            <option value="Motos/Scooters">Motos / Scooters</option>
+            <option value="Velos/Trottinettes">Vélos et trottinettes</option>
+        </optgroup>
+
+        <optgroup label="5. 🎮 LOISIRS & JEUX">
+            <option value="Jeux Video">Jeux vidéo</option>
+            <option value="Consoles">Consoles</option>
+        </optgroup>
+
+        <optgroup label="6. 👶 BÉBÉ & ENFANT">
+            <option value="Vetements Bebe">Vêtements bébé</option>
+            <option value="Poussettes">Poussettes</option>
+            <option value="Jouets">Jouets</option>
+            <option value="Accessoires Bebe">Accessoires bébé</option>
+        </optgroup>
+
+        <optgroup label="7. 💻 PC ET ACCESSOIRES">
+            <option value="PC Bureau">PC Bureau</option>
+            <option value="PC Portable">PC Portable</option>
+            <option value="PC Gamer">PC Gamer</option>
+            <option value="Monitor">Monitor (Écran)</option>
+            <option value="Souris">Souris</option>
+            <option value="Clavier">Clavier</option>
+            <option value="Autres PC">Autres accessoires PC</option>
+        </optgroup>
+
+        <optgroup label="8. 🏠 MAISON & MEUBLES">
+            <option value="Meubles">Meubles</option>
+            <option value="Decoration">Décoration</option>
+            <option value="Autres Maison">Autres (Maison)</option>
+        </optgroup>
+
+        <optgroup label="9. ❄️ ÉLECTROMÉNAGER">
+            <option value="TV">TV</option>
+            <option value="Machines a laver">Machines à laver</option>
+            <option value="Refrigerateurs">Réfrigérateurs</option>
+            <option value="Climatisation">Climatisation</option>
+            <option value="Hotte">Hotte</option>
+            <option value="Cuisiniere">Cuisinière</option>
+            <option value="Vaisselle">Vaisselle</option>
+            <option value="Autres Electro">Autres (Électro)</option>
+        </optgroup>
+
+        <optgroup label="10. 🐾 ANIMAUX">
+            <option value="Animaux">Animaux</option>
+        </optgroup>
+
+        <optgroup label="11. 🛠️ SERVICE">
+            <option value="Service">Services</option>
+        </optgroup>
+
+        <optgroup label="12. 💼 EMPLOIS">
+            <option value="Emplois">Emplois</option>
+        </optgroup>
+
+        <optgroup label="13. 📦 AUTRES & DIVERS">
+            <option value="Articles non classes">Articles non classés</option>
+            <option value="A donner">À donner</option>
+            <option value="Objets rares">Objets rares</option>
+            <option value="Divers">Divers</option>
+        </optgroup>
                     </select>
                 </div>
             </div>
