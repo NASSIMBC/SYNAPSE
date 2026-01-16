@@ -3782,6 +3782,30 @@ window.showCheckout = function() {
     }
 };
 
+window.toggleShippingFields = function() {
+    // Vérifier quel bouton est coché
+    const shippingType = document.querySelector('input[name="shipping-type"]:checked').value;
+    const addressInput = document.getElementById('checkout-village');
+    const shippingNote = document.getElementById('shipping-note');
+
+    if (shippingType === 'bureau') {
+        // Mode Bureau (Stop-Desk)
+        addressInput.placeholder = "Nom du bureau (ex: Yalidine Alger Centre, ZR Express...)";
+        if(shippingNote) {
+            shippingNote.innerText = "Indiquez le bureau de transport le plus proche de chez vous.";
+            shippingNote.classList.add('text-synapse');
+        }
+    } else {
+        // Mode Domicile
+        addressInput.placeholder = "N° de rue, bâtiment, quartier...";
+        if(shippingNote) {
+            shippingNote.innerText = "Veuillez indiquer l'adresse exacte pour la livraison à domicile.";
+            shippingNote.classList.remove('text-synapse');
+        }
+    }
+}
+
+
 // Lancement de l'application
 fetchAllData();
     </script>
