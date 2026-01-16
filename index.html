@@ -4000,6 +4000,31 @@ window.handleContactSubmit = function() {
     document.getElementById('contact-msg').value = "";
 }
 
+// --- FONCTION DE BASCULE LIVRAISON (Correction de l'erreur undefined) ---
+window.toggleShippingFields = function() {
+    // On récupère l'élément coché
+    const radioChecked = document.querySelector('input[name="shipping-type"]:checked');
+    if(!radioChecked) return;
+
+    const shippingType = radioChecked.value;
+    const addressInput = document.getElementById('checkout-village');
+    const shippingNote = document.getElementById('shipping-note');
+
+    if (shippingType === 'bureau') {
+        addressInput.placeholder = "Nom du bureau (ex: Yalidine Alger Centre, ZR Express...)";
+        if(shippingNote) {
+            shippingNote.innerText = "Indiquez le bureau de transport le plus proche de chez vous.";
+            shippingNote.classList.add('text-synapse');
+        }
+    } else {
+        addressInput.placeholder = "N° de rue, bâtiment, quartier...";
+        if(shippingNote) {
+            shippingNote.innerText = "Veuillez indiquer l'adresse exacte pour la livraison à domicile.";
+            shippingNote.classList.remove('text-synapse');
+        }
+    }
+}
+        
 // Lancement de l'application
 fetchAllData();
     </script>
