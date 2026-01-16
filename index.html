@@ -3,11 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="https://votre-url-image.com/favicon.png">
     <title>SYNAPSE | Global Shopping</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
  
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    
+    <link rel="manifest" href="/site.webmanifest">
+
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -2428,7 +2438,7 @@ window.shareStore = function(name) {
                         <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
                     </div>
                    
-                    
+
 <button onclick="openOrderChat('${item.order_id}', '${item.product.title.replace(/'/g, "\\'")}')" class="bg-gray-700 text-white px-4 py-2 rounded text-xs font-bold hover:bg-white hover:text-black transition">
     <i class="fa-regular fa-comments"></i> Discuter
 </button>
