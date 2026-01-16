@@ -297,7 +297,8 @@
 <div class="category-wrapper mb-8">
     <h2 class="text-xl font-black text-white uppercase mb-4 px-2">Explorer les <span class="text-synapse">Catégories</span></h2>
     
-    <div id="category-scroll" class="category-container">
+    <div id="category-scroll" class="category-container flex overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none">
+    </div>
         <button onclick="filterByCategory('all')" class="category-pill active">Tout</button>
         <button onclick="filterByCategory('H-')" class="category-pill">👕 Homme</button>
         <button onclick="filterByCategory('F-')" class="category-pill">👗 Femme</button>
@@ -4162,6 +4163,44 @@ window.toggleShippingFields = function() {
         }
     }
 }
+
+// --- SCRIPT D'ACTIVATION DU SLIDE SOURIS (PC) ---
+function enableMouseScroll() {
+    const slider = document.getElementById('category-scroll');
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.replace('cursor-grab', 'cursor-grabbing');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.replace('cursor-grabbing', 'cursor-grab');
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.replace('cursor-grabbing', 'cursor-grab');
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // Vitesse du défilement
+        slider.scrollLeft = scrollLeft - walk;
+    });
+}
+
+// Lancer l'activation au chargement
+enableMouseScroll();
         
 // Lancement de l'application
 fetchAllData();
