@@ -275,7 +275,7 @@
                 <div class="max-w-xl">
                     <h2 class="text-3xl md:text-6xl font-black text-white leading-none">SYN<span class="text-synapse">APSE</span></h2>
                     <p class="text-synapse font-bold uppercase tracking-[0.2em] mt-2 text-sm md:text-lg">le meilleur de l'électromenager</p>
-                    <button class="mt-6 bg-synapse text-black px-6 py-3 rounded-full font-bold hover:scale-105 transition transform">DÉCOUVRIR</button>
+                   
                 </div>
             </div>
         </div>
@@ -286,8 +286,7 @@
                 <div class="max-w-xl">
                     <h2 class="text-3xl md:text-6xl font-black text-white leading-none">VÉHICULES <span class="text-synapse">PREMIUM</span></h2>
                     <p class="text-white/80 font-medium mt-2 text-sm md:text-lg">les meilleures offre pour tous</p>
-                    <button class="mt-6 border-2 border-synapse text-synapse px-6 py-3 rounded-full font-bold hover:bg-synapse hover:text-black transition">DÉCOUVRIR</button>
-                </div>
+                    
             </div>
         </div>
 
@@ -297,7 +296,8 @@
 <div class="category-wrapper mb-8">
     <h2 class="text-xl font-black text-white uppercase mb-4 px-2">Explorer les <span class="text-synapse">Catégories</span></h2>
     
-    <div id="category-scroll" class="category-container">
+    <div id="category-scroll" class="category-container flex overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing select-none">
+    </div>
         <button onclick="filterByCategory('all')" class="category-pill active">Tout</button>
         <button onclick="filterByCategory('H-')" class="category-pill">👕 Homme</button>
         <button onclick="filterByCategory('F-')" class="category-pill">👗 Femme</button>
@@ -4163,7 +4163,7 @@ window.toggleShippingFields = function() {
     }
 }
 
-        // --- SCRIPT D'ACTIVATION DU SLIDE SOURIS (PC) ---
+// --- SCRIPT D'ACTIVATION DU SLIDE SOURIS (PC) ---
 function enableMouseScroll() {
     const slider = document.getElementById('category-scroll');
     if (!slider) return;
