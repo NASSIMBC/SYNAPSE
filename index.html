@@ -2812,29 +2812,67 @@ window.editProduct = async function(productId) {
     }
 };
 
-// Fonction pour ENREGISTRER les modifications
 window.saveProductChanges = async function() {
     const id = document.getElementById('edit-prod-id').value;
     const title = document.getElementById('edit-prod-title').value;
     const price = document.getElementById('edit-prod-price').value;
+    const stock = document.getElementById('edit-prod-stock').value;
     const desc = document.getElementById('edit-prod-desc').value;
-    const category = document.getElementById('edit-prod-category').value;
+    const fileInput = document.getElementById('edit-prod-file');
+    const file = fileInput ? fileInput.files[0] : null;
+
+    if (!id || !title || !price) {
+        return alert("Veuillez remplir au moins le nom et le prix.");
+    }
 
     try {
-        const { error } = await supabase
+        // Préparation des données de base
+        let updateData = {
+            title: title,
+            price: parseInt(price),
+            stock: parseInt(stock) || 0,
+            description: desc
+        };
+
+        // Si une nouvelle image est sélectionnée, on l'uploade d'abord
+        if (file) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `products/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('product-images')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage
+                .from('product-images')
+                .getPublicUrl(filePath);
+
+            updateData.image_url = urlData.publicUrl;
+        }
+
+        // Mise à jour finale dans Supabase
+        const { error: updateError } = await supabase
             .from('products')
-            .update({ title, price, description: desc, category })
+            .update(updateData)
             .eq('id', id);
 
-        if (error) throw error;
+        if (updateError) throw updateError;
 
-        alert("✅ Produit mis à jour !");
-        document.getElementById('modal-edit-product').classList.add('hidden');
-        await fetchAllData(); // Recharge la liste
+        alert("✅ Modifications enregistrées !");
+        
+        // On cache le modal et on rafraîchit la vue
+        document.getElementById('edit-modal').classList.add('hidden');
+        if (typeof loadSellerProducts === 'function') loadSellerProducts();
+        if (typeof fetchAllData === 'function') fetchAllData();
+
     } catch (err) {
-        alert("Erreur lors de la mise à jour");
+        console.error("Erreur de sauvegarde:", err);
+        alert("Erreur lors de la mise à jour : " + err.message);
     }
-};
+}
 
     window.openDetail = async function(t, p, d, i, id, storeId, category) {
         // 1. Remplir les textes
