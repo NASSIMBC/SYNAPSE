@@ -1053,6 +1053,42 @@
     </div>
 </div>
 
+<div id="cgv-view" class="hidden container mx-auto px-4 mt-6 mb-12 animate-fade-in-up">
+    <div class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+        <span onclick="goHome()" class="cursor-pointer hover:text-synapse">Accueil</span> 
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-black dark:text-white font-bold">CGV & Mentions Légales</span>
+    </div>
+    
+    <div class="bg-white dark:bg-dark-900 rounded-[2rem] p-8 border border-gray-100 dark:border-dark-800 shadow-xl">
+        <h2 class="text-3xl font-black text-black dark:text-white mb-6 uppercase tracking-tighter italic">Conditions <span class="text-synapse">Générales</span></h2>
+        
+        <div class="space-y-6 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">1. Objet de la plateforme</h3>
+                <p>Synapse est une place de marché numérique permettant la mise en relation de vendeurs tiers et d'acheteurs en Algérie. Synapse agit en tant qu'intermédiaire technique.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">2. Commandes et Paiement</h3>
+                <p>Le mode de paiement par défaut est le **paiement à la livraison (Cash on Delivery)**. En validant une commande, l'acheteur s'engage à réceptionner son colis et à verser le montant dû au livreur.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">3. Responsabilité des vendeurs</h3>
+                <p>Chaque vendeur est responsable de la conformité des produits vendus, de la garantie et de la gestion des éventuels retours selon sa propre politique de magasin.</p>
+            </section>
+
+            <section>
+                <h3 class="font-bold text-black dark:text-white uppercase mb-2">4. Mentions Légales</h3>
+                <p>Le site SYNAPSE est édité par Synapse Market Algérie. Pour toute réclamation, contactez-nous via la section support.</p>
+            </section>
+        </div>
+
+        <button onclick="goHome()" class="mt-8 bg-black text-white dark:bg-white dark:text-black px-6 py-3 rounded-xl font-bold hover:bg-synapse hover:text-black transition uppercase text-xs">J'ai compris</button>
+    </div>
+</div>
+
 <footer class="bg-synapse mt-20 pt-16 pb-8 border-t-4 border-black">
         <div class="container mx-auto px-4">
             
@@ -1087,7 +1123,7 @@
                     <h3 class="font-black text-black text-lg mb-6 uppercase tracking-wider">Aide</h3>
                     <ul class="space-y-3 text-sm text-black/80 font-bold">
                         <li><a href="#" class="hover:text-white transition">Centre d'aide</a></li>
-                        <li><a href="#" class="hover:text-white transition">CGV & Mentions légales</a></li>
+                        <li><button onclick="showCGV()" class="hover:text-white transition">CGV & Mentions légales</button></li>
                         <li><button onclick="showPrivacy()" class="hover:text-white transition">Confidentialité</button></li>
                         <li><a href="#" class="hover:text-white transition">Contactez-nous</a></li>
                     </ul>
@@ -1960,32 +1996,54 @@ if (storeId && amountToAdd > 0) {
     }
 }
 
-        // --- UI UTILS ---
-        window.toggleTheme = () => document.documentElement.classList.toggle('dark');
-       // Remplacez votre ligne window.hideAllViews par ceci :
-    window.hideAllViews = () => {
-    // AJOUT DE 'wishlist-view' DANS CETTE LISTE 👇
-    ['home-view', 'product-view', 'auth-view', 'dashboard-view', 'checkout-view', 'seller-dashboard-view', 'wishlist-view', 'stores-view', 'privacy-view'].forEach(id => {
+      // --- UI UTILS ---
+window.toggleTheme = () => document.documentElement.classList.toggle('dark');
+
+window.hideAllViews = () => {
+    // Liste complète de toutes les sections du site à cacher
+    const views = [
+        'home-view', 
+        'product-view', 
+        'auth-view', 
+        'dashboard-view', 
+        'checkout-view', 
+        'seller-dashboard-view', 
+        'wishlist-view', 
+        'stores-view', 
+        'privacy-view', 
+        'cgv-view',   // AJOUTÉ
+        'help-view'    // AJOUTÉ
+    ];
+
+    views.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
 }
-        window.goHome = () => { window.hideAllViews(); document.getElementById('home-view').classList.remove('hidden'); fetchAllData(); window.scrollTo(0,0); }
-        window.showAuth = () => { window.hideAllViews(); document.getElementById('auth-view').classList.remove('hidden'); }
-      window.showDashboard = async () => { 
-            window.hideAllViews(); 
-            document.getElementById('dashboard-view').classList.remove('hidden'); 
-            
-            // CHARGEMENT DES DONNÉES
-            loadProfile(); 
-            // 👇 C'EST CETTE LIGNE QUI MANQUAIT POUR AFFICHER LES COMMANDES 👇
-            await loadBuyerOrders(); 
-        }
-    window.showSellerDashboard = async function() {
+
+window.goHome = () => { 
+    window.hideAllViews(); 
+    document.getElementById('home-view').classList.remove('hidden'); 
+    fetchAllData(); 
+    window.scrollTo(0,0); 
+}
+
+window.showAuth = () => { 
+    window.hideAllViews(); 
+    document.getElementById('auth-view').classList.remove('hidden'); 
+}
+
+window.showDashboard = async () => { 
+    window.hideAllViews(); 
+    document.getElementById('dashboard-view').classList.remove('hidden'); 
+    loadProfile(); 
+    await loadBuyerOrders(); 
+}
+
+window.showSellerDashboard = async function() {
     window.hideAllViews();
     document.getElementById('seller-dashboard-view').classList.remove('hidden');
     
-    // --- FIX : CHARGEMENT DU DESIGN DE LA BOUTIQUE ---
     try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -1997,25 +2055,20 @@ if (storeId && amountToAdd > 0) {
 
             if (store) {
                 const cacheBuster = "?t=" + Date.now();
-                // Charger le logo s'il existe
                 if (store.logo_url) {
                     document.getElementById('seller-logo-preview').src = store.logo_url + cacheBuster;
                 }
-                // Charger la bannière s'elle existe
                 if (store.banner_url) {
                     const banner = document.getElementById('seller-bg-preview');
                     banner.src = store.banner_url + cacheBuster;
                     banner.classList.remove('hidden');
                 }
-                // Optionnel : Mettre à jour le nom de la boutique si tu as un élément pour ça
-                // document.getElementById('store-name-display').innerText = store.name;
             }
         }
     } catch (err) {
         console.error("Erreur lors du chargement du design de la boutique:", err);
     }
 
-    // Charger les autres données du dashboard
     loadSellerStats();
     loadSellerOrders();
     loadSellerProducts();
