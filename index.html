@@ -1771,7 +1771,7 @@ async function fetchAllData() {
         .eq('is_boosted', true)
         .lt('boost_expiry', nowISO)
         .then(() => {});
-
+}
     // --- 2. ALGORITHME DE CIBLAGE STRICT (BOOSTS) ---
     const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
     let boostedToShow = [];
