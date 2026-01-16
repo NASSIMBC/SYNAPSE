@@ -4162,6 +4162,44 @@ window.toggleShippingFields = function() {
         }
     }
 }
+
+        // --- SCRIPT D'ACTIVATION DU SLIDE SOURIS (PC) ---
+function enableMouseScroll() {
+    const slider = document.getElementById('category-scroll');
+    if (!slider) return;
+
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.replace('cursor-grab', 'cursor-grabbing');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.replace('cursor-grabbing', 'cursor-grab');
+    });
+
+    slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.replace('cursor-grabbing', 'cursor-grab');
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 2; // Vitesse du défilement
+        slider.scrollLeft = scrollLeft - walk;
+    });
+}
+
+// Lancer l'activation au chargement
+enableMouseScroll();
         
 // Lancement de l'application
 fetchAllData();
