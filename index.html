@@ -3285,10 +3285,10 @@
             }
         }
 
-        window.publishProduct = async function () {
+       window.publishProduct = async function () {
     const btn = document.getElementById('btn-publish');
-
-    // Récupération des images
+    
+    // --- A. Récupération des données ---
     let imageFiles = (window.productFiles && window.productFiles.length > 0)
         ? window.productFiles
         : Array.from(document.getElementById('prod-images').files || []);
@@ -3298,75 +3298,63 @@
     const title = document.getElementById('prod-title').value;
     const price = document.getElementById('prod-price').value;
     const category = document.getElementById('prod-category').value;
-    const description = document.getElementById('prod-desc').value; // Je récupère la description ici
+    const desc = document.getElementById('prod-desc').value;
 
-    if (!title || !price || !category) return alert("⚠️ Remplissez tous les champs.");
+    if (!title || !price || !category) return alert("⚠️ Remplissez titre, prix et catégorie.");
 
-    btn.innerText = "Analyse IA en cours..."; // Feedback utilisateur
+    // --- B. Interface Utilisateur ---
+    btn.innerText = "⏳ Analyse IA en cours...";
     btn.disabled = true;
 
     try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Veuillez vous connecter.");
+        if (!user) throw new Error("Connectez-vous d'abord.");
 
-        // 1. GESTION DE LA BOUTIQUE
-        let { data: store } = await supabase
-            .from('stores')
-            .select('id')
-            .eq('owner_id', user.id)
-            .maybeSingle();
-
+        // --- C. Gestion Boutique ---
+        let { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
         if (!store) {
-            const { data: newStore, error: createError } = await supabase
-                .from('stores')
-                .insert([{
-                    owner_id: user.id,
-                    name: "Boutique de " + (user.user_metadata.full_name || "Vendeur")
-                }])
-                .select()
-                .single();
-
-            if (createError) throw new Error("Erreur création boutique.");
+            const { data: newStore, error: createError } = await supabase.from('stores')
+                .insert([{ owner_id: user.id, name: "Boutique de " + (user.user_metadata.full_name || "Vendeur") }])
+                .select().single();
+            if (createError) throw createError;
             store = newStore;
         }
 
-        // 2. UPLOAD DES IMAGES
+        // --- D. Upload Images ---
         let uploadedUrls = [];
         for (let i = 0; i < imageFiles.length; i++) {
-            const file = imageFiles[i];
-            const fileName = `img_${Date.now()}_${i}_${file.name.replace(/[^a-zA-Z0-9.]/g, '')}`;
-            const { error: upError } = await supabase.storage.from('products').upload(fileName, file);
-            if (upError) throw upError;
-            const { data: publicUrl } = supabase.storage.from('products').getPublicUrl(fileName);
-            uploadedUrls.push(publicUrl.publicUrl);
+            const fileName = `prod_${Date.now()}_${i}.jpg`;
+            const { error: upError } = await supabase.storage.from('products').upload(fileName, imageFiles[i]);
+            if(upError) throw upError;
+            const { data: urlData } = supabase.storage.from('products').getPublicUrl(fileName);
+            uploadedUrls.push(urlData.publicUrl);
         }
 
-        // [NOUVEAU] 3. GÉNÉRATION DE L'INTELLIGENCE ARTIFICIELLE
-        // On combine titre + description + catégorie pour que l'IA comprenne bien le produit
-        const textForAI = `${title} ${description} ${category}`;
-        const embeddingVector = await generateEmbedding(textForAI);
+        // --- E. Appel à l'IA (Via Supabase RPC) ---
+        const textForAI = `Titre: ${title}. Description: ${desc}. Catégorie: ${category}.`;
+        const vector = await generateEmbedding(textForAI); 
 
-        // 4. INSERTION DU PRODUIT (AVEC L'EMBEDDING)
+        // --- F. Sauvegarde Finale ---
         const { error: prodError } = await supabase.from('products').insert([{
             store_id: store.id,
             title: title,
-            description: description,
+            description: desc,
             price: parseInt(price),
             stock: parseInt(document.getElementById('prod-stock').value || 1),
             category: category,
             image_url: uploadedUrls[0],
             images: uploadedUrls,
-            embedding: embeddingVector // <--- C'est ici que l'IA est injectée !
+            embedding: vector // <--- L'insertion fonctionnera parfaitement maintenant
         }]);
 
         if (prodError) throw prodError;
 
-        alert("✅ Produit publié et analysé par l'IA avec succès !");
+        alert("🚀 Produit mis en ligne et analysé par l'IA !");
         window.goHome();
 
     } catch (err) {
-        console.error("Erreur publication:", err);
-        alert("Erreur : " + err.message);
+        console.error("Erreur:", err);
+        alert("Erreur: " + err.message);
     } finally {
         btn.innerText = "Publier";
         btn.disabled = false;
@@ -4767,21 +4755,25 @@
 
         // --- FONCTION POUR GÉNÉRER LE CERVEAU DU PRODUIT (EMBEDDING) ---
         // --- FONCTION SÉCURISÉE VIA SQL (RPC) ---
+// --- FONCTION SÉCURISÉE (Utilise le moteur SQL Supabase) ---
 async function generateEmbedding(text) {
     try {
-        // On appelle la fonction qu'on vient de créer dans Supabase
+        console.log("🧠 Demande de calcul au moteur Supabase...");
+        
+        // On appelle la fonction SQL qu'on vient de tester avec succès
         const { data, error } = await supabase.rpc('get_gemini_embedding', { 
             text_input: text 
         });
 
         if (error) {
-            console.error("Erreur RPC Supabase:", error);
+            console.error("Erreur Moteur:", error);
             return null;
         }
 
-        return data; // C'est le vecteur renvoyé par le serveur
+        console.log("✅ Vecteur reçu !");
+        return data; // C'est la liste de chiffres renvoyée par Supabase
     } catch (err) {
-        console.error("Erreur Appel:", err);
+        console.error("Erreur JS:", err);
         return null;
     }
 }
