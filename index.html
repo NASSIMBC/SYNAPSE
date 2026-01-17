@@ -105,6 +105,29 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Uniquement sur mobile (écrans de moins de 768px) */
+@media (max-width: 768px) {
+    
+    /* REMPLACEZ '.sidebar-categories' PAR LA VRAIE CLASSE DE VOTRE BLOC CATÉGORIES */
+    .sidebar-categories { 
+        display: flex !important;      /* Force l'affichage */
+        flex-direction: row;           /* Met les éléments en ligne */
+        overflow-x: auto;              /* Active le scroll horizontal */
+        white-space: nowrap;           /* Empêche le retour à la ligne */
+        width: 100%;                   /* Prend toute la largeur */
+        padding: 10px;
+        background: #fff;              /* Fond blanc pour lisibilité */
+        z-index: 100;                  /* S'assure que c'est au dessus */
+    }
+
+    /* Si vos catégories sont des liens ou des listes */
+    .sidebar-categories a, 
+    .sidebar-categories li {
+        margin-right: 15px;            /* Espace entre les catégories */
+        display: inline-block;
+    }
+}
     </style>
 </head>
 
