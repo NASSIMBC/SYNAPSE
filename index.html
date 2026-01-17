@@ -4766,32 +4766,25 @@
         enableMouseScroll();
 
         // --- FONCTION POUR GÉNÉRER LE CERVEAU DU PRODUIT (EMBEDDING) ---
-        async function generateEmbedding(text) {
-            const API_KEY = "AIzaSyC1p29XbzUb55ROnatux59-YPWDptcWVek"; // <--- METTEZ VOTRE CLÉ ICI
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=${API_KEY}`;
+        // --- FONCTION SÉCURISÉE VIA SQL (RPC) ---
+async function generateEmbedding(text) {
+    try {
+        // On appelle la fonction qu'on vient de créer dans Supabase
+        const { data, error } = await supabase.rpc('get_gemini_embedding', { 
+            text_input: text 
+        });
 
-            try {
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        content: { parts: [{ text: text.replace(/\n/g, " ") }] }
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.error) {
-                    console.error("Erreur Gemini:", result.error);
-                    return null;
-                }
-
-                return result.embedding.values; // Retourne la liste des chiffres
-            } catch (error) {
-                console.error("Erreur réseau IA:", error);
-                return null;
-            }
+        if (error) {
+            console.error("Erreur RPC Supabase:", error);
+            return null;
         }
+
+        return data; // C'est le vecteur renvoyé par le serveur
+    } catch (err) {
+        console.error("Erreur Appel:", err);
+        return null;
+    }
+}
 
         // Lancement de l'application
         fetchAllData();
