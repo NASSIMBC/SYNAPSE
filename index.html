@@ -2290,6 +2290,60 @@ function renderSimilarResults(products) {
     });
 }
 
+// --- FLUX D'ACCUEIL INTELLIGENT (SMART FEED) ---
+window.loadSmartFeed = async function() {
+    const container = document.getElementById('recommended-grid'); // Assurez-vous d'avoir cette div dans votre HTML
+    if (!container) return;
+
+    // Affiche un petit loader
+    container.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400"><span class="loader"></span> L\'IA personnalise votre flux...</div>';
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // CAS 1 : Utilisateur non connecté ou nouveau (Pas d'historique)
+    if (!user) {
+        // On affiche simplement les produits les plus récents ou les plus populaires
+        const { data: recent } = await supabase
+            .from('products')
+            .select('*')
+            .limit(8)
+            .order('created_at', { ascending: false });
+            
+        renderGrid('recommended-grid', recent);
+        return;
+    }
+
+    // CAS 2 : Utilisateur connecté (On appelle l'algorithme SQL Hybride)
+    try {
+        const { data: smartProducts, error } = await supabase.rpc('get_smart_home_feed', {
+            target_user_id: user.id,
+            lim: 12 // Nombre de produits à afficher
+        });
+
+        if (error) throw error;
+
+        // Si l'algo ne renvoie rien (pas encore assez d'historique), on fallback sur les récents
+        if (!smartProducts || smartProducts.length === 0) {
+            const { data: fallback } = await supabase.from('products').select('*').limit(8);
+            renderGrid('recommended-grid', fallback);
+        } else {
+            // On affiche le résultat de l'IA
+            renderGrid('recommended-grid', smartProducts);
+            
+            // AJOUT DU BADGE "POUR VOUS"
+            // On ajoute un petit titre visuel pour montrer que c'est personnalisé
+            const titleSection = document.getElementById('recommended-section-title');
+            if(titleSection) {
+                titleSection.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-synapse"></i> Sélectionné pour vous';
+            }
+        }
+
+    } catch (err) {
+        console.error("Erreur Smart Feed:", err);
+        container.innerHTML = '<div class="text-center text-red-500">Erreur de chargement du flux.</div>';
+    }
+};
+
         // --- FONCTIONS COMMENTAIRES (AVIS) ---
      // --- VERSION BLINDÉE (SANS JOINTURE COMPLEXE) ---
         async function loadComments(productId) {
