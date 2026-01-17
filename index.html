@@ -1417,6 +1417,8 @@ window.showCheckout = function() {
         return;
     }
 
+
+
     // 2. Cacher toutes les pages et afficher la vue Checkout
     window.hideAllViews();
     const checkoutView = document.getElementById('checkout-view');
@@ -1733,8 +1735,9 @@ window.showCheckout = function() {
         }
     }
 
-    function setupRealtime() {
-    // Écoute les changements sur la table products (ex: mise à jour des ventes en direct)
+  // --- FONCTION REALTIME (À placer avec vos autres fonctions) ---
+function setupRealtime() {
+    // Écoute les changements sur la table products
     supabase
     .channel('public:products')
     .on('postgres_changes', { 
@@ -1749,17 +1752,33 @@ window.showCheckout = function() {
         // On met à jour l'affichage si le badge de vente est visible
         const element = document.getElementById(`sales-count-${productId}`);
         if(element) {
-            element.innerText = newSales;
-            element.classList.add('text-green-500', 'scale-125'); // Petit effet visuel
+            element.innerText = newSales + ' ventes'; // J'ai ajouté le texte 'ventes' pour faire propre
+            element.classList.add('text-green-500', 'scale-110', 'font-bold'); // Effet visuel
+            
+            // On retire l'effet après 1 seconde
             setTimeout(() => { 
-                element.classList.remove('text-green-500', 'scale-125'); 
+                element.classList.remove('text-green-500', 'scale-110', 'font-bold'); 
             }, 1000);
         }
     })
     .subscribe();
 }
 
-   // --- 8. AFFICHAGE DONNEES & REALTIME ---
+// --- PARTIE À METTRE À LA FIN DE VOTRE FONCTION fetchAllData() ---
+// (C'est là que vous aviez l'erreur de syntaxe)
+
+// 1. Initialisation du Slider
+if (typeof initHeroSlider === 'function') {
+    initHeroSlider();
+}
+
+// 2. Activation du Realtime
+setupRealtime();
+
+// 3. Synchronisation des favoris (Wishlist)
+if (typeof window.syncWishlistState === 'function') {
+    await window.syncWishlistState();
+}
 
 async function fetchAllData() {
     const nowTime = new Date().getTime();
@@ -1772,33 +1791,30 @@ async function fetchAllData() {
         .lt('boost_expiry', nowISO)
         .then(() => {});
 
-    // --- 2. ALGORITHME DE CIBLAGE (BOOSTS) ---
+    // --- 2. ALGORITHME DE CIBLAGE (BOOSTS - CLIENT SIDE) ---
     const searchHistory = JSON.parse(localStorage.getItem('synapse_search_history') || '[]');
     let boostedToShow = [];
 
     try {
-        // A. On récupère TOUS les produits boostés valides
         const { data: allBoosted } = await supabase
             .from('products')
             .select('*')
             .eq('is_boosted', true);
 
         if (allBoosted && allBoosted.length > 0) {
-            // Filtrer par date
             const activeBoosts = allBoosted.filter(p => p.boost_expiry && new Date(p.boost_expiry).getTime() > nowTime);
 
             if (searchHistory.length > 0) {
-                // B. Priorité 1 : Mots-clés dans le titre
+                // Priorité Mots-clés
                 boostedToShow = activeBoosts.filter(p => 
                     searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase()))
                 );
 
-                // C. Priorité 2 : Si pas assez (moins de 6), on complète avec la même catégorie
+                // Complément Catégorie
                 if (boostedToShow.length < 6) {
                     const myCategories = activeBoosts
                         .filter(p => searchHistory.some(term => p.title.toLowerCase().includes(term.toLowerCase())))
                         .map(p => p.category);
-
                     const extraBoosts = activeBoosts.filter(p => 
                         myCategories.includes(p.category) && !boostedToShow.find(b => b.id === p.id)
                     );
@@ -1806,7 +1822,7 @@ async function fetchAllData() {
                 }
             }
 
-            // D. Priorité 3 : Si toujours < 6 (ou nouveau compte), hasard total
+            // Complément Hasard
             if (boostedToShow.length < 6) {
                 const randomFill = activeBoosts
                     .filter(p => !boostedToShow.find(b => b.id === p.id))
@@ -1816,17 +1832,16 @@ async function fetchAllData() {
         }
     } catch (err) { console.error("Erreur Algo Ciblage:", err); }
 
-    // E. Rotation finale et LIMITE À 6 ANNONCES
     window.allActiveBoosts = boostedToShow; 
     const finalBoosted = boostedToShow.sort(() => 0.5 - Math.random()).slice(0, 6);
 
-    // --- 3. CHARGEMENT DES DERNIERS AJOUTS ---
+    // --- 3. CHARGEMENT DES DERNIERS AJOUTS (GLOBAL) ---
     const { data: all } = await supabase
         .from('products')
         .select('*')
         .order('created_at', { ascending: false });
 
-    // --- 4. AFFICHAGE DES GRILLES ---
+    // --- 4. AFFICHAGE DES GRILLES CLASSIQUES ---
     renderGrid('products-grid', all);
     
     const boostedSection = document.getElementById('boosted-section');
@@ -1837,29 +1852,27 @@ async function fetchAllData() {
         boostedSection.classList.add('hidden');
     }
 
-    // --- 5. LOGIQUE SYNC ---
-    if (typeof initHeroSlider === 'function') initHeroSlider();
+    // --- 5. CHARGEMENT DU FLUX INTELLIGENT (IA - SMART FEED) ---
+    if (typeof window.loadSmartFeed === 'function') {
+        await window.loadSmartFeed(); 
+    }
+
+    // --- 6. LOGIQUE SYNC & UI (CORRIGÉ) ---
+    // Initialisation du slider (Bannière)
+    if (typeof initHeroSlider === 'function') {
+        initHeroSlider();
+    }
     
-    setupRealtime();
+    // Activation du Realtime (Mise à jour en direct)
+    if (typeof setupRealtime === 'function') {
+        setupRealtime();
+    }
+
+    // Synchronisation des cœurs rouges (Wishlist)
     if (typeof window.syncWishlistState === 'function') {
         await window.syncWishlistState();
     }
 }
-
-// --- ROTATION AUTOMATIQUE TOUTES LES 30 SECONDES ---
-if (!window.boostRotationActive) {
-    setInterval(() => {
-        if (window.allActiveBoosts && window.allActiveBoosts.length > 0) {
-            console.log("🔄 Rotation des 6 annonces boostées...");
-            const rotated = [...window.allActiveBoosts].sort(() => 0.5 - Math.random()).slice(0, 6);
-            renderGrid('boosted-grid', rotated, true);
-        }
-    }, 30000); 
-    window.boostRotationActive = true;
-}
-
-
-
 window.loadSellerProducts = async function() {
     const list = document.getElementById('seller-products-list');
     list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -3185,6 +3198,60 @@ window.saveProductChanges = async function() {
             }
         }
     }
+
+// --- FLUX D'ACCUEIL INTELLIGENT (SMART FEED) ---
+window.SloadmartFeed = async function() {
+    const container = document.getElementById('recommended-grid'); // Assurez-vous d'avoir cette div dans votre HTML
+    if (!container) return;
+
+    // Affiche un petit loader
+    container.innerHTML = '<div class="col-span-full text-center py-10 text-gray-400"><span class="loader"></span> L\'IA personnalise votre flux...</div>';
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // CAS 1 : Utilisateur non connecté ou nouveau (Pas d'historique)
+    if (!user) {
+        // On affiche simplement les produits les plus récents ou les plus populaires
+        const { data: recent } = await supabase
+            .from('products')
+            .select('*')
+            .limit(8)
+            .order('created_at', { ascending: false });
+            
+        renderGrid('recommended-grid', recent);
+        return;
+    }
+
+    // CAS 2 : Utilisateur connecté (On appelle l'algorithme SQL Hybride)
+    try {
+        const { data: smartProducts, error } = await supabase.rpc('get_smart_home_feed', {
+            target_user_id: user.id,
+            lim: 12 // Nombre de produits à afficher
+        });
+
+        if (error) throw error;
+
+        // Si l'algo ne renvoie rien (pas encore assez d'historique), on fallback sur les récents
+        if (!smartProducts || smartProducts.length === 0) {
+            const { data: fallback } = await supabase.from('products').select('*').limit(8);
+            renderGrid('recommended-grid', fallback);
+        } else {
+            // On affiche le résultat de l'IA
+            renderGrid('recommended-grid', smartProducts);
+            
+            // AJOUT DU BADGE "POUR VOUS"
+            // On ajoute un petit titre visuel pour montrer que c'est personnalisé
+            const titleSection = document.getElementById('recommended-section-title');
+            if(titleSection) {
+                titleSection.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-synapse"></i> Sélectionné pour vous';
+            }
+        }
+
+    } catch (err) {
+        console.error("Erreur Smart Feed:", err);
+        container.innerHTML = '<div class="text-center text-red-500">Erreur de chargement du flux.</div>';
+    }
+};
 
 
 window.toggleWishlist = async function(productId, btnElement) {
