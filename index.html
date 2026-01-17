@@ -3170,38 +3170,49 @@ window.saveProductChanges = async function() {
         loadComments(id);
 
         // Affichage de la vue
-        window.hideAllViews();
-        document.getElementById('product-view').classList.remove('hidden');
-        window.scrollTo(0,0);
-        
-        // Compteur de vues
-        if(id) await supabase.rpc('increment_views', { row_id: id });
+    window.hideAllViews();
+    document.getElementById('product-view').classList.remove('hidden');
+    window.scrollTo(0,0);
+    
+    // Compteur de vues (Global)
+    if(id) await supabase.rpc('increment_views', { row_id: id });
 
-        // 👇👇👇 AJOUT VITAL 2 : VÉRIFICATION DU COEUR ROUGE 👇👇👇
-        const { data: { user } } = await supabase.auth.getUser();
-        if(user && wishBtn) {
-            // On demande à la base de données : "Est-ce que ce produit est dans ma liste ?"
-            const { data: existing } = await supabase
-                .from('wishlist')
-                .select('id')
-                .eq('user_id', user.id)
-                .eq('product_id', id)
-                .maybeSingle();
+    // 👇👇👇 AJOUT VITAL 2 : VÉRIFICATION DU COEUR ROUGE 👇👇👇
+    const { data: { user } } = await supabase.auth.getUser();
 
-            const icon = wishBtn.querySelector('i');
-            if(existing) {
-                // OUI : Coeur Rouge
-                icon.className = "fa-solid fa-heart text-red-500";
-            } else {
-                // NON : Coeur Gris
-                icon.className = "fa-regular fa-heart text-gray-400";
-            }
+    // [NOUVEAU] : C'est ici qu'on insère le code de tracking pour l'IA
+    if(user) {
+        // On ne bloque pas l'exécution avec 'await' ici pour que ce soit fluide (fire and forget)
+        supabase.from('user_interactions').insert([
+            { user_id: user.id, product_id: id, interaction_type: 'view' }
+        ]).then(() => console.log("Vue enregistrée pour l'IA"));
+    }
+    // [FIN DU NOUVEAU CODE]
+
+    if(user && wishBtn) {
+        // On demande à la base de données : "Est-ce que ce produit est dans ma liste ?"
+        const { data: existing } = await supabase
+            .from('wishlist')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('product_id', id)
+            .maybeSingle();
+
+        const icon = wishBtn.querySelector('i');
+        if(existing) {
+            // OUI : Coeur Rouge
+            icon.className = "fa-solid fa-heart text-red-500";
+        } else {
+            // NON : Coeur Gris
+            icon.className = "fa-regular fa-heart text-gray-400";
         }
     }
+}
 
 // --- FLUX D'ACCUEIL INTELLIGENT (SMART FEED) ---
-window.SloadmartFeed = async function() {
-    const container = document.getElementById('recommended-grid'); // Assurez-vous d'avoir cette div dans votre HTML
+// CORRECTION ICI : "loadSmartFeed" et non "SloadmartFeed"
+window.loadSmartFeed = async function() { 
+    const container = document.getElementById('recommended-grid'); 
     if (!container) return;
 
     // Affiche un petit loader
@@ -3211,7 +3222,6 @@ window.SloadmartFeed = async function() {
 
     // CAS 1 : Utilisateur non connecté ou nouveau (Pas d'historique)
     if (!user) {
-        // On affiche simplement les produits les plus récents ou les plus populaires
         const { data: recent } = await supabase
             .from('products')
             .select('*')
@@ -3226,12 +3236,12 @@ window.SloadmartFeed = async function() {
     try {
         const { data: smartProducts, error } = await supabase.rpc('get_smart_home_feed', {
             target_user_id: user.id,
-            lim: 12 // Nombre de produits à afficher
+            lim: 12 
         });
 
         if (error) throw error;
 
-        // Si l'algo ne renvoie rien (pas encore assez d'historique), on fallback sur les récents
+        // Si l'algo ne renvoie rien, on fallback sur les récents
         if (!smartProducts || smartProducts.length === 0) {
             const { data: fallback } = await supabase.from('products').select('*').limit(8);
             renderGrid('recommended-grid', fallback);
@@ -3240,7 +3250,6 @@ window.SloadmartFeed = async function() {
             renderGrid('recommended-grid', smartProducts);
             
             // AJOUT DU BADGE "POUR VOUS"
-            // On ajoute un petit titre visuel pour montrer que c'est personnalisé
             const titleSection = document.getElementById('recommended-section-title');
             if(titleSection) {
                 titleSection.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles text-synapse"></i> Sélectionné pour vous';
