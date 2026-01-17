@@ -4778,6 +4778,43 @@ async function generateEmbedding(text) {
     }
 }
 
+        <!DOCTYPE html>
+<html>
+<head>
+    </head>
+<body>
+
+    <button id="toggle-btn">Mode Sombre</button>
+
+
+    <script>
+        // --- COLLEZ LE CODE ICI ---
+
+        // 1. On vérifie la mémoire au chargement
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // 2. Le clic sur le bouton
+        const btn = document.getElementById('toggle-btn'); // Vérifiez que 'toggle-btn' est bien l'ID de votre bouton
+
+        if(btn) { // Petite sécurité pour éviter les erreurs si le bouton n'est pas trouvé
+            btn.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+
+                // On sauvegarde le choix
+                if (document.body.classList.contains('dark-mode')) {
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
+
         // Lancement de l'application
         fetchAllData();
     </script>
