@@ -157,7 +157,7 @@
             <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl mr-2 text-black dark:text-white"><i
                     class="fa-solid fa-bars"></i></button>
 
-            <a href="home" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
+            <a href="/" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
                 <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-black font-bold text-xl">S
                 </div>
                 <span
@@ -2967,82 +2967,125 @@
 
         // --- GESTION DES COMMANDES & CHAT INTELLIGENT ---
 
-        async function loadBuyerOrders() {
-            const container = document.getElementById('buyer-orders-container');
-            if (!container) return;
+       async function loadBuyerOrders() {
+    const container = document.getElementById('buyer-orders-container');
+    if (!container) return;
 
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
-                return;
-            }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous pour voir vos commandes.</div>';
+        return;
+    }
 
-            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
+    container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement de vos commandes...</div>';
 
-            const { data: orders, error } = await supabase
-                .from('order_items')
-                .select('*, order:orders(*), product:products(*)')
-                .eq('order.user_id', user.id)
-                .order('created_at', { ascending: false });
+    // Requête pour récupérer les articles commandés avec les infos de la commande parente et du produit
+    const { data: orders, error } = await supabase
+        .from('order_items')
+        .select('*, order:orders(*), product:products(*)')
+        .eq('order.user_id', user.id)
+        .order('created_at', { ascending: false });
 
-            if (error) {
-                console.error(error);
-                container.innerHTML = '<div class="text-center text-red-500">Erreur chargement.</div>';
-                return;
-            }
+    if (error) {
+        console.error("Erreur Supabase:", error);
+        container.innerHTML = '<div class="text-center text-red-500 font-bold">Erreur lors du chargement des commandes.</div>';
+        return;
+    }
 
-            if (orders && orders.length > 0) {
-                container.innerHTML = '';
-                orders.forEach(item => {
-                    // --- 1. DÉFINITION DES VARIABLES (Indispensable pour le HTML) ---
+    if (orders && orders.length > 0) {
+        container.innerHTML = '';
+        orders.forEach(item => {
+            // --- 1. DÉFINITION DES VARIABLES ---
 
-                    // Statut : On prend celui de l'article en priorité, sinon celui de la commande
-                    const status = item.status || (item.order ? item.order.status : 'en_attente');
+            // Statut : Gestion des priorités et fallback
+            const status = item.status || (item.order ? item.order.status : 'en_attente');
 
-                    let color = 'bg-gray-100 text-gray-600';
-                    let statusText = 'En attente';
+            let color = 'bg-gray-100 text-gray-600';
+            let statusText = 'En attente';
 
-                    if (status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
-                    if (status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Livré'; }
-                    if (status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
+            if (status === 'en_livraison') { color = 'bg-blue-100 text-blue-600'; statusText = 'En cours'; }
+            if (status === 'livre') { color = 'bg-green-100 text-green-600'; statusText = 'Livré'; }
+            if (status === 'annule') { color = 'bg-red-100 text-red-600'; statusText = 'Annulé'; }
 
-                    // Sécurisation des données
-                    const safeOrderId = item.order_id ? String(item.order_id).slice(0, 8) : '???';
+            // Sécurisation des données ID
+            const fullOrderId = item.order_id || '';
+            const safeOrderId = fullOrderId ? String(fullOrderId).slice(0, 8) : '???';
 
-                    // Titre brut pour l'affichage (avec apostrophes normales)
-                    const rawTitle = item.product ? item.product.title : 'Produit supprimé';
+            // Titres et images
+            const rawTitle = item.product ? item.product.title : 'Produit supprimé';
+            const safeTitle = rawTitle.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeImg = item.product ? item.product.image_url : 'https://pngimg.com/d/box_PNG120.png';
 
-                    // Titre sécurisé pour le bouton onclick (apostrophes échappées)
-                    const safeTitle = rawTitle.replace(/'/g, "\\'");
+            // --- 2. CONSTRUCTION DU HTML ---
+            container.innerHTML += `
+            <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4 transition-all hover:shadow-md">
+                <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200 shadow-sm">
+                
+                <div class="flex-1 text-center md:text-left">
+                    <h4 class="font-bold text-sm text-black dark:text-white uppercase tracking-tight">${rawTitle}</h4>
+                    <div class="text-xs text-gray-500 mb-2 font-medium">Commande #${safeOrderId} • <span class="text-black dark:text-white">${item.price} DA</span></div>
+                    <span class="text-[9px] uppercase font-black px-3 py-1 rounded-full ${color} shadow-sm">${statusText}</span>
+                </div>
 
-                    const safeImg = item.product ? item.product.image_url : 'https://pngimg.com/d/box_PNG120.png';
+                <button onclick="window.openOrderChat('${fullOrderId}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-[10px] font-black uppercase px-6 py-4 rounded-xl hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg active:scale-95">
+                    <i class="fa-solid fa-comments"></i> Chat & Suivi
+                </button>
+            </div>`;
+        });
+    } else {
+        container.innerHTML = `
+            <div class="p-16 text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2rem]">
+                <i class="fa-solid fa-box-open text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 font-bold">Vous n'avez pas encore passé de commande.</p>
+            </div>`;
+    }
+}
 
-                    // --- 2. CONSTRUCTION DU HTML (Votre partie) ---
-                    container.innerHTML += `
-                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
-                    <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
-                    
-                    <div class="flex-1 text-center md:text-left">
-                        <h4 class="font-bold text-sm text-black dark:text-white">${rawTitle}</h4>
-                        <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${statusText}</span>
-                    </div>
+// --- LOGIQUE DU CHAT (Correction pour export global) ---
+let currentChatOrderId = null;
+let pendingUpload = null;
 
-                    <button onclick="openOrderChat('${item.order_id}', '${safeTitle}')" class="w-full md:w-auto bg-black dark:bg-white text-white dark:text-black text-xs font-bold px-6 py-3 rounded-lg hover:bg-synapse hover:text-black transition flex items-center justify-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-comments"></i> Chat & Suivi
-                    </button>
-                </div>`;
-                });
-            } else {
-                container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
-            }
+// On attache la fonction à l'objet window pour qu'elle soit visible par le HTML
+window.openOrderChat = function(orderId, productTitle) {
+    if (!orderId) return;
+    
+    // Fermer toutes les autres vues
+    if (typeof hideAllViews === 'function') hideAllViews();
+    
+    const chatView = document.getElementById('openOrderChat'); // Assurez-vous que l'ID de votre vue est correct
+    if (chatView) {
+        chatView.classList.remove('hidden');
+        currentChatOrderId = orderId;
+        
+        // Optionnel : Mettre à jour le titre du produit dans l'interface de chat
+        const titlePlaceholder = chatView.querySelector('#chat-product-name');
+        if(titlePlaceholder) titlePlaceholder.innerText = productTitle;
+
+        window.scrollTo(0, 0);
+        
+        // Ici vous pouvez lancer fetchOrderMessages(orderId) si vous avez une fonction de messagerie
+    } else {
+        console.error("Vue 'openOrderChat' introuvable dans le HTML.");
+        alert("Suivi de commande pour : " + productTitle);
+    }
+};
+        window.openOrderChat = function (orderId, productTitle) {
+            currentChatOrderId = orderId;
+            document.getElementById('chat-modal').classList.remove('hidden');
+            // Simulation : Chargement des messages (faux messages pour l'exemple)
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.innerHTML = `
+                <div class="text-center text-xs text-gray-400 my-4">Début de la transaction sécurisée pour "${productTitle}"</div>
+                <div class="flex justify-start"><div class="bg-white dark:bg-dark-800 dark:text-white p-3 rounded-xl rounded-tl-none shadow-sm max-w-[80%] text-sm">Bonjour, merci pour votre achat. Je prépare le fichier.</div></div>
+            `;
         }
 
-        // --- LOGIQUE DU CHAT ---
-        let currentChatOrderId = null;
-        let pendingUpload = null;
+        window.closeChat = function () {
+            document.getElementById('chat-modal').classList.add('hidden');
+            currentChatOrderId = null;
+            cancelUpload();
+        }
 
-       
         window.prepareUpload = function (type) {
             const inputId = type === 'product' ? 'chat-upload-product' : 'chat-upload-proof';
             const file = document.getElementById(inputId).files[0];
@@ -3119,8 +3162,6 @@
             input.value = "";
             cancelUpload();
         }
-
-       
 
         // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
