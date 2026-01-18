@@ -1758,6 +1758,37 @@
         </div>
     </div>
 
+</footer> <div id="ai-chat-widget" class="fixed bottom-6 right-6 z-[100]">
+        <button onclick="toggleAIChat()" class="w-14 h-14 bg-synapse text-black rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition border-4 border-black dark:border-white/10">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+
+        <div id="ai-chat-window" class="hidden absolute bottom-20 right-0 w-[350px] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col h-[500px] animate-fade-in-up">
+            <div class="p-5 bg-synapse text-black font-black flex justify-between items-center italic tracking-tighter">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-brain"></i> SYNAPSE AI</span>
+                <button onclick="toggleAIChat()" class="hover:rotate-90 transition"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-4 text-xs dark:text-white scrollbar-hide bg-gray-50/50 dark:bg-black/20">
+                <div class="bg-white dark:bg-dark-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-dark-700">
+                    Bonjour  ! Je suis <b>Synapse AI</b>. Je peux t'aider à trouver un produit ou conseiller sur un produit. Que cherches-tu ?
+                </div>
+            </div>
+            <div class="p-4 bg-white dark:bg-dark-900 border-t border-gray-100 dark:border-dark-800">
+                <div class="flex gap-2 bg-gray-100 dark:bg-dark-800 p-2 rounded-2xl">
+                    <input type="text" id="ai-input" onkeypress="if(event.key === 'Enter') askSynapseAI()" placeholder="Pose-moi une question..." class="flex-1 bg-transparent border-none px-3 text-xs outline-none dark:text-white">
+                    <button onclick="askSynapseAI()" class="bg-black text-synapse w-10 h-10 rounded-xl hover:bg-synapse hover:text-black transition flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // ... tes fonctions askSynapseAI() et toggleAIChat() ...
+    </script>
+</body>
+
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -4848,7 +4879,102 @@ window.openProductDetail = async function(...args) {
 // --- 2. VÉRIFIE QUE TES FONCTIONS SQL SONT SUR SUPABASE ---
 // (Si tu ne l'as pas encore fait, exécute le code SQL que je t'ai donné plus haut)
 
+window.toggleAIChat = () => document.getElementById('ai-chat-window').classList.toggle('hidden');
+
+window.askSynapseAI = async function() {
+    const input = document.getElementById('ai-input');
+    const container = document.getElementById('ai-messages');
+    const query = input.value;
+    if(!query) return;
+
+    // 1. Afficher le message utilisateur
+    container.innerHTML += `<div class="flex justify-end"><div class="bg-synapse text-black p-3 rounded-2xl rounded-tr-none max-w-[80%]">${query}</div></div>`;
+    input.value = '';
+    container.scrollTop = container.scrollHeight;
+
+    // 2. Recherche intelligente dans ta base de données
+    // On utilise ton système d'embedding déjà prêt !
+    const { data: matches } = await supabase.rpc('match_listings', {
+        query_embedding: await generateEmbedding(query), // Ta fonction déjà existante
+        match_threshold: 0.35,
+        match_count: 3
+    });
+
+    // 3. Demander à Gemini de formuler la réponse
+    let context = "Voici les produits trouvés sur Synapse : " + matches.map(p => `${p.title} à ${p.price} DA`).join(', ');
+    
+    // Appel à une fonction SQL ou Edge Function qui appelle l'API Gemini
+    const { data: aiResponse } = await supabase.rpc('call_gemini_ai', { 
+        prompt: `En tant qu'assistant de la marketplace SYNAPSE en Algérie, réponds à cette question : "${query}". Utilise ce contexte : ${context}. Sois amical et pro.` 
+    });
+
+    // 4. Afficher la réponse
+    container.innerHTML += `<div class="bg-gray-100 dark:bg-dark-800 p-3 rounded-2xl rounded-tl-none max-w-[80%]">${aiResponse || "Je regarde dans nos rayons..."}</div>`;
+    
+    // Si des produits matchent, on affiche des petits boutons cliquables
+    if(matches.length > 0) {
+        let btnHtml = '<div class="flex gap-2 overflow-x-auto pb-2">';
+        matches.forEach(p => {
+            btnHtml += `<button onclick="openProductDetail('${p.title}', '${p.price}', '', '${p.image_url}', '${p.id}')" class="bg-white border border-synapse text-[10px] px-3 py-1 rounded-full whitespace-nowrap">Voir ${p.title}</button>`;
+        });
+        btnHtml += '</div>';
+        container.innerHTML += btnHtml;
+    }
+    
+    container.scrollTop = container.scrollHeight;
+}
+
+window.askSynapseAI = async function() {
+    const input = document.getElementById('ai-input');
+    const container = document.getElementById('ai-messages');
+    const query = input.value;
+    if(!query) return;
+
+    // 1. Affiche le message de l'utilisateur
+    container.innerHTML += `
+        <div class="flex justify-end">
+            <div class="bg-synapse text-black p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm">
+                ${query}
+            </div>
+        </div>`;
+    input.value = '';
+    container.scrollTop = container.scrollHeight;
+
+    // 2. Affiche un indicateur de chargement
+    const loadingId = "ai-loading-" + Date.now();
+    container.innerHTML += `
+        <div id="${loadingId}" class="flex justify-start">
+            <div class="bg-gray-100 dark:bg-dark-800 p-3 rounded-2xl rounded-tl-none text-gray-400">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> L'IA réfléchit...
+            </div>
+        </div>`;
+
+    try {
+        // 3. Appel de la fonction SQL sur Supabase
+        const { data: aiResponse, error } = await supabase.rpc('call_gemini_ai', { 
+            prompt: `Tu es l'assistant de la marketplace SYNAPSE en Algérie. 
+                     Réponds brièvement à : "${query}". 
+                     Sois pro, utilise un ton amical (tutoiement autorisé) et mentionne que tu peux aider à trouver des produits.` 
+        });
+
+        // 4. Remplace le loader par la réponse réelle
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
+
+        container.innerHTML += `
+            <div class="flex justify-start">
+                <div class="bg-gray-100 dark:bg-dark-800 dark:text-white p-3 rounded-2xl rounded-tl-none max-w-[80%] shadow-sm border border-gray-200 dark:border-dark-700">
+                    ${aiResponse || "Désolé, mon cerveau est un peu fatigué. Réessaie !"}
+                </div>
+            </div>`;
         
+    } catch (err) {
+        console.error("Erreur Gemini:", err);
+    }
+    
+    container.scrollTop = container.scrollHeight;
+}
+
         // Lancement de l'application
         fetchAllData();
     </script>
