@@ -157,7 +157,7 @@
             <button onclick="toggleMobileMenu()" class="lg:hidden text-2xl mr-2 text-black dark:text-white"><i
                     class="fa-solid fa-bars"></i></button>
 
-            <a href="/" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
+            <a href="home" onclick="goHome()" class="flex items-center gap-1 group shrink-0">
                 <div class="w-8 h-8 bg-synapse rounded flex items-center justify-center text-black font-bold text-xl">S
                 </div>
                 <span
@@ -3042,23 +3042,7 @@
         let currentChatOrderId = null;
         let pendingUpload = null;
 
-        window.openOrderChat = function (orderId, productTitle) {
-            currentChatOrderId = orderId;
-            document.getElementById('chat-modal').classList.remove('hidden');
-            // Simulation : Chargement des messages (faux messages pour l'exemple)
-            const chatBox = document.getElementById('chat-messages');
-            chatBox.innerHTML = `
-                <div class="text-center text-xs text-gray-400 my-4">Début de la transaction sécurisée pour "${productTitle}"</div>
-                <div class="flex justify-start"><div class="bg-white dark:bg-dark-800 dark:text-white p-3 rounded-xl rounded-tl-none shadow-sm max-w-[80%] text-sm">Bonjour, merci pour votre achat. Je prépare le fichier.</div></div>
-            `;
-        }
-
-        window.closeChat = function () {
-            document.getElementById('chat-modal').classList.add('hidden');
-            currentChatOrderId = null;
-            cancelUpload();
-        }
-
+       
         window.prepareUpload = function (type) {
             const inputId = type === 'product' ? 'chat-upload-product' : 'chat-upload-proof';
             const file = document.getElementById(inputId).files[0];
@@ -3136,64 +3120,7 @@
             cancelUpload();
         }
 
-        // ============================================================
-        // 2. FONCTION COMMANDES (CORRECTION ERREUR SLICE)
-        // ============================================================
-        window.loadBuyerOrders = async function () {
-            const container = document.getElementById('buyer-orders-container');
-            if (!container) return;
-
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                container.innerHTML = '<div class="text-center p-10 text-red-500">Connectez-vous.</div>';
-                return;
-            }
-
-            container.innerHTML = '<div class="text-center py-10"><span class="loader"></span> Chargement...</div>';
-
-            const { data: orders, error } = await supabase
-                .from('order_items')
-                .select('*, order:orders(*), product:products(*)')
-                .eq('order.user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (orders && orders.length > 0) {
-                container.innerHTML = '';
-                orders.forEach(item => {
-                    const status = item.order ? item.order.status : 'en_attente';
-                    let color = 'bg-gray-100 text-gray-600'; // Couleur par défaut
-
-                    if (status === 'en_livraison') color = 'bg-blue-100 text-blue-600';
-                    if (status === 'livre') color = 'bg-green-100 text-green-600';
-                    if (status === 'annule') color = 'bg-red-100 text-red-600';
-
-                    // 👇 CORRECTION CRITIQUE POUR L'ERREUR SLICE 👇
-                    // On transforme le numéro en texte (String) AVANT de le couper
-                    let orderIdRaw = item.order_id || '???';
-                    const safeOrderId = String(orderIdRaw).slice(0, 8);
-
-                    const safeTitle = item.product ? item.product.title.replace(/'/g, "\\'") : 'Produit supprimé';
-                    const safeImg = item.product ? item.product.image_url : '';
-
-                    // Ici aussi, on utilise les accents graves ( ` )
-                    container.innerHTML += `
-                <div class="bg-gray-50 dark:bg-dark-800 p-4 rounded-xl border border-gray-100 dark:border-dark-700 flex flex-col md:flex-row gap-4 items-center mb-4">
-                    <img src="${safeImg}" class="w-16 h-16 object-contain bg-white rounded-lg border border-gray-200">
-                    <div class="flex-1 text-center md:text-left">
-                        <h4 class="font-bold text-sm text-black dark:text-white">${safeTitle}</h4>
-                        <div class="text-xs text-gray-500 mb-1">Commande #${safeOrderId} • ${item.price} DA</div>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded ${color}">${status}</span>
-                    </div>
-                   // Dans loadSellerOrders (il faut trouver la ligne du bouton) :
-<button onclick="openOrderChat('${item.order_id}', '${item.product.title.replace(/'/g, "\\'")}')" class="bg-gray-700 text-white px-4 py-2 rounded text-xs font-bold hover:bg-white hover:text-black transition">
-    <i class="fa-regular fa-comments"></i> Discuter
-</button>
-                </div>`;
-                });
-            } else {
-                container.innerHTML = '<div class="p-10 text-center text-gray-500">Aucune commande.</div>';
-            }
-        }
+       
 
         // --- 2. CORRECTION ERREUR 403 (Soumettre Commande) ---
         // Remplacez votre ancienne fonction submitOrder par celle-ci pour mieux voir les erreurs
