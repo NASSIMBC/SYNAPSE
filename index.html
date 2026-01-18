@@ -2301,85 +2301,46 @@
                 await window.syncWishlistState();
             }
         }
-      window.loadSellerProducts = async function () {
-    const list = document.getElementById('seller-products-list');
-    list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
-    try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
-        if (!store) return list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>';
+        window.loadSellerProducts = async function () {
+            const list = document.getElementById('seller-products-list');
+            list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                const { data: store } = await supabase.from('stores').select('id').eq('owner_id', user.id).maybeSingle();
+                if (!store) return list.innerHTML = '<div class="text-gray-500 text-center">Pas de boutique.</div>';
 
-        const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id).order('created_at', { ascending: false });
+                const { data: products } = await supabase.from('products').select('*').eq('store_id', store.id).order('created_at', { ascending: false });
 
-        if (!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
+                if (!products || products.length === 0) return list.innerHTML = '<div class="text-gray-500 p-10 text-center border border-dashed border-gray-800 rounded-xl">Aucun produit.</div>';
 
-        const now = new Date();
+                const now = new Date();
 
-        const productsForSeller = products.map(p => {
-            let sellerProduct = { ...p };
-            let statusLabel = "";
-            let analyticsHTML = "";
-            
-            const expiry = p.boost_expiry ? new Date(p.boost_expiry) : null;
-            const nowMs = now.getTime();
+                // On crée une COPIE des produits pour le dashboard vendeur uniquement
+                const productsForSeller = products.map(p => {
+                    // On crée une copie de l'objet pour ne pas polluer l'original
+                    let sellerProduct = { ...p };
+                    let statusLabel = "";
+                    const expiry = p.boost_expiry ? new Date(p.boost_expiry) : null;
 
-            // --- 1. CALCUL DE LA BARRE DE PROGRESSION (TEMPS RESTANT) ---
-            if (p.is_boosted && expiry && expiry > now) {
-                const expiryMs = expiry.getTime();
-                const diffMs = expiryMs - nowMs;
-                const hoursRemaining = Math.floor(diffMs / (1000 * 60 * 60));
-                
-                // On suppose un boost de 24h par défaut pour le calcul du % (tu peux l'ajuster)
-                const totalDuration = 24 * 60 * 60 * 1000; 
-                const percentage = Math.max(0, Math.min(100, (diffMs / totalDuration) * 100));
+                    if (p.is_boosted && expiry && expiry > now) {
+                        const diffDays = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+                        statusLabel = ` [BOOST: ${diffDays}j]`;
+                    } else if (!p.is_boosted && p.boost_receipt_url) {
 
-                statusLabel = ` [ACTIF: ${hoursRemaining}h]`;
+                    }
 
-                analyticsHTML += `
-                    <div class="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/10 rounded-xl border border-yellow-200/50">
-                        <div class="flex justify-between text-[9px] font-black uppercase mb-1 text-yellow-700 dark:text-yellow-500">
-                            <span>Temps de visibilité</span>
-                            <span>${hoursRemaining}h restantes</span>
-                        </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-yellow-400 h-full transition-all duration-1000" style="width: ${percentage}%"></div>
-                        </div>
-                    </div>
-                `;
-            }
+                    // On ajoute le label uniquement à la COPIE utilisée ici
+                    if (statusLabel) sellerProduct.title += statusLabel;
 
-            // --- 2. COMPARATEUR DE VUES (ORGANIQUE VS BOOST) ---
-            const totalViews = p.views || 0;
-            const boostViews = p.boost_views || 0;
-            const organicViews = Math.max(0, totalViews - boostViews);
+                    return sellerProduct;
+                });
 
-            analyticsHTML += `
-                <div class="grid grid-cols-2 gap-2 mt-2">
-                    <div class="bg-gray-50 dark:bg-dark-700 p-2 rounded-lg border border-gray-100 dark:border-gray-600 text-center">
-                        <p class="text-[8px] text-gray-400 uppercase font-black">Vues Naturelles</p>
-                        <p class="text-xs font-black dark:text-white">${organicViews}</p>
-                    </div>
-                    <div class="bg-synapse/5 dark:bg-synapse/10 p-2 rounded-lg border border-synapse/20 text-center">
-                        <p class="text-[8px] text-synapse uppercase font-black">Vues via Boost</p>
-                        <p class="text-xs font-black text-synapse">+${boostViews}</p>
-                    </div>
-                </div>
-            `;
+                // On utilise la copie 'productsForSeller' pour le dashboard
+                renderGrid('seller-products-list', productsForSeller, false, true);
 
-            // On injecte les analytics dans la description pour que renderGrid les affiche
-            // (Assure-toi que ton renderGrid affiche p.description ou un champ similaire)
-            sellerProduct.description = (p.description || "") + analyticsHTML;
-            
-            if (statusLabel) sellerProduct.title += statusLabel;
-
-            return sellerProduct;
-        });
-
-        renderGrid('seller-products-list', productsForSeller, false, true);
-
-    } catch (e) { console.error(e); }
-}
+            } catch (e) { console.error(e); }
+        }
         async function loadSellerOrders() {
             const list = document.getElementById('seller-orders-list');
             list.innerHTML = '<div class="text-center py-10"><span class="loader"></span></div>';
@@ -4863,28 +4824,8 @@ async function generateEmbedding(text) {
         .catch(err => console.log('Erreur PWA :', err));
     });
   }
-      
-  window.openProduct = async function(productId, isFromBoostSection = false) {
-    // 1. On affiche les détails (ta fonction existante)
-    if (typeof showProductDetails === 'function') {
-        showProductDetails(productId);
-    }
 
-    // 2. On enregistre la vue dans la base de données
-    try {
-        if (isFromBoostSection) {
-            // Clic sur une PUB : On augmente le compteur de boost
-            await supabase.rpc('increment_boost_views', { row_id: productId });
-        } else {
-            // Clic NORMAL : On augmente les vues classiques
-            await supabase.rpc('increment_views', { row_id: productId });
-        }
-    } catch (err) {
-        console.error("Erreur stats views:", err);
-    }
-};
-
-// ... Tes autres fonctions (renderGrid, openDetail, etc.) ...
+  // ... Tes autres fonctions (renderGrid, openDetail, etc.) ...
 
 // --- 1. AJOUTE LA FONCTION DE SUIVI ICI ---
 window.openProductDetail = async function(...args) {
@@ -4907,8 +4848,7 @@ window.openProductDetail = async function(...args) {
 // --- 2. VÉRIFIE QUE TES FONCTIONS SQL SONT SUR SUPABASE ---
 // (Si tu ne l'as pas encore fait, exécute le code SQL que je t'ai donné plus haut)
 
-</script> ```
-
+        
         // Lancement de l'application
         fetchAllData();
     </script>
