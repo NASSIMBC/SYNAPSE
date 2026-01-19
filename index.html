@@ -4877,77 +4877,82 @@ window.askSynapseAI = async function() {
     const input = document.getElementById('ai-input');
     const container = document.getElementById('ai-messages');
     const userQuery = input.value.trim();
-    
-    // Ton URL de fonction pour Synapse
-    const FUNCTION_URL = 'https://qldsrpgfutqdjyxdelud.supabase.co/functions/v1/synapse-ai';
-
     if(!userQuery) return;
 
-    // 1. Affichage du message utilisateur
-    container.innerHTML += `
-        <div class="flex justify-end mb-4 animate-fade-in-up">
-            <div class="bg-synapse text-black p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm font-bold text-xs">
-                ${userQuery}
-            </div>
-        </div>`;
-    
+    // 1. Affichage message utilisateur
+    container.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-synapse text-black p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm font-bold text-xs">${userQuery}</div></div>`;
     input.value = '';
     container.scrollTop = container.scrollHeight;
 
-    // 2. Affichage du Loader
+    // 2. Affichage Loader
     const loadingId = "ai-loading-" + Date.now();
-    container.innerHTML += `
-        <div id="${loadingId}" class="flex justify-start mb-4">
-            <div class="bg-gray-100 dark:bg-dark-800 p-3 rounded-2xl rounded-tl-none text-gray-400 text-[10px] font-black uppercase italic">
-                <i class="fa-solid fa-brain fa-pulse mr-2 text-synapse"></i> Synapse IA analyse...
-            </div>
-        </div>`;
-    container.scrollTop = container.scrollHeight;
+    container.innerHTML += `<div id="${loadingId}" class="flex justify-start mb-4"><div class="bg-gray-100 dark:bg-dark-800 p-3 rounded-2xl rounded-tl-none text-gray-400 text-[10px] font-black uppercase italic"><i class="fa-solid fa-magnifying-glass fa-pulse mr-2 text-synapse"></i> Recherche dans l'inventaire...</div></div>`;
 
     try {
-        // 3. Appel à la fonction Edge
-        const response = await fetch(FUNCTION_URL, {
+        // --- ÉTAPE A : RECHERCHE DES PRODUITS CORRESPONDANTS ---
+        // On génère le vecteur de la question du client
+        const queryEmbedding = await generateEmbedding(userQuery); 
+        
+        // On cherche les 3 meilleurs matchs dans Supabase
+        const { data: matchedProducts } = await supabase.rpc('match_listings', {
+            query_embedding: queryEmbedding,
+            match_threshold: 0.4, // Précision
+            match_count: 3
+        });
+
+        // On prépare le contexte pour Gemini
+        let productContext = "Voici les produits disponibles actuellement chez SYNAPSE : ";
+        if (matchedProducts && matchedProducts.length > 0) {
+            productContext += matchedProducts.map(p => `- ${p.title} (${p.price} DA)`).join("\n");
+        } else {
+            productContext += "Aucun produit ne correspond exactement, propose au client de reformuler.";
+        }
+
+        // --- ÉTAPE B : APPEL À L'IA AVEC LE CONTEXTE ---
+        const response = await fetch('https://qldsrpgfutqdjyxdelud.supabase.co/functions/v1/synapse-ai', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${supabaseKey}` 
-            },
-            body: JSON.stringify({ question: userQuery }) 
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${supabaseKey}` },
+            body: JSON.stringify({ 
+                question: `Un client demande : "${userQuery}". En fonction de ce contexte : ${productContext}, aide-le à choisir. Sois bref.` 
+            })
         });
 
         const data = await response.json();
-
-        // On retire le loader
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) loadingEl.remove();
 
-        if (data.error) throw new Error(data.error);
+        let aiText = (data.answer || data.text || "").replace(/\*\*/g, "");
 
-        // --- NOUVEAU : NETTOYAGE ET FORMATAGE DE LA RÉPONSE ---
-        
-        // On récupère le texte brut
-        let rawText = data.answer || data.text || data.message || "Synapse IA est prête.";
-        
-        // On enlève les étoiles (gras/italique Markdown) pour un affichage propre
-        const aiCleanText = rawText.replace(/\*\*/g, "").replace(/\*/g, "");
-
-        // 4. Affichage de la réponse nettoyée
+        // 3. Affichage de la réponse texte
         container.innerHTML += `
-            <div class="flex justify-start mb-4 animate-fade-in-up">
-                <div class="bg-white dark:bg-dark-800 dark:text-white p-4 rounded-2xl rounded-tl-none max-w-[90%] shadow-md border border-gray-100 dark:border-dark-700 text-xs leading-relaxed">
-                    <div class="font-black text-synapse text-[9px] uppercase mb-1 tracking-widest">Assistant Synapse</div>
-                    ${aiCleanText}
+            <div class="flex justify-start mb-4">
+                <div class="bg-white dark:bg-dark-800 dark:text-white p-4 rounded-2xl rounded-tl-none max-w-[90%] shadow-md border border-gray-100 dark:border-dark-700 text-xs">
+                    <div class="font-black text-synapse text-[9px] uppercase mb-1">Synapse Expert</div>
+                    ${aiText}
                 </div>
             </div>`;
 
-    } catch (err) {
-        console.error("Erreur Synapse IA:", err);
-        const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) {
-            loadingEl.innerHTML = `<div class="text-red-500 font-bold text-[10px] p-2 bg-red-50 dark:bg-red-900/10 rounded-lg">⚠️ ERREUR : ${err.message}. RÉESSAYE.</div>`;
+        // --- ÉTAPE C : AFFICHAGE DES CARTES PRODUITS (Interactif) ---
+        if (matchedProducts && matchedProducts.length > 0) {
+            let productCards = `<div class="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">`;
+            matchedProducts.forEach(p => {
+                productCards += `
+                    <div onclick="openDetail('${p.title.replace(/'/g, "\\'")}', '${p.price}', '', '${p.image_url}', '${p.id}')" 
+                         class="min-w-[140px] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 p-2 rounded-xl shadow-sm cursor-pointer hover:border-synapse transition">
+                        <img src="${p.image_url}" class="h-20 w-full object-contain mb-2">
+                        <div class="text-[10px] font-bold dark:text-white truncate">${p.title}</div>
+                        <div class="text-synapse font-black text-[10px]">${p.price} DA</div>
+                    </div>`;
+            });
+            productCards += `</div>`;
+            container.innerHTML += productCards;
         }
+
+    } catch (err) {
+        console.error(err);
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.innerHTML = "Erreur de recherche.";
     }
-    
     container.scrollTop = container.scrollHeight;
 }
 
