@@ -4912,7 +4912,6 @@ window.askSynapseAI = async function() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${supabaseKey}` 
             },
-            // CHANGEMENT ICI : On utilise "question" au lieu de "prompt" pour éviter l'erreur 400
             body: JSON.stringify({ question: userQuery }) 
         });
 
@@ -4924,14 +4923,20 @@ window.askSynapseAI = async function() {
 
         if (data.error) throw new Error(data.error);
 
-        // 4. Affichage de la réponse (on vérifie 'answer' en priorité comme dans Faith AI)
-        const aiResponse = data.answer || data.text || data.message || "Synapse IA est prête.";
+        // --- NOUVEAU : NETTOYAGE ET FORMATAGE DE LA RÉPONSE ---
+        
+        // On récupère le texte brut
+        let rawText = data.answer || data.text || data.message || "Synapse IA est prête.";
+        
+        // On enlève les étoiles (gras/italique Markdown) pour un affichage propre
+        const aiCleanText = rawText.replace(/\*\*/g, "").replace(/\*/g, "");
 
+        // 4. Affichage de la réponse nettoyée
         container.innerHTML += `
             <div class="flex justify-start mb-4 animate-fade-in-up">
                 <div class="bg-white dark:bg-dark-800 dark:text-white p-4 rounded-2xl rounded-tl-none max-w-[90%] shadow-md border border-gray-100 dark:border-dark-700 text-xs leading-relaxed">
                     <div class="font-black text-synapse text-[9px] uppercase mb-1 tracking-widest">Assistant Synapse</div>
-                    ${aiResponse}
+                    ${aiCleanText}
                 </div>
             </div>`;
 
