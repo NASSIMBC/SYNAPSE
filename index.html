@@ -4876,55 +4876,73 @@ window.openProductDetail = async function(...args) {
 window.askSynapseAI = async function() {
     const input = document.getElementById('ai-input');
     const container = document.getElementById('ai-messages');
-    const userQuery = input.value;
+    const userQuery = input.value.trim();
+    
+    // Ton URL de fonction pour Synapse
+    const FUNCTION_URL = 'https://qldsrpgfutqdjyxdelud.supabase.co/functions/v1/synapse-ai';
+
     if(!userQuery) return;
 
-    // Affichage utilisateur
-    container.innerHTML += `<div class="flex justify-end mb-4"><div class="bg-synapse text-black p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm font-bold text-xs">${userQuery}</div></div>`;
+    // 1. Affichage du message utilisateur
+    container.innerHTML += `
+        <div class="flex justify-end mb-4 animate-fade-in-up">
+            <div class="bg-synapse text-black p-3 rounded-2xl rounded-tr-none max-w-[80%] shadow-sm font-bold text-xs">
+                ${userQuery}
+            </div>
+        </div>`;
+    
     input.value = '';
     container.scrollTop = container.scrollHeight;
 
-    // Affichage Loader
+    // 2. Affichage du Loader (style Synapse)
     const loadingId = "ai-loading-" + Date.now();
-    container.innerHTML += `<div id="${loadingId}" class="flex justify-start mb-4"><div class="bg-gray-100 dark:bg-dark-800 p-3 rounded-2xl rounded-tl-none text-gray-400 text-[10px] font-black uppercase italic"><i class="fa-solid fa-brain fa-pulse mr-2 text-synapse"></i> Analyse Synapse...</div></div>`;
+    container.innerHTML += `
+        <div id="${loadingId}" class="flex justify-start mb-4">
+            <div class="bg-gray-100 dark:bg-dark-800 p-3 rounded-2xl rounded-tl-none text-gray-400 text-[10px] font-black uppercase italic">
+                <i class="fa-solid fa-brain fa-pulse mr-2 text-synapse"></i> Synapse IA analyse...
+            </div>
+        </div>`;
+    container.scrollTop = container.scrollHeight;
 
     try {
-        // --- APPEL DIRECT À GEMINI (Solution stable pour tests) ---
-        const API_KEY = "https://qldsrpgfutqdjyxdelud.supabase.co/functions/v1/synapse-ai"; // Remplace ici
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
-        const response = await fetch(url, {
+        // 3. Appel à la fonction Edge (Format identique à Faith AI)
+        const response = await fetch(FUNCTION_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: `Tu es l'assistant de la marketplace algérienne SYNAPSE. Réponds de façon très courte et amicale à : ${userQuery}` }] }]
-            })
+            headers: { 
+                'Content-Type': 'application/json',
+                // On utilise la clé anon définie globalement dans ton projet
+                'Authorization': `Bearer ${supabaseKey}` 
+            },
+            body: JSON.stringify({ prompt: userQuery }) 
         });
 
         const data = await response.json();
+
+        // On retire le loader
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) loadingEl.remove();
 
-        if (data.error) {
-            // Ici on gère l'erreur 503 de Google proprement
-            throw new Error(data.error.message);
-        }
+        if (data.error) throw new Error(data.error);
 
-        const aiText = data.candidates[0].content.parts[0].text;
+        // 4. Affichage de la réponse (Récupère 'text' ou 'message' selon ta fonction)
+        const aiResponse = data.text || data.answer || data.message || "Synapse IA est prête.";
 
         container.innerHTML += `
             <div class="flex justify-start mb-4 animate-fade-in-up">
                 <div class="bg-white dark:bg-dark-800 dark:text-white p-4 rounded-2xl rounded-tl-none max-w-[90%] shadow-md border border-gray-100 dark:border-dark-700 text-xs leading-relaxed">
                     <div class="font-black text-synapse text-[9px] uppercase mb-1 tracking-widest">Assistant Synapse</div>
-                    ${aiText}
+                    ${aiResponse}
                 </div>
             </div>`;
 
     } catch (err) {
-        console.error("Erreur IA:", err);
+        console.error("Erreur Synapse IA:", err);
         const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.innerHTML = `<div class="text-red-500 font-bold text-[10px]">⚠️ IA SURCHARGÉE. ATTENDS 10 SECONDES.</div>`;
+        if (loadingEl) {
+            loadingEl.innerHTML = `<div class="text-red-500 font-bold text-[10px] p-2 bg-red-50 dark:bg-red-900/10 rounded-lg">⚠️ ERREUR DE CONNEXION. RÉESSAYE.</div>`;
+        }
     }
+    
     container.scrollTop = container.scrollHeight;
 }
 
