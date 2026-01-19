@@ -1786,6 +1786,253 @@
     </div>
 </div>
 
+    <!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse Creative Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Masquer la scrollbar par défaut */
+        ::-webkit-scrollbar { display: none; }
+        /* Afficher la scrollbar sur hover */
+        .overflow-y-auto:hover::-webkit-scrollbar {
+            display: block;
+            width: 8px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 4px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background-color: #f1f1f1;
+        }
+        /* Styles pour les sélecteurs Fabric.js */
+        .canvas-container {
+            border: none !important; /* Fabric.js ajoute des bordures, on les masque */
+        }
+        .upper-canvas {
+            border: none !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-dark-900 text-gray-900 dark:text-white min-h-screen flex flex-col">
+
+    <div class="flex-1 flex min-h-screen">
+        <aside class="w-64 bg-gray-50 dark:bg-dark-900 border-r border-gray-200 dark:border-dark-800 p-4 flex flex-col shadow-lg z-10">
+            <div class="flex items-center gap-2 mb-6">
+                <img src="/synapse-logo.png" alt="Synapse Logo" class="h-8"> <span class="font-black text-xl text-synapse">Creative Studio</span>
+            </div>
+
+            <div class="space-y-4">
+                <button class="w-full flex items-center justify-start gap-3 p-3 rounded-lg text-sm font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-900 transition">
+                    <i class="fa-solid fa-cloud-arrow-up text-lg"></i> Upload
+                </button>
+                
+                <div class="bg-gray-100 dark:bg-dark-800 rounded-lg p-2 space-y-1">
+                    <button onclick="openPanel('backgrounds')" class="w-full flex items-center gap-3 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-dark-700 transition">
+                        <i class="fa-solid fa-image"></i> Arrière-plans
+                    </button>
+                    <button onclick="openPanel('text')" class="w-full flex items-center gap-3 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-dark-700 transition">
+                        <i class="fa-solid fa-text-width"></i> Texte
+                    </button>
+                    <button onclick="openPanel('shapes')" class="w-full flex items-center gap-3 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-dark-700 transition">
+                        <i class="fa-solid fa-shapes"></i> Formes
+                    </button>
+                    <button onclick="openPanel('layers')" class="w-full flex items-center gap-3 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-dark-700 transition">
+                        <i class="fa-solid fa-layer-group"></i> Calques
+                    </button>
+                </div>
+            </div>
+
+            <div id="left-panel-content" class="mt-4 flex-1 overflow-y-auto">
+                <div id="panel-backgrounds" class="hidden">
+                    <h3 class="font-bold mb-3 text-synapse">Arrière-plans</h3>
+                    <div class="space-y-3">
+                        <button onclick="handleImageUploadClick()" class="w-full px-3 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition">
+                            <i class="fa-solid fa-upload mr-2"></i> Charger Image Produit
+                        </button>
+                        <input type="file" id="imageUploadInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                        
+                        <button onclick="removeBackground()" class="w-full px-3 py-2 bg-purple-500 text-white rounded-md text-sm hover:bg-purple-600 transition">
+                            <i class="fa-solid fa-eraser mr-2"></i> Supprimer Fond (IA)
+                        </button>
+                        
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium mb-1">Couleur de Fond</label>
+                            <input type="color" id="bgColorPicker" value="#f0f0f0" onchange="setCanvasBackground(this.value)" class="w-full h-8 rounded-md border-gray-300 dark:border-dark-700">
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium mb-1">Dégradé de Fond</label>
+                            <div class="flex gap-2">
+                                <input type="color" id="gradientColor1" value="#4CAF50" onchange="applyGradientBackground()" class="w-1/2 h-8 rounded-md border-gray-300 dark:border-dark-700">
+                                <input type="color" id="gradientColor2" value="#8BC34A" onchange="applyGradientBackground()" class="w-1/2 h-8 rounded-md border-gray-300 dark:border-dark-700">
+                            </div>
+                            <button onclick="applyGradientBackground()" class="w-full mt-2 px-3 py-2 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">Appliquer Dégradé</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-text" class="hidden">
+                    <h3 class="font-bold mb-3 text-synapse">Texte</h3>
+                    <button onclick="addTextToCanvas()" class="w-full px-3 py-2 bg-blue-500 text-white rounded-md text-sm hover:bg-blue-600 transition">
+                        <i class="fa-solid fa-plus mr-2"></i> Ajouter Texte
+                    </button>
+                    <div id="text-editor-options" class="mt-4 space-y-3 p-3 bg-gray-50 dark:bg-dark-800 rounded-lg hidden">
+                        <label class="block text-sm font-medium mb-1">Contenu</label>
+                        <textarea id="textEditorContent" oninput="setTextContent(this.value)" class="w-full p-2 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-700 rounded-md text-sm"></textarea>
+                        
+                        <label class="block text-sm font-medium mb-1">Couleur</label>
+                        <input type="color" id="textColor" value="#000000" onchange="setTextColor(this.value)" class="w-full h-8 rounded-md border-gray-300 dark:border-dark-700">
+                        
+                        <label class="block text-sm font-medium mb-1">Taille</label>
+                        <input type="range" id="fontSize" min="10" max="100" value="30" onchange="setFontSize(this.value)" class="w-full">
+                        
+                        <label class="block text-sm font-medium mb-1">Police</label>
+                        <select id="fontFamily" onchange="setFontFamily(this.value)" class="w-full p-2 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-700 rounded-md text-sm">
+                            <option value="Arial">Arial</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Open Sans">Open Sans</option>
+                        </select>
+
+                        <label class="block text-sm font-medium mb-1">Effet Néon (Couleur)</label>
+                        <input type="color" id="neonColor" value="#00ffff" onchange="applyNeonEffect(this.value)" class="w-full h-8 rounded-md border-gray-300 dark:border-dark-700">
+                        <button onclick="applyNeonEffect(document.getElementById('neonColor').value)" class="w-full mt-2 px-3 py-2 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">Appliquer Néon</button>
+                        <button onclick="removeNeonEffect()" class="w-full mt-1 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200 rounded-md text-sm hover:bg-red-200 dark:hover:bg-red-900 transition">Retirer Néon</button>
+                    </div>
+                </div>
+
+                <div id="panel-shapes" class="hidden">
+                    <h3 class="font-bold mb-3 text-synapse">Formes</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="addShape('rect')" class="p-3 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">
+                            <i class="fa-solid fa-square"></i> Carré
+                        </button>
+                        <button onclick="addShape('circle')" class="p-3 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">
+                            <i class="fa-solid fa-circle"></i> Cercle
+                        </button>
+                        <button onclick="addShape('triangle')" class="p-3 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">
+                            <i class="fa-solid fa-caret-up"></i> Triangle
+                        </button>
+                    </div>
+                </div>
+
+                <div id="panel-layers" class="hidden">
+                    <h3 class="font-bold mb-3 text-synapse">Calques</h3>
+                    <div id="layers-list" class="space-y-2">
+                        <p class="text-sm text-gray-500">Aucun calque.</p>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col">
+            <header class="h-16 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700 flex items-center justify-between px-6 shadow-md z-10">
+                <div class="flex items-center gap-4">
+                    <button onclick="undo()" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-dark-700 transition"><i class="fa-solid fa-undo"></i></button>
+                    <button onclick="duplicateObject()" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-dark-700 transition"><i class="fa-solid fa-copy"></i></button>
+                    <button onclick="deleteObject()" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-dark-700 transition"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div>
+                    <span class="text-lg font-semibold dark:text-white">Gaming Headset - Pro Edit</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="shareImage()" class="px-4 py-2 bg-gray-100 dark:bg-dark-700 rounded-lg text-sm font-semibold hover:bg-gray-200 dark:hover:bg-dark-600 transition">
+                        <i class="fa-solid fa-share-nodes mr-2"></i> Partager
+                    </button>
+                    <button onclick="saveCanvasImage()" class="px-4 py-2 bg-green-500 text-white rounded-lg text-sm font-semibold hover:bg-green-600 transition">
+                        <i class="fa-solid fa-download mr-2"></i> Télécharger
+                    </button>
+                </div>
+            </header>
+
+            <section class="flex-1 bg-gray-100 dark:bg-dark-900 p-8 flex items-center justify-center relative overflow-hidden">
+                <div class="relative w-full h-full max-w-[800px] max-h-[500px] bg-white dark:bg-dark-800 shadow-2xl rounded-lg overflow-hidden flex items-center justify-center">
+                    <canvas id="editorCanvas" class="max-w-full max-h-full"></canvas>
+                    <div id="editor-loader" class="absolute inset-0 bg-black/70 flex items-center justify-center text-white text-xl hidden">
+                        <i class="fa-solid fa-spinner fa-spin mr-3"></i> Traitement IA...
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="w-72 bg-gray-50 dark:bg-dark-900 border-l border-gray-200 dark:border-dark-800 p-4 flex flex-col shadow-lg z-10">
+            <h3 class="font-black text-xl mb-4 dark:text-white">Options</h3>
+            <div id="right-panel-object-options" class="mb-6 space-y-3 hidden">
+                <h4 class="font-bold text-synapse text-sm mb-2">Objet Sélectionné</h4>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Position X</label>
+                    <input type="number" id="objPosX" oninput="setObjectProperty('left', this.value)" class="w-full p-2 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-700 rounded-md text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Position Y</label>
+                    <input type="number" id="objPosY" oninput="setObjectProperty('top', this.value)" class="w-full p-2 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-700 rounded-md text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Largeur</label>
+                    <input type="number" id="objWidth" oninput="setObjectProperty('width', this.value)" class="w-full p-2 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-700 rounded-md text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Hauteur</label>
+                    <input type="number" id="objHeight" oninput="setObjectProperty('height', this.value)" class="w-full p-2 bg-white dark:bg-dark-900 border border-gray-300 dark:border-dark-700 rounded-md text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Opacité</label>
+                    <input type="range" id="objOpacity" min="0" max="1" step="0.05" value="1" oninput="setObjectProperty('opacity', this.value)" class="w-full">
+                </div>
+                <button onclick="bringObjectToFront()" class="w-full px-3 py-2 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">
+                    <i class="fa-solid fa-arrow-up-long mr-2"></i> Mettre au Premier Plan
+                </button>
+                <button onclick="sendObjectToBack()" class="w-full px-3 py-2 bg-gray-200 dark:bg-dark-700 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-dark-600 transition">
+                    <i class="fa-solid fa-arrow-down-long mr-2"></i> Mettre en Arrière-plan
+                </button>
+            </div>
+
+            <h3 class="font-black text-xl mt-6 mb-4 dark:text-white">Produits Recommandés</h3>
+            <div id="recommended-products" class="space-y-4 overflow-y-auto flex-1">
+                <div class="bg-white dark:bg-dark-800 p-3 rounded-lg flex items-center gap-3 shadow-sm">
+                    <img src="https://via.placeholder.com/60" alt="Produit" class="w-14 h-14 object-cover rounded-md">
+                    <div>
+                        <div class="font-semibold text-sm">Clavier Gamer</div>
+                        <div class="text-synapse font-black text-xs">23.0K DA</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-dark-800 p-3 rounded-lg flex items-center gap-3 shadow-sm">
+                    <img src="https://via.placeholder.com/60" alt="Produit" class="w-14 h-14 object-cover rounded-md">
+                    <div>
+                        <div class="font-semibold text-sm">Souris Gamer</div>
+                        <div class="text-synapse font-black text-xs">3.9K DA</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-dark-800 p-3 rounded-lg flex items-center gap-3 shadow-sm">
+                    <img src="https://via.placeholder.com/60" alt="Produit" class="w-14 h-14 object-cover rounded-md">
+                    <div>
+                        <div class="font-semibold text-sm">Webcam HD</div>
+                        <div class="text-synapse font-black text-xs">13.0K DA</div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-dark-800 p-3 rounded-lg flex items-center gap-3 shadow-sm">
+                    <img src="https://via.placeholder.com/60" alt="Produit" class="w-14 h-14 object-cover rounded-md">
+                    <div>
+                        <div class="font-semibold text-sm">Chaise Gamer</div>
+                        <div class="text-synapse font-black text-xs">13.9K DA</div>
+                    </div>
+                </div>
+                <button class="w-full mt-4 px-4 py-2 bg-synapse text-black font-bold rounded-lg hover:bg-synapse-dark transition">Voir plus de produits</button>
+            </div>
+        </aside>
+    </div>
+
+</body>
+</html>
     
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -4962,201 +5209,214 @@ window.askSynapseAI = async function() {
     }
 };
 
-        // --- Initialisation du Canvas Fabric.js ---
+       // --- Configuration Générale ---
 let canvas;
-let currentImageObject = null; // Pour garder une référence à l'image principale
-let removeBgApiUrl = 'https://remove.bg/api/v1.0/removebg'; // Ou ton propre service si tu en as un
-let removeBgApiKey = 'CRpcu2fPNT9dQDsCW2Z9jU9E'; // Clé Remove.bg ou autre service
+let currentImageObject = null; // L'image principale du produit
+let history = []; // Historique pour annuler/rétablir
+let historyPointer = -1;
+let removeBgApiUrl = 'https://remove.bg/api/v1.0/removebg'; // Ou ton propre service
+let removeBgApiKey = 'CRpcu2fPNT9dQDsCW2Z9jU9E'; // <-- TRÈS IMPORTANT : REMPLACE AVEC TA CLÉ !
 
+// --- Initialisation du Canvas Fabric.js ---
 document.addEventListener('DOMContentLoaded', () => {
     canvas = new fabric.Canvas('editorCanvas', {
-        backgroundColor: '#f0f0f0', // Couleur de fond par défaut
-        width: 800, // Largeur par défaut, sera ajustée
-        height: 500 // Hauteur par défaut, sera ajustée
+        backgroundColor: '#f0f0f0',
+        selection: true, // Permettre la sélection multiple
+        perPixelTargetFind: true, // Sélection plus précise
+        targetFindTolerance: 5,
     });
 
     // Ajuster le canvas à la taille du conteneur parent
-    const container = document.querySelector('.relative.w-full.h-[500px]');
-    if (container) {
+    const canvasContainerWrapper = document.querySelector('.relative.w-full.h-full.max-w-\\[800px\\]');
+    if (canvasContainerWrapper) {
         const resizeCanvas = () => {
-            const containerWidth = container.offsetWidth;
-            const containerHeight = container.offsetHeight;
+            const containerWidth = canvasContainerWrapper.offsetWidth;
+            const containerHeight = canvasContainerWrapper.offsetHeight;
             canvas.setDimensions({ width: containerWidth, height: containerHeight });
             canvas.renderAll();
         };
-        resizeCanvas(); // Appeler au chargement
-        window.addEventListener('resize', resizeCanvas); // Appeler au redimensionnement
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
     }
+    
+    // Événements du Canvas
+    canvas.on({
+        'object:modified': updateObjectOptions,
+        'object:added': saveCanvasState,
+        'object:removed': saveCanvasState,
+        'selection:created': updateObjectOptions,
+        'selection:updated': updateObjectOptions,
+        'selection:cleared': clearObjectOptions,
+    });
 
-    // Gérer la sélection d'objets pour afficher les options d'édition
-    canvas.on('selection:created', (e) => {
-        if (e.target && e.target.type === 'i-text') {
-            document.getElementById('text-editor-options').classList.remove('hidden');
-        } else {
-            document.getElementById('text-editor-options').classList.add('hidden');
-        }
-    });
-    canvas.on('selection:updated', (e) => {
-        if (e.target && e.target.type === 'i-text') {
-            document.getElementById('text-editor-options').classList.remove('hidden');
-        } else {
-            document.getElementById('text-editor-options').classList.add('hidden');
-        }
-    });
-    canvas.on('selection:cleared', () => {
-        document.getElementById('text-editor-options').classList.add('hidden');
-    });
+    saveCanvasState(); // Sauvegarder l'état initial
+    openPanel('backgrounds'); // Ouvrir le panneau d'arrière-plans par défaut
+    // Charger des produits recommandés ici via Supabase si nécessaire
+    // loadRecommendedProducts(); 
 });
 
+// --- Gestion des Panneaux de Gauche ---
+window.openPanel = (panelId) => {
+    const panels = ['backgrounds', 'text', 'shapes', 'layers'];
+    panels.forEach(id => {
+        document.getElementById(`panel-${id}`).classList.add('hidden');
+    });
+    document.getElementById(`panel-${panelId}`).classList.remove('hidden');
+};
+
+// --- Historique (Undo/Redo) ---
+function saveCanvasState() {
+    if (historyPointer < history.length - 1) {
+        history = history.slice(0, historyPointer + 1);
+    }
+    history.push(JSON.stringify(canvas.toJSON()));
+    historyPointer++;
+}
+
+window.undo = () => {
+    if (historyPointer > 0) {
+        historyPointer--;
+        canvas.loadFromJSON(history[historyPointer], canvas.renderAll.bind(canvas));
+    }
+};
+
+// Fonction Redo à implémenter si besoin, inverse de undo
+
+// --- Fonctions d'édition d'objets (pour le panneau de droite) ---
+function updateObjectOptions() {
+    const activeObject = canvas.getActiveObject();
+    const rightPanelOptions = document.getElementById('right-panel-object-options');
+    if (activeObject) {
+        rightPanelOptions.classList.remove('hidden');
+        document.getElementById('objPosX').value = activeObject.left.toFixed(0);
+        document.getElementById('objPosY').value = activeObject.top.toFixed(0);
+        document.getElementById('objWidth').value = activeObject.width.toFixed(0);
+        document.getElementById('objHeight').value = activeObject.height.toFixed(0);
+        document.getElementById('objOpacity').value = activeObject.opacity;
+        
+        // Mettre à jour les options de texte si c'est un IText
+        if (activeObject.type === 'i-text') {
+            document.getElementById('text-editor-options').classList.remove('hidden');
+            document.getElementById('textEditorContent').value = activeObject.text;
+            document.getElementById('textColor').value = activeObject.fill;
+            document.getElementById('fontSize').value = activeObject.fontSize;
+            document.getElementById('fontFamily').value = activeObject.fontFamily;
+        } else {
+             document.getElementById('text-editor-options').classList.add('hidden');
+        }
+
+    } else {
+        clearObjectOptions();
+    }
+}
+
+function clearObjectOptions() {
+    document.getElementById('right-panel-object-options').classList.add('hidden');
+    document.getElementById('text-editor-options').classList.add('hidden');
+}
+
+window.setObjectProperty = (prop, value) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+        let val = value;
+        if (prop === 'left' || prop === 'top' || prop === 'width' || prop === 'height') {
+            val = parseFloat(value);
+        } else if (prop === 'opacity') {
+            val = parseFloat(value);
+        }
+        activeObject.set(prop, val);
+        canvas.renderAll();
+        saveCanvasState();
+    }
+};
+
+window.bringObjectToFront = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+        canvas.bringToFront(activeObject);
+        canvas.renderAll();
+        saveCanvasState();
+        updateLayersList(); // Mettre à jour l'affichage des calques
+    }
+};
+
+window.sendObjectToBack = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+        canvas.sendToBack(activeObject);
+        canvas.renderAll();
+        saveCanvasState();
+        updateLayersList(); // Mettre à jour l'affichage des calques
+    }
+};
+
+
 // --- Gestion du chargement d'image ---
+window.handleImageUploadClick = () => {
+    document.getElementById('imageUploadInput').click();
+};
+
 window.handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (f) => {
             fabric.Image.fromURL(f.target.result, (img) => {
-                canvas.clear(); // Efface le canvas avant d'ajouter la nouvelle image
-                currentImageObject = img; // Garde une référence à l'image
+                // Si c'est la première image ou une nouvelle image produit, clear le canvas
+                if (!currentImageObject || confirm("Remplacer l'image existante sur le canvas ?")) {
+                    canvas.clear();
+                    currentImageObject = img;
+                } else {
+                    canvas.add(img); // Ajouter comme un nouvel objet si on ne remplace pas
+                }
 
-                // Redimensionner l'image pour qu'elle s'adapte au canvas
+                // Redimensionner et centrer l'image
                 img.scaleToWidth(canvas.getWidth() * 0.8);
                 if (img.getScaledHeight() > canvas.getHeight() * 0.8) {
                     img.scaleToHeight(canvas.getHeight() * 0.8);
                 }
-
                 canvas.centerObject(img);
                 canvas.add(img);
+                canvas.setActiveObject(img);
                 canvas.renderAll();
+                saveCanvasState();
+                updateLayersList();
             });
         };
         reader.readAsDataURL(file);
     }
 };
 
-// --- Ajouter du texte ---
-window.addTextToCanvas = () => {
-    const text = new fabric.IText('Nouveau Texte', {
-        left: 50,
-        top: 50,
-        fontFamily: 'Arial',
-        fill: '#000000',
-        fontSize: 30,
-    });
-    canvas.add(text);
-    canvas.setActiveObject(text); // Sélectionne le texte ajouté
-    canvas.renderAll();
-};
-
-// --- Options d'édition de texte ---
-window.setTextColor = (color) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-        activeObject.set({ fill: color });
-        canvas.renderAll();
-    }
-};
-
-window.setFontSize = (size) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-        activeObject.set({ fontSize: parseInt(size, 10) });
-        canvas.renderAll();
-    }
-};
-
-window.setFontFamily = (fontFamily) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === 'i-text') {
-        activeObject.set({ fontFamily: fontFamily });
-        canvas.renderAll();
-    }
-};
-
-
-// --- SUPPRESSION DE FOND PAR IA (Fonction clé) ---
+// --- Suppression de Fond (IA) ---
 window.removeBackground = async () => {
-    if (!currentImageObject) {
-        alert('Veuillez charger une image d\'abord.');
+    const activeObject = canvas.getActiveObject();
+    if (!activeObject || activeObject.type !== 'image') {
+        alert('Veuillez sélectionner une image sur le canvas.');
         return;
     }
     
-    // Afficher le loader
     const loader = document.getElementById('editor-loader');
     loader.classList.remove('hidden');
 
     try {
-        // Obtenir les données de l'image principale au format PNG
-        const originalDataUrl = currentImageObject.toDataURL({
-            format: 'png',
-            multiplier: 1 // Garder la résolution d'origine
-        });
-        
-        // Convertir le Data URL en Blob pour l'envoi à l'API
+        const originalDataUrl = activeObject.toDataURL({ format: 'png', multiplier: 1 });
         const blob = await (await fetch(originalDataUrl)).blob();
         
         const formData = new FormData();
         formData.append('image_file', blob, 'image.png');
-        formData.append('size', 'auto'); // 'auto' pour la meilleure qualité ou 'small' pour plus rapide
-        formData.append('type', 'person'); // Ou 'product' si tu cibles uniquement des produits
-        
-        // --- Appel à l'API de suppression de fond ---
+        formData.append('size', 'auto'); 
+        formData.append('type', 'product'); // Plus adapté pour des produits
+
         const response = await fetch(removeBgApiUrl, {
             method: 'POST',
-            headers: {
-                'X-Api-Key': removeBgApiKey // Ta clé API remove.bg
-            },
+            headers: { 'X-Api-Key': removeBgApiKey },
             body: formData
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Erreur API: ${response.status} - ${errorData.errors[0].title || 'Erreur inconnue'}`);
-        }
-
-        const data = await response.json();
-        const base64Image = data.data.result_b64; // Image sans fond en Base64
-
-        // Charger la nouvelle image sans fond sur le canvas
-        fabric.Image.fromURL('data:image/png;base64,' + base64Image, (newImg) => {
-            canvas.remove(currentImageObject); // Supprime l'ancienne image
-            currentImageObject = newImg; // Met à jour la référence
-            
-            // Redimensionner et centrer la nouvelle image
-            newImg.scaleToWidth(canvas.getWidth() * 0.8);
-            if (newImg.getScaledHeight() > canvas.getHeight() * 0.8) {
-                newImg.scaleToHeight(canvas.getHeight() * 0.8);
-            }
-            canvas.centerObject(newImg);
-            canvas.add(newImg);
-            canvas.renderAll();
-        });
-
-    } catch (error) {
-        console.error("Erreur suppression de fond:", error);
-        alert('Impossible de supprimer le fond : ' + error.message);
-    } finally {
-        loader.classList.add('hidden'); // Cacher le loader
-    }
-};
-
-// --- Sauvegarder l'image éditée ---
-window.saveCanvasImage = () => {
-    if (!canvas.getObjects().length) {
-        alert('Le canvas est vide ! Chargez ou ajoutez du contenu.');
-        return;
-    }
-    const dataURL = canvas.toDataURL({
-        format: 'png',
-        quality: 1
-    });
-    const link = document.createElement('a');
-    link.download = 'synapse-image-edit.png';
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-        
+            throw new
+                
         // Lancement de l'application
         fetchAllData();
     </script>
