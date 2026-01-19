@@ -4894,7 +4894,7 @@ window.askSynapseAI = async function() {
     input.value = '';
     container.scrollTop = container.scrollHeight;
 
-    // 2. Affichage du Loader (style Synapse)
+    // 2. Affichage du Loader
     const loadingId = "ai-loading-" + Date.now();
     container.innerHTML += `
         <div id="${loadingId}" class="flex justify-start mb-4">
@@ -4905,15 +4905,15 @@ window.askSynapseAI = async function() {
     container.scrollTop = container.scrollHeight;
 
     try {
-        // 3. Appel à la fonction Edge (Format identique à Faith AI)
+        // 3. Appel à la fonction Edge
         const response = await fetch(FUNCTION_URL, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                // On utilise la clé anon définie globalement dans ton projet
                 'Authorization': `Bearer ${supabaseKey}` 
             },
-            body: JSON.stringify({ prompt: userQuery }) 
+            // CHANGEMENT ICI : On utilise "question" au lieu de "prompt" pour éviter l'erreur 400
+            body: JSON.stringify({ question: userQuery }) 
         });
 
         const data = await response.json();
@@ -4924,8 +4924,8 @@ window.askSynapseAI = async function() {
 
         if (data.error) throw new Error(data.error);
 
-        // 4. Affichage de la réponse (Récupère 'text' ou 'message' selon ta fonction)
-        const aiResponse = data.text || data.answer || data.message || "Synapse IA est prête.";
+        // 4. Affichage de la réponse (on vérifie 'answer' en priorité comme dans Faith AI)
+        const aiResponse = data.answer || data.text || data.message || "Synapse IA est prête.";
 
         container.innerHTML += `
             <div class="flex justify-start mb-4 animate-fade-in-up">
@@ -4939,7 +4939,7 @@ window.askSynapseAI = async function() {
         console.error("Erreur Synapse IA:", err);
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) {
-            loadingEl.innerHTML = `<div class="text-red-500 font-bold text-[10px] p-2 bg-red-50 dark:bg-red-900/10 rounded-lg">⚠️ ERREUR DE CONNEXION. RÉESSAYE.</div>`;
+            loadingEl.innerHTML = `<div class="text-red-500 font-bold text-[10px] p-2 bg-red-50 dark:bg-red-900/10 rounded-lg">⚠️ ERREUR : ${err.message}. RÉESSAYE.</div>`;
         }
     }
     
