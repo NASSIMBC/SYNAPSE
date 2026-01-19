@@ -6,13 +6,16 @@
     <title>Synapse Creative Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Lobster&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&family=Oswald:wght@500&family=Pacifico&family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; } /* Thème Sombre Synapse */
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; }
         .canvas-shadow { box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         input[type="file"] { display: none; }
         .synapse-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        /* Style pour les boutons de formes */
+        .shape-btn { transition: all 0.2s; }
+        .shape-btn:hover { transform: scale(1.1); background-color: #3730a3; }
     </style>
 </head>
 <body class="h-screen flex flex-col text-white">
@@ -26,13 +29,16 @@
     </div>
     <div class="flex gap-3">
         <button onclick="deleteSelected()" class="px-4 py-2 bg-red-900/30 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/50 transition text-sm font-semibold">
-            <i class="fa-solid fa-trash"></i> <span class="hidden sm:inline ml-2">Supprimer (8)</span>
+            <i class="fa-solid fa-trash"></i> <span class="hidden sm:inline ml-2">Supprimer</span>
         </button>
-        <button onclick="toggleShadow()" class="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 transition text-sm font-semibold">
-            <i class="fa-solid fa-cloud"></i> <span class="hidden sm:inline ml-2">Ombre (10)</span>
+        <button onclick="bringToFront()" class="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 transition text-sm font-semibold">
+            <i class="fa-solid fa-layer-group"></i> <span class="hidden sm:inline ml-2">Devant</span>
+        </button>
+        <button onclick="sendToBack()" class="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 transition text-sm font-semibold">
+            <i class="fa-solid fa-layer-group fa-flip-vertical"></i> <span class="hidden sm:inline ml-2">Derrière</span>
         </button>
         <button onclick="saveImage()" class="px-6 py-2 synapse-gradient text-white rounded-lg hover:opacity-90 transition text-sm font-bold shadow-lg shadow-purple-900/20">
-            <i class="fa-solid fa-download mr-2"></i> Sauvegarder (4)
+            <i class="fa-solid fa-download mr-2"></i> Sauvegarder
         </button>
     </div>
 </header>
@@ -41,7 +47,7 @@
     <aside class="w-80 bg-gray-900 border-r border-gray-800 flex flex-col z-10">
         <div class="flex border-b border-gray-800">
             <button onclick="switchTab('uploads')" class="flex-1 py-4 text-center text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 tab-btn active" data-tab="uploads"><i class="fa-solid fa-upload block mb-1 text-lg"></i> Produit</button>
-            <button onclick="switchTab('backgrounds')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="backgrounds"><i class="fa-regular fa-image block mb-1 text-lg"></i> Fonds</button>
+            <button onclick="switchTab('elements')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="elements"><i class="fa-solid fa-shapes block mb-1 text-lg"></i> Éléments</button>
             <button onclick="switchTab('text')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="text"><i class="fa-solid fa-font block mb-1 text-lg"></i> Texte</button>
         </div>
 
@@ -52,7 +58,7 @@
             </div>
 
             <div id="panel-uploads" class="tab-content">
-                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">11. Ajouter Produit</h2>
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">Importer Image</h2>
                 <label class="block w-full p-6 border-2 border-dashed border-gray-700 rounded-xl text-center cursor-pointer hover:border-indigo-500 hover:bg-gray-800 transition group">
                     <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-600 group-hover:text-indigo-400 transition mb-3"></i>
                     <span class="block text-sm font-medium text-gray-400">Cliquez pour importer</span>
@@ -60,93 +66,93 @@
                 </label>
                 
                 <div class="mt-8 p-4 bg-gray-800 rounded-xl border border-gray-700">
-                    <h3 class="font-bold text-sm text-indigo-400 mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Option 1 : IA Magic</h3>
-                    <p class="text-xs text-gray-400 mb-4 leading-relaxed">Sélectionnez votre image sur le canvas pour retirer le fond blanc automatiquement.</p>
+                    <h3 class="font-bold text-sm text-indigo-400 mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Option IA Magic</h3>
+                    <p class="text-xs text-gray-400 mb-4 leading-relaxed">Sélectionnez votre image sur le canvas pour retirer le fond automatiquement.</p>
                     <button onclick="removeBackgroundAI()" class="w-full py-3 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg">
                         Retirer le background
                     </button>
                 </div>
             </div>
 
-</div>
-<div id="panel-backgrounds" class="tab-content hidden">
-                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">3. Choisir le décor</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    
-                    <div class="relative group cursor-pointer" onclick="setBackground('https://i.pinimg.com/736x/b5/42/7f/b5427ff7d5b6bb5e6ce08ee49f571d97.jpg')">
-                        <img src="https://i.pinimg.com/736x/b5/42/7f/b5427ff7d5b6bb5e6ce08ee49f571d97.jpg" 
-                             class="h-24 w-full object-cover rounded-lg hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition">
-                        <span class="absolute bottom-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">Noir Luxe</span>
-                    </div>
-
-                    <div class="relative group cursor-pointer" onclick="setBackground('https://i.pinimg.com/736x/9d/68/1c/9d681c544e394452b5f307f72decc893.jpg')">
-                        <img src="https://i.pinimg.com/736x/9d/68/1c/9d681c544e394452b5f307f72decc893.jpg" 
-                             class="h-24 w-full object-cover rounded-lg hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition">
-                        <span class="absolute bottom-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">Beige Minimal</span>
-                    </div>
-
-                    <div class="relative group cursor-pointer" onclick="setBackground('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop')">
-                        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=400&auto=format&fit=crop" 
-                             class="h-24 w-full object-cover rounded-lg hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition">
-                        <span class="absolute bottom-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">Vert Tropical</span>
-                    </div>
-
-                    <div class="relative group cursor-pointer" onclick="setBackground('https://images.unsplash.com/photo-1596464716127-f9a8759fa21d?q=80&w=600&auto=format&fit=crop')">
-                        <img src="https://images.unsplash.com/photo-1596464716127-f9a8759fa21d?q=80&w=400&auto=format&fit=crop" 
-                             class="h-24 w-full object-cover rounded-lg hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition">
-                        <span class="absolute bottom-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">Pierre Blanche</span>
-                    </div>
-
-                    <div class="relative group cursor-pointer" onclick="setBackground('https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=600&auto=format&fit=crop')">
-                        <img src="https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=400&auto=format&fit=crop" 
-                             class="h-24 w-full object-cover rounded-lg hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition">
-                        <span class="absolute bottom-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">Bois Nature</span>
-                    </div>
-                     
-                    <div class="relative group cursor-pointer" onclick="setBackground('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=600&auto=format&fit=crop')">
-                        <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?q=80&w=400&auto=format&fit=crop" 
-                             class="h-24 w-full object-cover rounded-lg hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition">
-                        <span class="absolute bottom-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">Abstrait</span>
-                    </div>
-
+            <div id="panel-elements" class="tab-content hidden">
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">Couleur d'Arrière-Plan</h2>
+                <div class="flex gap-3 mb-6 items-center bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <input type="color" id="bg-color-picker" onchange="setCanvasColor(this.value)" class="h-10 w-10 rounded cursor-pointer bg-transparent" value="#202020">
+                    <span class="text-sm text-gray-400">Choisir une couleur unie</span>
                 </div>
-                <p class="text-xs text-gray-500 mt-4 text-center">Cliquez sur une image pour l'appliquer.</p>
+
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest border-t border-gray-800 pt-6">Ajouter des Formes</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="addShape('rect')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <div class="w-6 h-4 bg-indigo-500 rounded-sm"></div>
+                        <span class="text-[10px] text-gray-400">Carré</span>
+                    </button>
+                    <button onclick="addShape('circle')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <div class="w-5 h-5 bg-indigo-500 rounded-full"></div>
+                        <span class="text-[10px] text-gray-400">Rond</span>
+                    </button>
+                    <button onclick="addShape('triangle')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-play text-indigo-500 -rotate-90"></i>
+                        <span class="text-[10px] text-gray-400">Triangle</span>
+                    </button>
+                    <button onclick="addShape('star')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-star text-indigo-500"></i>
+                        <span class="text-[10px] text-gray-400">Étoile</span>
+                    </button>
+                     <button onclick="addShape('line')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <div class="w-6 h-1 bg-indigo-500"></div>
+                        <span class="text-[10px] text-gray-400">Ligne</span>
+                    </button>
+                    <button onclick="addShape('hexagon')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-cube text-indigo-500"></i>
+                        <span class="text-[10px] text-gray-400">Hexagone</span>
+                    </button>
+                </div>
+                
+                <div id="shape-options" class="hidden mt-6 bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <label class="text-xs font-bold text-gray-500 mb-2 block">Couleur de la forme</label>
+                    <input type="color" onchange="updateShapeColor(this.value)" class="w-full h-8 rounded cursor-pointer">
+                </div>
             </div>
+
             <div id="panel-text" class="tab-content hidden">
-                 <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">2. Éditer Texte</h2>
+                 <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">Éditer Texte</h2>
                  <button onclick="addText()" class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold text-sm hover:bg-gray-700 transition mb-6 border border-gray-700">
                     <i class="fa-solid fa-plus mr-2"></i> Ajouter un titre
                 </button>
 
                 <div id="text-options" class="hidden space-y-5 border-t border-gray-800 pt-5">
                     <div>
-                        <label class="text-xs font-bold text-gray-500 mb-2 block">5. Police</label>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">Police d'écriture</label>
                         <select id="font-family" onchange="updateTextProp('fontFamily', this.value)" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-700 text-sm focus:border-indigo-500 outline-none">
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Arial">Arial</option>
+                            <option value="Montserrat" style="font-family: 'Montserrat'">Montserrat (Moderne)</option>
+                            <option value="Open Sans" style="font-family: 'Open Sans'">Open Sans (Classique)</option>
+                            <option value="Roboto" style="font-family: 'Roboto'">Roboto (Standard)</option>
+                            <option value="Playfair Display" style="font-family: 'Playfair Display'">Playfair (Luxe)</option>
+                            <option value="Anton" style="font-family: 'Anton'">Anton (Impact)</option>
+                            <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue (Poster)</option>
+                            <option value="Oswald" style="font-family: 'Oswald'">Oswald (Condensed)</option>
+                            <option value="Pacifico" style="font-family: 'Pacifico'">Pacifico (Manuscrit)</option>
+                            <option value="Lobster" style="font-family: 'Lobster'">Lobster (Fun)</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="text-xs font-bold text-gray-500 mb-2 block">7. Couleur</label>
-                        <div class="flex gap-2">
-                            <input type="color" id="text-color" onchange="updateTextProp('fill', this.value)" class="h-10 w-full rounded bg-transparent cursor-pointer" value="#ffffff">
-                        </div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">Couleur Texte</label>
+                        <input type="color" id="text-color" onchange="updateTextProp('fill', this.value)" class="h-10 w-full rounded bg-transparent cursor-pointer" value="#ffffff">
                     </div>
 
                     <div>
-                         <label class="text-xs font-bold text-gray-500 mb-2 block">6. Taille</label>
+                         <label class="text-xs font-bold text-gray-500 mb-2 block">Taille</label>
                          <input type="range" id="font-size" min="10" max="150" value="40" oninput="updateTextProp('fontSize', this.value)" class="w-full accent-indigo-500">
                     </div>
 
-                     <div>
-                        <label class="text-xs font-bold text-gray-500 mb-2 block">9. Style</label>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">Style</label>
                         <div class="flex gap-2">
                             <button onclick="toggleTextStyle('fontWeight', 'bold')" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 font-bold border border-gray-700">Gras</button>
                             <button onclick="toggleTextStyle('fontStyle', 'italic')" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 italic border border-gray-700">Italique</button>
+                            <button onclick="toggleShadow()" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 border border-gray-700"><i class="fa-solid fa-cloud"></i></button>
                         </div>
                     </div>
                 </div>
@@ -158,7 +164,7 @@
         <div class="canvas-shadow">
             <canvas id="c"></canvas>
         </div>
-        <p class="absolute bottom-4 text-gray-600 text-xs">Synapse Studio v1.0 • Powered by AI</p>
+        <p class="absolute bottom-4 text-gray-600 text-xs">Synapse Studio v2.0 • Powered by AI</p>
     </main>
 </div>
 
@@ -181,20 +187,33 @@
     resizeCanvas();
 
     // --- GESTION SELECTION ---
-    canvas.on('selection:created', showOptions);
-    canvas.on('selection:updated', showOptions);
-    canvas.on('selection:cleared', () => document.getElementById('text-options').classList.add('hidden'));
+    canvas.on('selection:created', handleSelection);
+    canvas.on('selection:updated', handleSelection);
+    canvas.on('selection:cleared', () => {
+        document.getElementById('text-options').classList.add('hidden');
+        document.getElementById('shape-options').classList.add('hidden');
+    });
 
-    function showOptions(e) {
+    function handleSelection(e) {
         const obj = e.selected[0];
+        // Gestion Texte
         if (obj && obj.type === 'i-text') {
             document.getElementById('text-options').classList.remove('hidden');
+            document.getElementById('shape-options').classList.add('hidden');
             document.getElementById('font-family').value = obj.fontFamily;
             document.getElementById('text-color').value = obj.fill;
             document.getElementById('font-size').value = obj.fontSize;
             switchTab('text');
-        } else {
+        } 
+        // Gestion Formes
+        else if (obj && (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle' || obj.type === 'polygon' || obj.type === 'path')) {
+            document.getElementById('shape-options').classList.remove('hidden');
             document.getElementById('text-options').classList.add('hidden');
+            switchTab('elements');
+        }
+        else {
+            document.getElementById('text-options').classList.add('hidden');
+            document.getElementById('shape-options').classList.add('hidden');
         }
     }
 
@@ -207,7 +226,41 @@
         active.className = active.className.replace('text-gray-500', 'active text-indigo-400 border-b-2 border-indigo-500');
     }
 
-    // Upload (11)
+    // 1. GESTION COULEUR FOND
+    function setCanvasColor(color) {
+        canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
+    }
+
+    // 2. GESTION FORMES
+    function addShape(type) {
+        let shape;
+        const common = { left: 400, top: 400, fill: '#6366f1', originX: 'center', originY: 'center' };
+        
+        if (type === 'rect') shape = new fabric.Rect({ ...common, width: 100, height: 100 });
+        if (type === 'circle') shape = new fabric.Circle({ ...common, radius: 50 });
+        if (type === 'triangle') shape = new fabric.Triangle({ ...common, width: 100, height: 100 });
+        if (type === 'line') shape = new fabric.Rect({ ...common, width: 200, height: 5 });
+        
+        // Etoile (Polygone)
+        if (type === 'star') {
+            const points = [ {x:0,y:-50}, {x:14,y:-15}, {x:50,y:-15}, {x:23,y:7}, {x:34,y:40}, {x:0,y:20}, {x:-34,y:40}, {x:-23,y:7}, {x:-50,y:-15}, {x:-14,y:-15} ];
+            shape = new fabric.Polygon(points, common);
+        }
+        // Hexagone
+        if (type === 'hexagon') {
+             const points = [{x: 50, y: 0}, {x: 100, y: 25}, {x: 100, y: 75}, {x: 50, y: 100}, {x: 0, y: 75}, {x: 0, y: 25}];
+             shape = new fabric.Polygon(points, common);
+        }
+
+        canvas.add(shape).setActiveObject(shape);
+    }
+
+    function updateShapeColor(color) {
+        const obj = canvas.getActiveObject();
+        if(obj) { obj.set('fill', color); canvas.renderAll(); }
+    }
+
+    // 3. UPLOAD & IA
     document.getElementById('imgLoader').onchange = function(e) {
         const reader = new FileReader();
         reader.onload = function(event) {
@@ -223,20 +276,9 @@
         e.target.value = '';
     };
 
-    // Background (3)
-    function setBackground(url) {
-        fabric.Image.fromURL(url, (img) => {
-            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-                scaleX: canvas.width / img.width,
-                scaleY: canvas.height / img.height,
-                crossOrigin: 'anonymous'
-            });
-        });
-    }
-
-    // Texte (2)
+    // 4. TEXTE
     function addText() {
-        const text = new fabric.IText('PROMO -50%', {
+        const text = new fabric.IText('Double-cliquez', {
             left: canvas.width/2, top: canvas.height/2,
             fontFamily: 'Montserrat', fill: '#ffffff', fontSize: 60,
             originX: 'center', originY: 'center', fontWeight: 'bold'
@@ -257,13 +299,22 @@
         }
     }
 
-    // Supprimer (8)
+    // 5. CALQUES & OUTILS
     function deleteSelected() {
         const obj = canvas.getActiveObject();
         if(obj) { canvas.remove(obj); canvas.discardActiveObject(); canvas.renderAll(); }
     }
+    
+    function bringToFront() {
+        const obj = canvas.getActiveObject();
+        if(obj) { obj.bringToFront(); canvas.renderAll(); }
+    }
+    
+    function sendToBack() {
+         const obj = canvas.getActiveObject();
+        if(obj) { obj.sendToBack(); canvas.renderAll(); }
+    }
 
-    // Ombre (10)
     function toggleShadow() {
         const obj = canvas.getActiveObject();
         if(!obj) return alert("Sélectionnez un objet !");
@@ -271,7 +322,6 @@
         canvas.renderAll();
     }
 
-    // Sauvegarder (4)
     function saveImage() {
         const link = document.createElement('a');
         link.download = 'synapse-creation.png';
@@ -281,7 +331,6 @@
         link.click();
     }
 
-    // IA Remove Background (1)
     async function removeBackgroundAI() {
         const obj = canvas.getActiveObject();
         if(!obj || obj.type !== 'image') return alert("Sélectionnez une image !");
