@@ -1758,6 +1758,34 @@
         </div>
     </div>
 
+<div id="ai-chat-widget" class="fixed bottom-6 right-6 z-[100]">
+    <button onclick="toggleAIChat()" class="w-14 h-14 bg-synapse text-black rounded-full shadow-2xl flex items-center justify-center text-2xl hover:scale-110 transition border-4 border-black dark:border-white/10">
+        <i class="fa-solid fa-robot"></i>
+    </button>
+
+    <div id="ai-chat-window" class="hidden absolute bottom-20 right-0 w-[350px] bg-white dark:bg-dark-900 border border-gray-100 dark:border-dark-800 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col h-[500px] animate-fade-in-up">
+        <div class="p-5 bg-synapse text-black font-black flex justify-between items-center italic tracking-tighter">
+            <span class="flex items-center gap-2"><i class="fa-solid fa-brain"></i> SYNAPSE AI</span>
+            <button onclick="toggleAIChat()"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        
+        <div id="ai-messages" class="flex-1 overflow-y-auto p-4 space-y-4 text-xs dark:text-white bg-gray-50/50 dark:bg-black/20">
+            <div class="bg-white dark:bg-dark-800 p-4 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-dark-700">
+                Bonjour ! Je suis l'IA de Synapse. Comment puis-je t'aider aujourd'hui ?
+            </div>
+        </div>
+
+        <div class="p-4 bg-white dark:bg-dark-900 border-t border-gray-100 dark:border-dark-800">
+            <div class="flex gap-2 bg-gray-100 dark:bg-dark-800 p-2 rounded-2xl">
+                <input type="text" id="ai-input" onkeypress="if(event.key === 'Enter') askSynapseAI()" placeholder="Pose-moi une question..." class="flex-1 bg-transparent border-none px-3 text-xs outline-none dark:text-white">
+                <button onclick="askSynapseAI()" class="bg-black text-synapse w-10 h-10 rounded-xl hover:bg-synapse hover:text-black transition flex items-center justify-center">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+    
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
@@ -4900,6 +4928,15 @@ window.askSynapseAI = async function() {
     container.scrollTop = container.scrollHeight;
 }
 
+        window.toggleAIChat = function() {
+    const chatWindow = document.getElementById('ai-chat-window');
+    if (chatWindow) {
+        chatWindow.classList.toggle('hidden');
+        // Scroller vers le bas automatiquement à l'ouverture
+        const container = document.getElementById('ai-messages');
+        container.scrollTop = container.scrollHeight;
+    }
+};
         
         // Lancement de l'application
         fetchAllData();
