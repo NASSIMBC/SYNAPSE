@@ -1785,6 +1785,49 @@
         </div>
     </div>
 </div>
+
+<div id="photo-editor-container" class="p-4 bg-gray-50 dark:bg-dark-900 rounded-lg shadow-inner">
+    <h2 class="text-xl font-bold mb-4 dark:text-white">Éditeur Photo Synapse</h2>
+
+    <div class="flex flex-wrap gap-3 mb-4">
+        <label for="imageUpload" class="px-4 py-2 bg-synapse text-black font-bold rounded-lg cursor-pointer hover:bg-synapse-dark transition">
+            <i class="fa-solid fa-upload mr-2"></i> Charger Image
+        </label>
+        <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+        
+        <button onclick="addTextToCanvas()" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">
+            <i class="fa-solid fa-text-width mr-2"></i> Ajouter Texte
+        </button>
+
+        <button onclick="removeBackground()" class="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition">
+            <i class="fa-solid fa-eraser mr-2"></i> Supprimer Fond (IA)
+        </button>
+        
+        <button onclick="saveCanvasImage()" class="px-4 py-2 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition">
+            <i class="fa-solid fa-download mr-2"></i> Télécharger
+        </button>
+    </div>
+
+    <div class="relative w-full h-[500px] border-2 border-gray-300 dark:border-dark-700 rounded-lg overflow-hidden bg-gray-200 dark:bg-dark-800 flex items-center justify-center">
+        <canvas id="editorCanvas" class="max-w-full max-h-full"></canvas>
+        <div id="editor-loader" class="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-lg hidden">
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i> Traitement IA...
+        </div>
+    </div>
+
+    <div id="text-editor-options" class="mt-4 p-3 bg-white dark:bg-dark-800 rounded-lg shadow hidden">
+        <h3 class="font-bold mb-2 dark:text-white">Options du texte</h3>
+        <input type="color" id="textColor" value="#000000" onchange="setTextColor(this.value)" class="mr-2">
+        <input type="range" id="fontSize" min="10" max="100" value="20" onchange="setFontSize(this.value)" class="w-24 mr-2">
+        <select id="fontFamily" onchange="setFontFamily(this.value)">
+            <option value="Arial">Arial</option>
+            <option value="Verdana">Verdana</option>
+            <option value="Times New Roman">Times New Roman</option>
+        </select>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -4959,6 +5002,201 @@ window.askSynapseAI = async function() {
         const container = document.getElementById('ai-messages');
         container.scrollTop = container.scrollHeight;
     }
+};
+
+        // --- Initialisation du Canvas Fabric.js ---
+let canvas;
+let currentImageObject = null; // Pour garder une référence à l'image principale
+let removeBgApiUrl = 'https://remove.bg/api/v1.0/removebg'; // Ou ton propre service si tu en as un
+let removeBgApiKey = 'CRpcu2fPNT9dQDsCW2Z9jU9E'; // Clé Remove.bg ou autre service
+
+document.addEventListener('DOMContentLoaded', () => {
+    canvas = new fabric.Canvas('editorCanvas', {
+        backgroundColor: '#f0f0f0', // Couleur de fond par défaut
+        width: 800, // Largeur par défaut, sera ajustée
+        height: 500 // Hauteur par défaut, sera ajustée
+    });
+
+    // Ajuster le canvas à la taille du conteneur parent
+    const container = document.querySelector('.relative.w-full.h-[500px]');
+    if (container) {
+        const resizeCanvas = () => {
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            canvas.setDimensions({ width: containerWidth, height: containerHeight });
+            canvas.renderAll();
+        };
+        resizeCanvas(); // Appeler au chargement
+        window.addEventListener('resize', resizeCanvas); // Appeler au redimensionnement
+    }
+
+    // Gérer la sélection d'objets pour afficher les options d'édition
+    canvas.on('selection:created', (e) => {
+        if (e.target && e.target.type === 'i-text') {
+            document.getElementById('text-editor-options').classList.remove('hidden');
+        } else {
+            document.getElementById('text-editor-options').classList.add('hidden');
+        }
+    });
+    canvas.on('selection:updated', (e) => {
+        if (e.target && e.target.type === 'i-text') {
+            document.getElementById('text-editor-options').classList.remove('hidden');
+        } else {
+            document.getElementById('text-editor-options').classList.add('hidden');
+        }
+    });
+    canvas.on('selection:cleared', () => {
+        document.getElementById('text-editor-options').classList.add('hidden');
+    });
+});
+
+// --- Gestion du chargement d'image ---
+window.handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (f) => {
+            fabric.Image.fromURL(f.target.result, (img) => {
+                canvas.clear(); // Efface le canvas avant d'ajouter la nouvelle image
+                currentImageObject = img; // Garde une référence à l'image
+
+                // Redimensionner l'image pour qu'elle s'adapte au canvas
+                img.scaleToWidth(canvas.getWidth() * 0.8);
+                if (img.getScaledHeight() > canvas.getHeight() * 0.8) {
+                    img.scaleToHeight(canvas.getHeight() * 0.8);
+                }
+
+                canvas.centerObject(img);
+                canvas.add(img);
+                canvas.renderAll();
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+};
+
+// --- Ajouter du texte ---
+window.addTextToCanvas = () => {
+    const text = new fabric.IText('Nouveau Texte', {
+        left: 50,
+        top: 50,
+        fontFamily: 'Arial',
+        fill: '#000000',
+        fontSize: 30,
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text); // Sélectionne le texte ajouté
+    canvas.renderAll();
+};
+
+// --- Options d'édition de texte ---
+window.setTextColor = (color) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.set({ fill: color });
+        canvas.renderAll();
+    }
+};
+
+window.setFontSize = (size) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.set({ fontSize: parseInt(size, 10) });
+        canvas.renderAll();
+    }
+};
+
+window.setFontFamily = (fontFamily) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.set({ fontFamily: fontFamily });
+        canvas.renderAll();
+    }
+};
+
+
+// --- SUPPRESSION DE FOND PAR IA (Fonction clé) ---
+window.removeBackground = async () => {
+    if (!currentImageObject) {
+        alert('Veuillez charger une image d\'abord.');
+        return;
+    }
+    
+    // Afficher le loader
+    const loader = document.getElementById('editor-loader');
+    loader.classList.remove('hidden');
+
+    try {
+        // Obtenir les données de l'image principale au format PNG
+        const originalDataUrl = currentImageObject.toDataURL({
+            format: 'png',
+            multiplier: 1 // Garder la résolution d'origine
+        });
+        
+        // Convertir le Data URL en Blob pour l'envoi à l'API
+        const blob = await (await fetch(originalDataUrl)).blob();
+        
+        const formData = new FormData();
+        formData.append('image_file', blob, 'image.png');
+        formData.append('size', 'auto'); // 'auto' pour la meilleure qualité ou 'small' pour plus rapide
+        formData.append('type', 'person'); // Ou 'product' si tu cibles uniquement des produits
+        
+        // --- Appel à l'API de suppression de fond ---
+        const response = await fetch(removeBgApiUrl, {
+            method: 'POST',
+            headers: {
+                'X-Api-Key': removeBgApiKey // Ta clé API remove.bg
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`Erreur API: ${response.status} - ${errorData.errors[0].title || 'Erreur inconnue'}`);
+        }
+
+        const data = await response.json();
+        const base64Image = data.data.result_b64; // Image sans fond en Base64
+
+        // Charger la nouvelle image sans fond sur le canvas
+        fabric.Image.fromURL('data:image/png;base64,' + base64Image, (newImg) => {
+            canvas.remove(currentImageObject); // Supprime l'ancienne image
+            currentImageObject = newImg; // Met à jour la référence
+            
+            // Redimensionner et centrer la nouvelle image
+            newImg.scaleToWidth(canvas.getWidth() * 0.8);
+            if (newImg.getScaledHeight() > canvas.getHeight() * 0.8) {
+                newImg.scaleToHeight(canvas.getHeight() * 0.8);
+            }
+            canvas.centerObject(newImg);
+            canvas.add(newImg);
+            canvas.renderAll();
+        });
+
+    } catch (error) {
+        console.error("Erreur suppression de fond:", error);
+        alert('Impossible de supprimer le fond : ' + error.message);
+    } finally {
+        loader.classList.add('hidden'); // Cacher le loader
+    }
+};
+
+// --- Sauvegarder l'image éditée ---
+window.saveCanvasImage = () => {
+    if (!canvas.getObjects().length) {
+        alert('Le canvas est vide ! Chargez ou ajoutez du contenu.');
+        return;
+    }
+    const dataURL = canvas.toDataURL({
+        format: 'png',
+        quality: 1
+    });
+    const link = document.createElement('a');
+    link.download = 'synapse-image-edit.png';
+    link.href = dataURL;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 };
         
         // Lancement de l'application
