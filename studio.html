@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse Creative Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; } /* Thème Sombre Synapse */
+        .canvas-shadow { box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        input[type="file"] { display: none; }
+        .synapse-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+    </style>
+</head>
+<body class="h-screen flex flex-col text-white">
+
+<header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center shadow-md">
+    <div class="flex items-center gap-3">
+         <div class="w-8 h-8 rounded bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+             <i class="fa-solid fa-wand-magic-sparkles text-white text-sm"></i>
+         </div>
+         <h1 class="font-bold text-lg tracking-wide">Synapse <span class="text-indigo-400">Studio</span></h1>
+    </div>
+    <div class="flex gap-3">
+        <button onclick="deleteSelected()" class="px-4 py-2 bg-red-900/30 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/50 transition text-sm font-semibold">
+            <i class="fa-solid fa-trash"></i> <span class="hidden sm:inline ml-2">Supprimer (8)</span>
+        </button>
+        <button onclick="toggleShadow()" class="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 transition text-sm font-semibold">
+            <i class="fa-solid fa-cloud"></i> <span class="hidden sm:inline ml-2">Ombre (10)</span>
+        </button>
+        <button onclick="saveImage()" class="px-6 py-2 synapse-gradient text-white rounded-lg hover:opacity-90 transition text-sm font-bold shadow-lg shadow-purple-900/20">
+            <i class="fa-solid fa-download mr-2"></i> Sauvegarder (4)
+        </button>
+    </div>
+</header>
+
+<div class="flex flex-1 overflow-hidden">
+    <aside class="w-80 bg-gray-900 border-r border-gray-800 flex flex-col z-10">
+        <div class="flex border-b border-gray-800">
+            <button onclick="switchTab('uploads')" class="flex-1 py-4 text-center text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 tab-btn active" data-tab="uploads"><i class="fa-solid fa-upload block mb-1 text-lg"></i> Produit</button>
+            <button onclick="switchTab('backgrounds')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="backgrounds"><i class="fa-regular fa-image block mb-1 text-lg"></i> Fonds</button>
+            <button onclick="switchTab('text')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="text"><i class="fa-solid fa-font block mb-1 text-lg"></i> Texte</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-5 relative">
+             <div id="ai-loader" class="hidden absolute inset-0 bg-gray-900/90 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
+                <p class="text-sm font-semibold text-gray-300">L'IA détoure votre produit...</p>
+            </div>
+
+            <div id="panel-uploads" class="tab-content">
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">11. Ajouter Produit</h2>
+                <label class="block w-full p-6 border-2 border-dashed border-gray-700 rounded-xl text-center cursor-pointer hover:border-indigo-500 hover:bg-gray-800 transition group">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-600 group-hover:text-indigo-400 transition mb-3"></i>
+                    <span class="block text-sm font-medium text-gray-400">Cliquez pour importer</span>
+                    <input type="file" id="imgLoader" accept="image/*">
+                </label>
+                
+                <div class="mt-8 p-4 bg-gray-800 rounded-xl border border-gray-700">
+                    <h3 class="font-bold text-sm text-indigo-400 mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Option 1 : IA Magic</h3>
+                    <p class="text-xs text-gray-400 mb-4 leading-relaxed">Sélectionnez votre image sur le canvas pour retirer le fond blanc automatiquement.</p>
+                    <button onclick="removeBackgroundAI()" class="w-full py-3 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg">
+                        Retirer le background
+                    </button>
+                </div>
+            </div>
+
+            <div id="panel-backgrounds" class="tab-content hidden">
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">3. Choisir le décor</h2>
+                <div class="grid grid-cols-2 gap-3">
+                    <img src="./assets/backgrounds/bg1.jpg" class="h-24 w-full object-cover rounded-lg cursor-pointer hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition" onclick="setBackground(this.src)">
+                    <img src="./assets/backgrounds/bg2.jpg" class="h-24 w-full object-cover rounded-lg cursor-pointer hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition" onclick="setBackground(this.src)">
+                    <img src="./assets/backgrounds/bg3.jpg" class="h-24 w-full object-cover rounded-lg cursor-pointer hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition" onclick="setBackground(this.src)">
+                    <img src="./assets/backgrounds/bg4.jpg" class="h-24 w-full object-cover rounded-lg cursor-pointer hover:ring-2 ring-indigo-500 opacity-80 hover:opacity-100 transition" onclick="setBackground(this.src)">
+                </div>
+                <p class="text-xs text-gray-500 mt-4 text-center">Cliquez sur une image pour l'appliquer.</p>
+            </div>
+
+            <div id="panel-text" class="tab-content hidden">
+                 <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">2. Éditer Texte</h2>
+                 <button onclick="addText()" class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold text-sm hover:bg-gray-700 transition mb-6 border border-gray-700">
+                    <i class="fa-solid fa-plus mr-2"></i> Ajouter un titre
+                </button>
+
+                <div id="text-options" class="hidden space-y-5 border-t border-gray-800 pt-5">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">5. Police</label>
+                        <select id="font-family" onchange="updateTextProp('fontFamily', this.value)" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-700 text-sm focus:border-indigo-500 outline-none">
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Playfair Display">Playfair Display</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Arial">Arial</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">7. Couleur</label>
+                        <div class="flex gap-2">
+                            <input type="color" id="text-color" onchange="updateTextProp('fill', this.value)" class="h-10 w-full rounded bg-transparent cursor-pointer" value="#ffffff">
+                        </div>
+                    </div>
+
+                    <div>
+                         <label class="text-xs font-bold text-gray-500 mb-2 block">6. Taille</label>
+                         <input type="range" id="font-size" min="10" max="150" value="40" oninput="updateTextProp('fontSize', this.value)" class="w-full accent-indigo-500">
+                    </div>
+
+                     <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">9. Style</label>
+                        <div class="flex gap-2">
+                            <button onclick="toggleTextStyle('fontWeight', 'bold')" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 font-bold border border-gray-700">Gras</button>
+                            <button onclick="toggleTextStyle('fontStyle', 'italic')" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 italic border border-gray-700">Italique</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 bg-gray-950 flex items-center justify-center p-8 overflow-hidden relative">
+        <div class="canvas-shadow">
+            <canvas id="c"></canvas>
+        </div>
+        <p class="absolute bottom-4 text-gray-600 text-xs">Synapse Studio v1.0 • Powered by AI</p>
+    </main>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    const REMOVE_BG_API_KEY = "TA_CLE_API_REMOVEBG_ICI"; // ⚠️ METTRE TA CLÉ ICI
+
+    // --- INITIALISATION ---
+    const canvas = new fabric.Canvas('c', { width: 800, height: 800, backgroundColor: '#202020' });
+
+    function resizeCanvas() {
+        const container = document.querySelector('main');
+        const scale = Math.min((container.clientWidth - 100) / 800, (container.clientHeight - 100) / 800);
+        const finalScale = scale > 1 ? 1 : (scale < 0.4 ? 0.4 : scale);
+        canvas.setDimensions({ width: 800 * finalScale, height: 800 * finalScale });
+        canvas.setZoom(finalScale);
+        canvas.renderAll();
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // --- GESTION SELECTION ---
+    canvas.on('selection:created', showOptions);
+    canvas.on('selection:updated', showOptions);
+    canvas.on('selection:cleared', () => document.getElementById('text-options').classList.add('hidden'));
+
+    function showOptions(e) {
+        const obj = e.selected[0];
+        if (obj && obj.type === 'i-text') {
+            document.getElementById('text-options').classList.remove('hidden');
+            document.getElementById('font-family').value = obj.fontFamily;
+            document.getElementById('text-color').value = obj.fill;
+            document.getElementById('font-size').value = obj.fontSize;
+            switchTab('text');
+        } else {
+            document.getElementById('text-options').classList.add('hidden');
+        }
+    }
+
+    // --- OUTILS ---
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`panel-${tab}`).classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.className = btn.className.replace('active text-indigo-400 border-indigo-500', 'text-gray-500'));
+        const active = document.querySelector(`[data-tab="${tab}"]`);
+        active.className = active.className.replace('text-gray-500', 'active text-indigo-400 border-b-2 border-indigo-500');
+    }
+
+    // Upload (11)
+    document.getElementById('imgLoader').onchange = function(e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const imgObj = new Image();
+            imgObj.src = event.target.result;
+            imgObj.onload = function() {
+                const img = new fabric.Image(imgObj);
+                if(img.width > 500) img.scaleToWidth(500);
+                canvas.centerObject(img).add(img).setActiveObject(img);
+            }
+        };
+        reader.readAsDataURL(e.target.files[0]);
+        e.target.value = '';
+    };
+
+    // Background (3)
+    function setBackground(url) {
+        fabric.Image.fromURL(url, (img) => {
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+                scaleX: canvas.width / img.width,
+                scaleY: canvas.height / img.height,
+                crossOrigin: 'anonymous'
+            });
+        });
+    }
+
+    // Texte (2)
+    function addText() {
+        const text = new fabric.IText('PROMO -50%', {
+            left: canvas.width/2, top: canvas.height/2,
+            fontFamily: 'Montserrat', fill: '#ffffff', fontSize: 60,
+            originX: 'center', originY: 'center', fontWeight: 'bold'
+        });
+        canvas.add(text).setActiveObject(text);
+    }
+
+    function updateTextProp(prop, val) {
+        const obj = canvas.getActiveObject();
+        if(obj && obj.type === 'i-text') { obj.set(prop, val); canvas.renderAll(); }
+    }
+
+    function toggleTextStyle(prop, val) {
+        const obj = canvas.getActiveObject();
+        if(obj && obj.type === 'i-text') {
+            obj.set(prop, obj.get(prop) === val ? 'normal' : val);
+            canvas.renderAll();
+        }
+    }
+
+    // Supprimer (8)
+    function deleteSelected() {
+        const obj = canvas.getActiveObject();
+        if(obj) { canvas.remove(obj); canvas.discardActiveObject(); canvas.renderAll(); }
+    }
+
+    // Ombre (10)
+    function toggleShadow() {
+        const obj = canvas.getActiveObject();
+        if(!obj) return alert("Sélectionnez un objet !");
+        obj.set('shadow', obj.shadow ? null : new fabric.Shadow({ color: 'rgba(0,0,0,0.5)', blur: 30, offsetX: 15, offsetY: 15 }));
+        canvas.renderAll();
+    }
+
+    // Sauvegarder (4)
+    function saveImage() {
+        const link = document.createElement('a');
+        link.download = 'synapse-creation.png';
+        canvas.setZoom(1); 
+        link.href = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+        resizeCanvas();
+        link.click();
+    }
+
+    // IA Remove Background (1)
+    async function removeBackgroundAI() {
+        const obj = canvas.getActiveObject();
+        if(!obj || obj.type !== 'image') return alert("Sélectionnez une image !");
+        
+        document.getElementById('ai-loader').classList.remove('hidden');
+        try {
+            const data = obj.toDataURL({format: 'png'});
+            const blob = await (await fetch(data)).blob();
+            const formData = new FormData();
+            formData.append('image_file', blob);
+            
+            const res = await fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: { 'X-Api-Key': REMOVE_BG_API_KEY },
+                body: formData
+            });
+            
+            if(!res.ok) throw new Error('Erreur API');
+            
+            const blobRes = await res.blob();
+            const url = URL.createObjectURL(blobRes);
+            
+            fabric.Image.fromURL(url, (newImg) => {
+                newImg.set({ left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY });
+                canvas.remove(obj).add(newImg).setActiveObject(newImg);
+                document.getElementById('ai-loader').classList.add('hidden');
+            });
+        } catch(e) {
+            alert("Erreur IA : Vérifiez votre clé API.");
+            document.getElementById('ai-loader').classList.add('hidden');
+        }
+    }
+</script>
+</body>
+</html>
