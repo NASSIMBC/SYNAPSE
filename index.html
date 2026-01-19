@@ -5209,203 +5209,121 @@ window.askSynapseAI = async function() {
     }
 };
 
-       // --- Configuration Générale ---
+      // --- INITIALISATION GLOBALE ---
 let canvas;
-let currentImageObject = null; // L'image principale du produit
-let history = []; // Historique pour annuler/rétablir
+let currentImageObject = null;
+let history = [];
 let historyPointer = -1;
-let removeBgApiUrl = 'https://remove.bg/api/v1.0/removebg'; // Ou ton propre service
-let removeBgApiKey = 'CRpcu2fPNT9dQDsCW2Z9jU9E'; // <-- TRÈS IMPORTANT : REMPLACE AVEC TA CLÉ !
+const removeBgApiUrl = 'https://remove.bg/api/v1.0/removebg';
+const removeBgApiKey = 'CRpcu2fPNT9dQDsCW2Z9jU9E'; 
 
-// --- Initialisation du Canvas Fabric.js ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialisation Fabric
     canvas = new fabric.Canvas('editorCanvas', {
-        backgroundColor: '#f0f0f0',
-        selection: true, // Permettre la sélection multiple
-        perPixelTargetFind: true, // Sélection plus précise
+        backgroundColor: '#ffffff',
+        selection: true,
+        perPixelTargetFind: true,
         targetFindTolerance: 5,
     });
 
-    // Ajuster le canvas à la taille du conteneur parent
-    const canvasContainerWrapper = document.querySelector('.relative.w-full.h-full.max-w-\\[800px\\]');
-    if (canvasContainerWrapper) {
-        const resizeCanvas = () => {
-            const containerWidth = canvasContainerWrapper.offsetWidth;
-            const containerHeight = canvasContainerWrapper.offsetHeight;
-            canvas.setDimensions({ width: containerWidth, height: containerHeight });
+    // Redimensionnement automatique
+    const wrapper = document.querySelector('.relative.overflow-hidden');
+    if (wrapper) {
+        const resize = () => {
+            canvas.setDimensions({ width: wrapper.offsetWidth, height: wrapper.offsetHeight });
             canvas.renderAll();
         };
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        resize();
+        window.addEventListener('resize', resize);
     }
-    
-    // Événements du Canvas
+
+    // Événements
     canvas.on({
-        'object:modified': updateObjectOptions,
-        'object:added': saveCanvasState,
-        'object:removed': saveCanvasState,
+        'object:modified': () => { updateObjectOptions(); saveCanvasState(); },
+        'object:added': () => { updateLayersList(); saveCanvasState(); },
+        'object:removed': () => { updateLayersList(); saveCanvasState(); },
         'selection:created': updateObjectOptions,
         'selection:updated': updateObjectOptions,
         'selection:cleared': clearObjectOptions,
     });
 
-    saveCanvasState(); // Sauvegarder l'état initial
-    openPanel('backgrounds'); // Ouvrir le panneau d'arrière-plans par défaut
-    // Charger des produits recommandés ici via Supabase si nécessaire
-    // loadRecommendedProducts(); 
+    saveCanvasState();
+    window.openPanel('backgrounds');
 });
 
-// --- Gestion des Panneaux de Gauche ---
+// --- GESTION INTERFACE ---
 window.openPanel = (panelId) => {
     const panels = ['backgrounds', 'text', 'shapes', 'layers'];
     panels.forEach(id => {
-        document.getElementById(`panel-${id}`).classList.add('hidden');
+        const el = document.getElementById(`panel-${id}`);
+        if(el) el.classList.add('hidden');
     });
-    document.getElementById(`panel-${panelId}`).classList.remove('hidden');
+    const target = document.getElementById(`panel-${panelId}`);
+    if(target) target.classList.remove('hidden');
 };
 
-// --- Historique (Undo/Redo) ---
-function saveCanvasState() {
-    if (historyPointer < history.length - 1) {
-        history = history.slice(0, historyPointer + 1);
-    }
-    history.push(JSON.stringify(canvas.toJSON()));
-    historyPointer++;
-}
-
-window.undo = () => {
-    if (historyPointer > 0) {
-        historyPointer--;
-        canvas.loadFromJSON(history[historyPointer], canvas.renderAll.bind(canvas));
-    }
+// --- AJOUT D'OBJETS ---
+window.addTextToCanvas = () => {
+    const text = new fabric.IText('Texte Synapse', {
+        left: 50,
+        top: 50,
+        fontFamily: 'Arial',
+        fill: '#000000',
+        fontSize: 40
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text);
 };
 
-// Fonction Redo à implémenter si besoin, inverse de undo
-
-// --- Fonctions d'édition d'objets (pour le panneau de droite) ---
-function updateObjectOptions() {
-    const activeObject = canvas.getActiveObject();
-    const rightPanelOptions = document.getElementById('right-panel-object-options');
-    if (activeObject) {
-        rightPanelOptions.classList.remove('hidden');
-        document.getElementById('objPosX').value = activeObject.left.toFixed(0);
-        document.getElementById('objPosY').value = activeObject.top.toFixed(0);
-        document.getElementById('objWidth').value = activeObject.width.toFixed(0);
-        document.getElementById('objHeight').value = activeObject.height.toFixed(0);
-        document.getElementById('objOpacity').value = activeObject.opacity;
-        
-        // Mettre à jour les options de texte si c'est un IText
-        if (activeObject.type === 'i-text') {
-            document.getElementById('text-editor-options').classList.remove('hidden');
-            document.getElementById('textEditorContent').value = activeObject.text;
-            document.getElementById('textColor').value = activeObject.fill;
-            document.getElementById('fontSize').value = activeObject.fontSize;
-            document.getElementById('fontFamily').value = activeObject.fontFamily;
-        } else {
-             document.getElementById('text-editor-options').classList.add('hidden');
-        }
-
-    } else {
-        clearObjectOptions();
-    }
-}
-
-function clearObjectOptions() {
-    document.getElementById('right-panel-object-options').classList.add('hidden');
-    document.getElementById('text-editor-options').classList.add('hidden');
-}
-
-window.setObjectProperty = (prop, value) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-        let val = value;
-        if (prop === 'left' || prop === 'top' || prop === 'width' || prop === 'height') {
-            val = parseFloat(value);
-        } else if (prop === 'opacity') {
-            val = parseFloat(value);
-        }
-        activeObject.set(prop, val);
-        canvas.renderAll();
-        saveCanvasState();
-    }
-};
-
-window.bringObjectToFront = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-        canvas.bringToFront(activeObject);
-        canvas.renderAll();
-        saveCanvasState();
-        updateLayersList(); // Mettre à jour l'affichage des calques
-    }
-};
-
-window.sendObjectToBack = () => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject) {
-        canvas.sendToBack(activeObject);
-        canvas.renderAll();
-        saveCanvasState();
-        updateLayersList(); // Mettre à jour l'affichage des calques
-    }
-};
-
-
-// --- Gestion du chargement d'image ---
-window.handleImageUploadClick = () => {
-    document.getElementById('imageUploadInput').click();
-};
-
-window.handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (f) => {
-            fabric.Image.fromURL(f.target.result, (img) => {
-                // Si c'est la première image ou une nouvelle image produit, clear le canvas
-                if (!currentImageObject || confirm("Remplacer l'image existante sur le canvas ?")) {
-                    canvas.clear();
-                    currentImageObject = img;
-                } else {
-                    canvas.add(img); // Ajouter comme un nouvel objet si on ne remplace pas
-                }
-
-                // Redimensionner et centrer l'image
-                img.scaleToWidth(canvas.getWidth() * 0.8);
-                if (img.getScaledHeight() > canvas.getHeight() * 0.8) {
-                    img.scaleToHeight(canvas.getHeight() * 0.8);
-                }
-                canvas.centerObject(img);
-                canvas.add(img);
-                canvas.setActiveObject(img);
-                canvas.renderAll();
-                saveCanvasState();
-                updateLayersList();
-            });
-        };
-        reader.readAsDataURL(file);
-    }
-};
-
-// --- Suppression de Fond (IA) ---
-window.removeBackground = async () => {
-    const activeObject = canvas.getActiveObject();
-    if (!activeObject || activeObject.type !== 'image') {
-        alert('Veuillez sélectionner une image sur le canvas.');
-        return;
-    }
+window.addShape = (type) => {
+    let shape;
+    const props = { left: 100, top: 100, fill: '#3b82f6', width: 100, height: 100 };
     
+    if(type === 'rect') shape = new fabric.Rect(props);
+    if(type === 'circle') shape = new fabric.Circle({...props, radius: 50});
+    if(type === 'triangle') shape = new fabric.Triangle(props);
+    
+    canvas.add(shape);
+    canvas.setActiveObject(shape);
+};
+
+// --- MODIFICATION D'OBJETS ---
+function updateObjectOptions() {
+    const active = canvas.getActiveObject();
+    const panel = document.getElementById('right-panel-object-options');
+    if (!active || !panel) return;
+
+    panel.classList.remove('hidden');
+    document.getElementById('objPosX').value = Math.round(active.left);
+    document.getElementById('objPosY').value = Math.round(active.top);
+    document.getElementById('objOpacity').value = active.opacity;
+
+    if (active.type === 'i-text') {
+        document.getElementById('text-editor-options').classList.remove('hidden');
+        document.getElementById('textEditorContent').value = active.text;
+    }
+}
+
+window.setObjectProperty = (prop, val) => {
+    const active = canvas.getActiveObject();
+    if (!active) return;
+    active.set(prop, prop === 'opacity' ? parseFloat(val) : parseInt(val));
+    canvas.renderAll();
+};
+
+// --- IA : SUPPRESSION DE FOND ---
+window.removeBackground = async () => {
+    const active = canvas.getActiveObject();
+    if (!active || active.type !== 'image') return alert("Sélectionnez une image !");
+
     const loader = document.getElementById('editor-loader');
     loader.classList.remove('hidden');
 
     try {
-        const originalDataUrl = activeObject.toDataURL({ format: 'png', multiplier: 1 });
-        const blob = await (await fetch(originalDataUrl)).blob();
-        
+        const dataUrl = active.toDataURL({ format: 'png' });
+        const blob = await (await fetch(dataUrl)).blob();
         const formData = new FormData();
         formData.append('image_file', blob, 'image.png');
-        formData.append('size', 'auto'); 
-        formData.append('type', 'product'); // Plus adapté pour des produits
 
         const response = await fetch(removeBgApiUrl, {
             method: 'POST',
@@ -5413,9 +5331,50 @@ window.removeBackground = async () => {
             body: formData
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new
+        if (!response.ok) throw new Error("Erreur API");
+
+        const resultBlob = await response.blob();
+        const url = URL.createObjectURL(resultBlob);
+
+        fabric.Image.fromURL(url, (img) => {
+            img.set({ left: active.left, top: active.top, scaleX: active.scaleX, scaleY: active.scaleY });
+            canvas.remove(active);
+            canvas.add(img);
+            canvas.renderAll();
+            loader.classList.add('hidden');
+        });
+    } catch (err) {
+        alert("Erreur IA");
+        loader.classList.add('hidden');
+    }
+};
+
+// --- GESTION DES CALQUES ---
+function updateLayersList() {
+    const list = document.getElementById('layers-list');
+    if(!list) return;
+    list.innerHTML = "";
+    canvas.getObjects().reverse().forEach((obj, index) => {
+        const item = document.createElement('div');
+        item.className = "flex justify-between p-2 bg-gray-100 dark:bg-dark-800 rounded text-[10px] mb-1";
+        item.innerHTML = `<span>${obj.type}</span> <button onclick="deleteLayer(${index})" class="text-red-500"><i class="fa-solid fa-trash"></i></button>`;
+        list.appendChild(item);
+    });
+}
+
+// --- SAUVEGARDE & HISTORIQUE ---
+function saveCanvasState() {
+    if (!canvas) return;
+    history.push(JSON.stringify(canvas));
+    historyPointer++;
+}
+
+window.saveCanvasImage = () => {
+    const link = document.createElement('a');
+    link.download = 'synapse-edit.png';
+    link.href = canvas.toDataURL({ format: 'png', quality: 1 });
+    link.click();
+};
                 
         // Lancement de l'application
         fetchAllData();
