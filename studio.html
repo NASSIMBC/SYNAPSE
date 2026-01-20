@@ -2,206 +2,293 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Synapse Creative Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Lobster&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;600&family=Oswald:wght@500&family=Pacifico&family=Playfair+Display:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; touch-action: manipulation; overflow: hidden; height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background-color: #1a1a1a; }
         .canvas-shadow { box-shadow: 0 0 50px rgba(0,0,0,0.5); }
         input[type="file"] { display: none; }
         .synapse-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        /* Style pour les boutons de formes */
         .shape-btn { transition: all 0.2s; }
         .shape-btn:hover { transform: scale(1.1); background-color: #3730a3; }
-        
-        /* --- SYSTÈME RESPONSIVE --- */
-        @media (max-width: 1024px) {
-            .main-container { flex-direction: column; }
-            aside { 
-                width: 100% !important; 
-                height: 35vh !important; 
-                order: 2; 
-                border-right: none !important; 
-                border-top: 1px solid #1f2937; 
-            }
-            main { 
-                order: 1; 
-                height: 65vh !important; 
-                padding: 10px !important;
-            }
-            header h1 { font-size: 1rem; }
-            .header-text { display: none; } /* Cache le texte des boutons sur mobile */
-            .tab-btn { font-size: 0.7rem; padding: 12px 5px !important; }
-        }
     </style>
 </head>
-<body class="flex flex-col text-white">
+<body class="h-screen flex flex-col text-white">
 
-<header class="bg-gray-900 border-b border-gray-800 p-3 md:p-4 flex justify-between items-center shadow-md shrink-0">
-    <div class="flex items-center gap-2 md:gap-4">
-        <a href="index.html" class="group flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gray-800 border border-gray-700 hover:border-indigo-500 transition-all duration-300">
-            <i class="fa-solid fa-arrow-left text-gray-400 group-hover:text-indigo-400"></i>
+<header class="bg-gray-900 border-b border-gray-800 p-4 flex justify-between items-center shadow-md">
+    <div class="flex items-center gap-4">
+        <a href="index.html" class="group flex items-center justify-center w-10 h-10 rounded-xl bg-gray-800 border border-gray-700 hover:border-indigo-500 hover:bg-indigo-500/10 transition-all duration-300" title="Retour vers Synapse">
+            <i class="fa-solid fa-arrow-left text-gray-400 group-hover:text-indigo-400 transition-colors"></i>
         </a>
-        <div class="flex items-center gap-2">
-             <div class="w-7 h-7 md:w-8 md:h-8 rounded bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                 <i class="fa-solid fa-wand-magic-sparkles text-white text-xs md:text-sm"></i>
+
+        <div class="flex items-center gap-3">
+             <div class="w-8 h-8 rounded bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                 <i class="fa-solid fa-wand-magic-sparkles text-white text-sm"></i>
              </div>
-             <h1 class="font-bold text-sm md:text-lg tracking-wide">Synapse <span class="text-indigo-400">Studio</span></h1>
+             <h1 class="font-bold text-lg tracking-wide">Synapse <span class="text-indigo-400">Studio</span></h1>
         </div>
     </div>
 
-    <div class="flex gap-2">
-        <button onclick="deleteSelected()" class="px-3 py-2 bg-red-900/30 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/50 transition text-xs font-semibold flex items-center">
-            <i class="fa-solid fa-trash"></i><span class="header-text ml-2">Supprimer</span>
+    <div class="flex gap-3">
+        <button onclick="deleteSelected()" class="px-4 py-2 bg-red-900/30 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/50 transition text-sm font-semibold">
+            <i class="fa-solid fa-trash"></i> <span class="hidden sm:inline ml-2">Supprimer</span>
         </button>
-        <button onclick="saveImage()" class="px-3 py-2 synapse-gradient text-white rounded-lg hover:opacity-90 transition text-xs font-bold shadow-lg flex items-center">
-            <i class="fa-solid fa-download"></i><span class="header-text ml-2">Sauvegarder</span>
+        <button onclick="bringToFront()" class="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 transition text-sm font-semibold">
+            <i class="fa-solid fa-layer-group"></i> <span class="hidden sm:inline ml-2">Devant</span>
+        </button>
+        <button onclick="sendToBack()" class="px-4 py-2 bg-gray-800 text-gray-300 border border-gray-700 rounded-lg hover:bg-gray-700 transition text-sm font-semibold">
+            <i class="fa-solid fa-layer-group fa-flip-vertical"></i> <span class="hidden sm:inline ml-2">Derrière</span>
+        </button>
+        <button onclick="saveImage()" class="px-6 py-2 synapse-gradient text-white rounded-lg hover:opacity-90 transition text-sm font-bold shadow-lg shadow-purple-900/20">
+            <i class="fa-solid fa-download mr-2"></i> Sauvegarder
         </button>
     </div>
 </header>
 
-<div class="flex flex-1 overflow-hidden main-container">
-    <aside class="w-80 bg-gray-900 border-r border-gray-800 flex flex-col z-10 shrink-0">
-        <div class="flex border-b border-gray-800 overflow-x-auto shrink-0">
-            <button onclick="switchTab('uploads')" class="flex-1 py-4 text-center text-xs md:text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 tab-btn active" data-tab="uploads">Produit</button>
-            <button onclick="switchTab('elements')" class="flex-1 py-4 text-center text-xs md:text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="elements">Éléments</button>
-            <button onclick="switchTab('text')" class="flex-1 py-4 text-center text-xs md:text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="text">Texte</button>
+<div class="flex flex-1 overflow-hidden">
+    <aside class="w-80 bg-gray-900 border-r border-gray-800 flex flex-col z-10">
+        <div class="flex border-b border-gray-800">
+            <button onclick="switchTab('uploads')" class="flex-1 py-4 text-center text-sm font-semibold text-indigo-400 border-b-2 border-indigo-500 tab-btn active" data-tab="uploads"><i class="fa-solid fa-upload block mb-1 text-lg"></i> Produit</button>
+            <button onclick="switchTab('elements')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="elements"><i class="fa-solid fa-shapes block mb-1 text-lg"></i> Éléments</button>
+            <button onclick="switchTab('text')" class="flex-1 py-4 text-center text-sm font-semibold text-gray-500 hover:text-indigo-400 tab-btn" data-tab="text"><i class="fa-solid fa-font block mb-1 text-lg"></i> Texte</button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 md:p-5 relative">
-            <div id="ai-loader" class="hidden absolute inset-0 bg-gray-900/90 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
-                <i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-500 mb-2"></i>
-                <p class="text-xs font-semibold text-gray-300">IA en cours...</p>
+        <div class="flex-1 overflow-y-auto p-5 relative">
+             <div id="ai-loader" class="hidden absolute inset-0 bg-gray-900/90 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+                <i class="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500 mb-3"></i>
+                <p class="text-sm font-semibold text-gray-300">L'IA détoure votre produit...</p>
             </div>
 
             <div id="panel-uploads" class="tab-content">
-                <label class="block w-full p-4 md:p-6 border-2 border-dashed border-gray-700 rounded-xl text-center cursor-pointer hover:border-indigo-500 hover:bg-gray-800 transition group">
-                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-600 group-hover:text-indigo-400 mb-2"></i>
-                    <span class="block text-xs font-medium text-gray-400 uppercase tracking-widest">Importer Image</span>
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">Importer Image</h2>
+                <label class="block w-full p-6 border-2 border-dashed border-gray-700 rounded-xl text-center cursor-pointer hover:border-indigo-500 hover:bg-gray-800 transition group">
+                    <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-600 group-hover:text-indigo-400 transition mb-3"></i>
+                    <span class="block text-sm font-medium text-gray-400">Cliquez pour importer</span>
                     <input type="file" id="imgLoader" accept="image/*">
                 </label>
-                <button onclick="removeBackgroundAI()" class="w-full mt-4 py-3 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-700 transition shadow-lg">
-                    Retirer le background (IA)
-                </button>
-            </div>
-
-            <div id="panel-elements" class="tab-content hidden space-y-6">
-                <div>
-                    <h3 class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Couleur Arrière-Plan</h3>
-                    <div class="flex gap-3 items-center bg-gray-800 p-2 rounded-lg border border-gray-700">
-                        <input type="color" id="bg-color-picker" onchange="setCanvasColor(this.value)" class="h-8 w-8 rounded cursor-pointer bg-transparent" value="#202020">
-                        <span class="text-xs text-gray-400">Fond Uni</span>
-                    </div>
-                </div>
-
-                <div>
-                    <h3 class="text-[10px] uppercase tracking-widest text-gray-500 mb-3 border-t border-gray-800 pt-4">Ajouter Formes</h3>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="addShape('rect')" class="shape-btn bg-gray-800 p-2 rounded-lg border border-gray-700 flex flex-col items-center gap-1">
-                            <div class="w-4 h-4 bg-indigo-500 rounded-sm"></div>
-                            <span class="text-[9px] text-gray-400">Carré</span>
-                        </button>
-                        <button onclick="addShape('circle')" class="shape-btn bg-gray-800 p-2 rounded-lg border border-gray-700 flex flex-col items-center gap-1">
-                            <div class="w-4 h-4 bg-indigo-500 rounded-full"></div>
-                            <span class="text-[9px] text-gray-400">Rond</span>
-                        </button>
-                        <button onclick="addShape('triangle')" class="shape-btn bg-gray-800 p-2 rounded-lg border border-gray-700 flex flex-col items-center gap-1">
-                            <i class="fa-solid fa-play text-indigo-500 -rotate-90 text-[10px]"></i>
-                            <span class="text-[9px] text-gray-400">Triangle</span>
-                        </button>
-                    </div>
+                
+                <div class="mt-8 p-4 bg-gray-800 rounded-xl border border-gray-700">
+                    <h3 class="font-bold text-sm text-indigo-400 mb-2"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Option IA Magic</h3>
+                    <p class="text-xs text-gray-400 mb-4 leading-relaxed">Sélectionnez votre image sur le canvas pour retirer le fond automatiquement.</p>
+                    <button onclick="removeBackgroundAI()" class="w-full py-3 bg-indigo-600 text-white rounded-lg font-bold text-sm hover:bg-indigo-700 transition shadow-lg">
+                        Retirer le background
+                    </button>
                 </div>
             </div>
 
-            <div id="panel-text" class="tab-content hidden space-y-4">
-                 <button onclick="addText()" class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold text-xs border border-gray-700">
-                    <i class="fa-solid fa-plus mr-2"></i> Ajouter Titre
+            <div id="panel-elements" class="tab-content hidden">
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">Couleur d'Arrière-Plan</h2>
+                <div class="flex gap-3 mb-6 items-center bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <input type="color" id="bg-color-picker" onchange="setCanvasColor(this.value)" class="h-10 w-10 rounded cursor-pointer bg-transparent" value="#202020">
+                    <span class="text-sm text-gray-400">Choisir une couleur unie</span>
+                </div>
+
+                <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest border-t border-gray-800 pt-6">Ajouter des Formes</h2>
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="addShape('rect')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <div class="w-6 h-4 bg-indigo-500 rounded-sm"></div>
+                        <span class="text-[10px] text-gray-400">Carré</span>
+                    </button>
+                    <button onclick="addShape('circle')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <div class="w-5 h-5 bg-indigo-500 rounded-full"></div>
+                        <span class="text-[10px] text-gray-400">Rond</span>
+                    </button>
+                    <button onclick="addShape('triangle')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-play text-indigo-500 -rotate-90"></i>
+                        <span class="text-[10px] text-gray-400">Triangle</span>
+                    </button>
+                    <button onclick="addShape('star')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-star text-indigo-500"></i>
+                        <span class="text-[10px] text-gray-400">Étoile</span>
+                    </button>
+                     <button onclick="addShape('line')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <div class="w-6 h-1 bg-indigo-500"></div>
+                        <span class="text-[10px] text-gray-400">Ligne</span>
+                    </button>
+                    <button onclick="addShape('hexagon')" class="shape-btn bg-gray-800 p-3 rounded-lg border border-gray-700 flex flex-col items-center justify-center gap-2">
+                        <i class="fa-solid fa-cube text-indigo-500"></i>
+                        <span class="text-[10px] text-gray-400">Hexagone</span>
+                    </button>
+                </div>
+                
+                <div id="shape-options" class="hidden mt-6 bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <label class="text-xs font-bold text-gray-500 mb-2 block">Couleur de la forme</label>
+                    <input type="color" onchange="updateShapeColor(this.value)" class="w-full h-8 rounded cursor-pointer">
+                </div>
+            </div>
+
+            <div id="panel-text" class="tab-content hidden">
+                 <h2 class="font-bold text-gray-200 mb-4 text-xs uppercase tracking-widest">Éditer Texte</h2>
+                 <button onclick="addText()" class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold text-sm hover:bg-gray-700 transition mb-6 border border-gray-700">
+                    <i class="fa-solid fa-plus mr-2"></i> Ajouter un titre
                 </button>
-                <div id="text-options" class="hidden space-y-4 border-t border-gray-800 pt-4">
-                    <select id="font-family" onchange="updateTextProp('fontFamily', this.value)" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-700 text-xs outline-none focus:border-indigo-500">
-                        <option value="Montserrat">Montserrat</option>
-                        <option value="Anton">Anton</option>
-                        <option value="Pacifico">Pacifico</option>
-                        <option value="Bebas Neue">Bebas Neue</option>
-                    </select>
-                    <input type="range" id="font-size" min="10" max="150" value="40" oninput="updateTextProp('fontSize', this.value)" class="w-full accent-indigo-500">
+
+                <div id="text-options" class="hidden space-y-5 border-t border-gray-800 pt-5">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">Police d'écriture</label>
+                        <select id="font-family" onchange="updateTextProp('fontFamily', this.value)" class="w-full bg-gray-800 text-white p-2 rounded border border-gray-700 text-sm focus:border-indigo-500 outline-none">
+                            <option value="Montserrat" style="font-family: 'Montserrat'">Montserrat (Moderne)</option>
+                            <option value="Open Sans" style="font-family: 'Open Sans'">Open Sans (Classique)</option>
+                            <option value="Roboto" style="font-family: 'Roboto'">Roboto (Standard)</option>
+                            <option value="Playfair Display" style="font-family: 'Playfair Display'">Playfair (Luxe)</option>
+                            <option value="Anton" style="font-family: 'Anton'">Anton (Impact)</option>
+                            <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue (Poster)</option>
+                            <option value="Oswald" style="font-family: 'Oswald'">Oswald (Condensed)</option>
+                            <option value="Pacifico" style="font-family: 'Pacifico'">Pacifico (Manuscrit)</option>
+                            <option value="Lobster" style="font-family: 'Lobster'">Lobster (Fun)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">Couleur Texte</label>
+                        <input type="color" id="text-color" onchange="updateTextProp('fill', this.value)" class="h-10 w-full rounded bg-transparent cursor-pointer" value="#ffffff">
+                    </div>
+
+                    <div>
+                         <label class="text-xs font-bold text-gray-500 mb-2 block">Taille</label>
+                         <input type="range" id="font-size" min="10" max="150" value="40" oninput="updateTextProp('fontSize', this.value)" class="w-full accent-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 mb-2 block">Style</label>
+                        <div class="flex gap-2">
+                            <button onclick="toggleTextStyle('fontWeight', 'bold')" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 font-bold border border-gray-700">Gras</button>
+                            <button onclick="toggleTextStyle('fontStyle', 'italic')" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 italic border border-gray-700">Italique</button>
+                            <button onclick="toggleShadow()" class="flex-1 py-2 bg-gray-800 rounded hover:bg-gray-700 border border-gray-700"><i class="fa-solid fa-cloud"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </aside>
 
-    <main class="flex-1 bg-gray-950 flex items-center justify-center p-4 md:p-8 overflow-hidden relative">
-        <div id="canvas-container-wrapper" class="canvas-shadow relative">
+    <main class="flex-1 bg-gray-950 flex items-center justify-center p-8 overflow-hidden relative">
+        <div class="canvas-shadow">
             <canvas id="c"></canvas>
         </div>
-        <p class="absolute bottom-2 right-4 text-[9px] text-gray-700 uppercase tracking-widest opacity-50">Synapse Studio Engine</p>
+        <p class="absolute bottom-4 text-gray-600 text-xs">Synapse Studio v2.0 • Powered by AI</p>
     </main>
 </div>
 
 <script>
-    const REMOVE_BG_API_KEY = "CRpcu2fPNT9dQDsCW2Z9jU9E"; 
-    let canvas;
+    // --- CONFIGURATION ---
+    const REMOVE_BG_API_KEY = "CRpcu2fPNT9dQDsCW2Z9jU9E"; // ⚠️ METTRE TA CLÉ ICI
 
-    function initCanvas() {
-        canvas = new fabric.Canvas('c', { 
-            backgroundColor: '#202020',
-            preserveObjectStacking: true 
-        });
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-    }
+    // --- INITIALISATION ---
+    const canvas = new fabric.Canvas('c', { width: 800, height: 800, backgroundColor: '#202020' });
 
-    // --- FONCTION DE REDIMENSIONNEMENT DYNAMIQUE ---
     function resizeCanvas() {
-        const mainElement = document.querySelector('main');
-        if (!mainElement) return;
-
-        const padding = window.innerWidth < 768 ? 20 : 60;
-        const maxWidth = mainElement.clientWidth - padding;
-        const maxHeight = mainElement.clientHeight - padding;
-        
-        // Taille virtuelle du design (800x800)
-        const designSize = 800;
-        const scale = Math.min(maxWidth / designSize, maxHeight / designSize);
-        
-        canvas.setDimensions({ 
-            width: designSize * scale, 
-            height: designSize * scale 
-        });
-        canvas.setZoom(scale);
+        const container = document.querySelector('main');
+        const scale = Math.min((container.clientWidth - 100) / 800, (container.clientHeight - 100) / 800);
+        const finalScale = scale > 1 ? 1 : (scale < 0.4 ? 0.4 : scale);
+        canvas.setDimensions({ width: 800 * finalScale, height: 800 * finalScale });
+        canvas.setZoom(finalScale);
         canvas.renderAll();
     }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-    document.addEventListener('DOMContentLoaded', initCanvas);
+    // --- GESTION SELECTION ---
+    canvas.on('selection:created', handleSelection);
+    canvas.on('selection:updated', handleSelection);
+    canvas.on('selection:cleared', () => {
+        document.getElementById('text-options').classList.add('hidden');
+        document.getElementById('shape-options').classList.add('hidden');
+    });
 
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById(`panel-${tab}`).classList.remove('hidden');
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active', 'text-indigo-400', 'border-indigo-500');
-            btn.classList.add('text-gray-500');
-        });
-        const active = document.querySelector(`[data-tab="${tab}"]`);
-        active.classList.add('active', 'text-indigo-400', 'border-b-2', 'border-indigo-500');
-    }
-
-    // Gestion de la sélection
-    canvas && canvas.on('selection:created', (e) => handleSelection(e.selected[0]));
-    canvas && canvas.on('selection:updated', (e) => handleSelection(e.selected[0]));
-    canvas && canvas.on('selection:cleared', () => document.getElementById('text-options').classList.add('hidden'));
-
-    function handleSelection(obj) {
+    function handleSelection(e) {
+        const obj = e.selected[0];
+        // Gestion Texte
         if (obj && obj.type === 'i-text') {
             document.getElementById('text-options').classList.remove('hidden');
+            document.getElementById('shape-options').classList.add('hidden');
+            document.getElementById('font-family').value = obj.fontFamily;
+            document.getElementById('text-color').value = obj.fill;
+            document.getElementById('font-size').value = obj.fontSize;
             switchTab('text');
+        } 
+        // Gestion Formes
+        else if (obj && (obj.type === 'rect' || obj.type === 'circle' || obj.type === 'triangle' || obj.type === 'polygon' || obj.type === 'path')) {
+            document.getElementById('shape-options').classList.remove('hidden');
+            document.getElementById('text-options').classList.add('hidden');
+            switchTab('elements');
+        }
+        else {
+            document.getElementById('text-options').classList.add('hidden');
+            document.getElementById('shape-options').classList.add('hidden');
         }
     }
 
+    // --- OUTILS ---
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(`panel-${tab}`).classList.remove('hidden');
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.className = btn.className.replace('active text-indigo-400 border-indigo-500', 'text-gray-500'));
+        const active = document.querySelector(`[data-tab="${tab}"]`);
+        active.className = active.className.replace('text-gray-500', 'active text-indigo-400 border-b-2 border-indigo-500');
+    }
+
+    // 1. GESTION COULEUR FOND
+    function setCanvasColor(color) {
+        canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
+    }
+
+    // 2. GESTION FORMES
+    function addShape(type) {
+        let shape;
+        const common = { left: 400, top: 400, fill: '#6366f1', originX: 'center', originY: 'center' };
+        
+        if (type === 'rect') shape = new fabric.Rect({ ...common, width: 100, height: 100 });
+        if (type === 'circle') shape = new fabric.Circle({ ...common, radius: 50 });
+        if (type === 'triangle') shape = new fabric.Triangle({ ...common, width: 100, height: 100 });
+        if (type === 'line') shape = new fabric.Rect({ ...common, width: 200, height: 5 });
+        
+        // Etoile (Polygone)
+        if (type === 'star') {
+            const points = [ {x:0,y:-50}, {x:14,y:-15}, {x:50,y:-15}, {x:23,y:7}, {x:34,y:40}, {x:0,y:20}, {x:-34,y:40}, {x:-23,y:7}, {x:-50,y:-15}, {x:-14,y:-15} ];
+            shape = new fabric.Polygon(points, common);
+        }
+        // Hexagone
+        if (type === 'hexagon') {
+             const points = [{x: 50, y: 0}, {x: 100, y: 25}, {x: 100, y: 75}, {x: 50, y: 100}, {x: 0, y: 75}, {x: 0, y: 25}];
+             shape = new fabric.Polygon(points, common);
+        }
+
+        canvas.add(shape).setActiveObject(shape);
+    }
+
+    function updateShapeColor(color) {
+        const obj = canvas.getActiveObject();
+        if(obj) { obj.set('fill', color); canvas.renderAll(); }
+    }
+
+    // 3. UPLOAD & IA
+    document.getElementById('imgLoader').onchange = function(e) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const imgObj = new Image();
+            imgObj.src = event.target.result;
+            imgObj.onload = function() {
+                const img = new fabric.Image(imgObj);
+                if(img.width > 500) img.scaleToWidth(500);
+                canvas.centerObject(img).add(img).setActiveObject(img);
+            }
+        };
+        reader.readAsDataURL(e.target.files[0]);
+        e.target.value = '';
+    };
+
+    // 4. TEXTE
     function addText() {
-        const text = new fabric.IText('Texte', {
-            left: 400, top: 400, fontFamily: 'Montserrat', fill: '#ffffff', fontSize: 60, originX: 'center', originY: 'center', fontWeight: 'bold'
+        const text = new fabric.IText('Double-cliquez', {
+            left: canvas.width/2, top: canvas.height/2,
+            fontFamily: 'Montserrat', fill: '#ffffff', fontSize: 60,
+            originX: 'center', originY: 'center', fontWeight: 'bold'
         });
         canvas.add(text).setActiveObject(text);
     }
@@ -211,67 +298,75 @@
         if(obj && obj.type === 'i-text') { obj.set(prop, val); canvas.renderAll(); }
     }
 
-    function setCanvasColor(color) {
-        canvas.setBackgroundColor(color, canvas.renderAll.bind(canvas));
+    function toggleTextStyle(prop, val) {
+        const obj = canvas.getActiveObject();
+        if(obj && obj.type === 'i-text') {
+            obj.set(prop, obj.get(prop) === val ? 'normal' : val);
+            canvas.renderAll();
+        }
     }
 
-    function addShape(type) {
-        let shape;
-        const common = { left: 400, top: 400, fill: '#6366f1', originX: 'center', originY: 'center' };
-        if (type === 'rect') shape = new fabric.Rect({ ...common, width: 200, height: 200 });
-        if (type === 'circle') shape = new fabric.Circle({ ...common, radius: 100 });
-        if (type === 'triangle') shape = new fabric.Triangle({ ...common, width: 200, height: 200 });
-        canvas.add(shape).setActiveObject(shape);
-    }
-
-    document.getElementById('imgLoader').onchange = function(e) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            fabric.Image.fromURL(event.target.result, (img) => {
-                img.scaleToWidth(400);
-                canvas.centerObject(img).add(img).setActiveObject(img);
-            });
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
+    // 5. CALQUES & OUTILS
     function deleteSelected() {
         const obj = canvas.getActiveObject();
         if(obj) { canvas.remove(obj); canvas.discardActiveObject(); canvas.renderAll(); }
     }
+    
+    function bringToFront() {
+        const obj = canvas.getActiveObject();
+        if(obj) { obj.bringToFront(); canvas.renderAll(); }
+    }
+    
+    function sendToBack() {
+         const obj = canvas.getActiveObject();
+        if(obj) { obj.sendToBack(); canvas.renderAll(); }
+    }
+
+    function toggleShadow() {
+        const obj = canvas.getActiveObject();
+        if(!obj) return alert("Sélectionnez un objet !");
+        obj.set('shadow', obj.shadow ? null : new fabric.Shadow({ color: 'rgba(0,0,0,0.5)', blur: 30, offsetX: 15, offsetY: 15 }));
+        canvas.renderAll();
+    }
 
     function saveImage() {
-        const currentZoom = canvas.getZoom();
-        canvas.setZoom(1); // Export en taille réelle
-        const dataURL = canvas.toDataURL({ format: 'png', multiplier: 2 });
-        canvas.setZoom(currentZoom); // Remet le zoom responsive
         const link = document.createElement('a');
         link.download = 'synapse-creation.png';
-        link.href = dataURL;
+        canvas.setZoom(1); 
+        link.href = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+        resizeCanvas();
         link.click();
     }
 
     async function removeBackgroundAI() {
         const obj = canvas.getActiveObject();
         if(!obj || obj.type !== 'image') return alert("Sélectionnez une image !");
+        
         document.getElementById('ai-loader').classList.remove('hidden');
         try {
             const data = obj.toDataURL({format: 'png'});
             const blob = await (await fetch(data)).blob();
             const formData = new FormData();
             formData.append('image_file', blob);
+            
             const res = await fetch('https://api.remove.bg/v1.0/removebg', {
-                method: 'POST', headers: { 'X-Api-Key': REMOVE_BG_API_KEY }, body: formData
+                method: 'POST',
+                headers: { 'X-Api-Key': REMOVE_BG_API_KEY },
+                body: formData
             });
-            if(!res.ok) throw new Error();
-            const url = URL.createObjectURL(await res.blob());
+            
+            if(!res.ok) throw new Error('Erreur API');
+            
+            const blobRes = await res.blob();
+            const url = URL.createObjectURL(blobRes);
+            
             fabric.Image.fromURL(url, (newImg) => {
                 newImg.set({ left: obj.left, top: obj.top, scaleX: obj.scaleX, scaleY: obj.scaleY });
                 canvas.remove(obj).add(newImg).setActiveObject(newImg);
                 document.getElementById('ai-loader').classList.add('hidden');
             });
         } catch(e) {
-            alert("Erreur IA : Vérifiez votre clé API");
+            alert("Erreur IA : Vérifiez votre clé API.");
             document.getElementById('ai-loader').classList.add('hidden');
         }
     }
